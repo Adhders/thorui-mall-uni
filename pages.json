@@ -294,7 +294,8 @@
 				}
 			}
 
-		}, {
+		},
+		{
 			"path": "pages/index/goodsEvaluate/goodsEvaluate",
 			"style": {
 				"navigationBarTitleText": "商品评价",
@@ -386,8 +387,17 @@
 					"bounce": "vertical"
 				}
 			}
-
-		}, {
+		},
+		{
+			"path": "pages/my/evaluateList/evaluateList",
+			"style": {
+				"navigationBarTitleText": "评价晒单",
+				"app-plus": {
+					"bounce": "vertical"
+				}
+			}
+		},
+		{
 			"path": "pages/my/addEvaluate/addEvaluate",
 			"style": {
 				"navigationBarTitleText": "评价晒单",

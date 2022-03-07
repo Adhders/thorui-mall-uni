@@ -12,7 +12,7 @@
 						</view>
 						<view class="tui-addr">
 							<view class="tui-addr-tag">默认</view>
-							<text>{{address.detailInfo}}</text>
+							<text>{{address.provinceName + address.cityName + address.countyName + address.detailInfo}}</text>
 						</view>
 					</view>
 					<view class="tui-none-addr" v-else>

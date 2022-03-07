@@ -1,12 +1,13 @@
 <template>
 	<view class="container">
-		<view class="tui-order-header" @tap="switchStatus">
+		<view class="tui-order-header">
 			<!-- <image :src="webURL+'img_detail_bg.png'" mode="widthFix" class="tui-img-bg"></image> -->
 			<view class="tui-header-content">
 				<view>
 					<view class="tui-status-text">{{getStatusText(status)}}</view>
 					<view class="tui-reason"><text class="tui-reason-text">{{getReason(status)}}</text>
-						<tui-countdown :time="1800" color="rgba(254,254,254,0.75)" colonColor="rgba(254,254,254,0.75)" borderColor="transparent"
+						<tui-countdown :time="getTime(order.create_time)" color="rgba(254,254,254,0.75)"
+						 colonColor="rgba(254,254,254,0.75)" borderColor="transparent" @end="onEnd(order)"
 						 backgroundColor="transparent" v-if="status===1"></tui-countdown>
 					</view>
 				</view>
@@ -26,8 +27,8 @@
 			<view class="tui-flex-box">
 				<image :src="webURL+'img_order_address3x.png'" class="tui-icon-img"></image>
 				<view class="tui-addr">
-					<view class="tui-addr-userinfo">张一<text class="tui-addr-tel">18378849962</text></view>
-					<view class="tui-addr-text">广东省广州市海珠区阅江西路222号鲜卑路16巷吉安花园 2栋106</view>
+					<view class="tui-addr-userinfo">{{address.userName}}<text class="tui-addr-tel">{{address.telNumber | formatNumber}}</text></view>
+					<view class="tui-addr-text">{{ address.provinceName + address.cityName + address.countyName + address.detailInfo  }}</view>
 				</view>
 			</view>
 		</tui-list-cell>
@@ -71,7 +72,6 @@
 						<view class="tui-symbol">+</view>
 						<view>￥{{order.shipping_fee.toFixed(2)}}</view>
 					</view>
-
 				</view>
 				<view class="tui-size32">
 					<view class="tui-goods-price tui-primary-color">
@@ -101,11 +101,11 @@
 <!--				</view>-->
 				<view class="tui-order-flex">
 					<view class="tui-item-title">创建时间:</view>
-					<view class="tui-item-content">2019-05-26 10:36</view>
+					<view class="tui-item-content">{{order.create_time | formatDate}}</view>
 				</view>
-				<view class="tui-order-flex">
+				<view class="tui-order-flex" v-if="order.payment_time">
 					<view class="tui-item-title">付款时间:</view>
-					<view class="tui-item-content">2019-05-26 10:44</view>
+					<view class="tui-item-content">{{order.payment_time | formatDate}}</view>
 				</view>
 				<view class="tui-order-flex" v-if="order.note">
 					<view class="tui-item-title">订单备注:</view>
@@ -123,21 +123,67 @@
 		</view>
 		<view class="tui-safe-area"></view>
 		<view class="tui-tabbar tui-order-btn">
-			<!-- <view class="tui-btn-mr">
-				<tui-button type="black" :plain="true" width="152rpx" height="56rpx" :size="26" shape="circle">删除订单</tui-button>
-			</view> -->
-			<view class="tui-btn-mr">
-				<tui-button type="black" :plain="true" width="152rpx" height="56rpx" :size="26" shape="circle" @click="refund">申请售后</tui-button>
-			</view>
-			<view class="tui-btn-mr">
-				<tui-button type="danger" :plain="true" width="152rpx" height="56rpx" :size="26" shape="circle" @click="btnPay">立即支付</tui-button>
-			</view>
+			<block v-if="order.status==='交易关闭'">
+				<view class="tui-btn-mr">
+					<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @tap="onDelete(order)">删除订单</tui-button>
+				</view>
+			</block>
+			<block v-if="order.status==='待支付'">
+				<view class="tui-btn-mr">
+					<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @tap="onDelete(order)">取消订单</tui-button>
+				</view>
+				<view class="tui-btn-mr">
+					<tui-button type="danger" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="pay(order)">去支付</tui-button>
+				</view>
+			</block>
+			<block v-if="order.status==='待发货'">
+				<view class="tui-btn-mr">
+					<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @tap="">申请退款</tui-button>
+				</view>
+				<view class="tui-btn-mr">
+					<tui-button type="danger" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="">催发货</tui-button>
+				</view>
+			</block>
+			<block v-if="order.status==='待收货'">
+				<view class="tui-btn-mr">
+					<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="">申请退款</tui-button>
+				</view>
+				<view class="tui-btn-mr">
+					<tui-button type="black"  plain width="152rpx" height="56rpx" :size="26" shape="circle">再次购买</tui-button>
+				</view>
+				<view class="tui-btn-mr">
+					<tui-button type="danger" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="onReceipt(order)">确认收货</tui-button>
+				</view>
+			</block>
+			<block v-if="order.status==='交易完成'">
+				<view class="tui-btn-mr">
+					<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="onReceipt(order)">退换/售后</tui-button>
+				</view>
+				<view class="tui-btn-mr">
+					<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="addEvaluate">追加评价</tui-button>
+				</view>
+				<view class="tui-btn-mr">
+					<tui-button type="danger"  plain width="152rpx" height="56rpx" :size="26" shape="circle">再次购买</tui-button>
+				</view>
+			</block>
+			<block v-if="order.status==='待评价'">
+				<view class="tui-btn-mr">
+					<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="onReceipt(order)">退换/售后</tui-button>
+				</view>
+				<view class="tui-btn-mr">
+					<tui-button type="black"  plain width="152rpx" height="56rpx" :size="26" shape="circle">再次购买</tui-button>
+				</view>
+				<view class="tui-btn-mr">
+					<tui-button type="danger" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="addEvaluate">评价</tui-button>
+				</view>
+			</block>
 		</view>
 		<t-pay-way :show="show" @close="popupClose"></t-pay-way>
 	</view>
 </template>
 
 <script>
+	import utils from "@/utils/util.js"
 	import tPayWay from "@/components/views/t-pay-way/t-pay-way"
 	export default {
 		components: {
@@ -145,10 +191,18 @@
 		},
 		data() {
 			return {
-				webURL: "https://system.chuangbiying.com/static/images/mall/order",
+				webURL: "https://system.chuangbiying.com/static/images/mall/order/",
 				//1-待付款 2-付款成功 3-待收货 4-订单已完成 5-交易关闭
 				status: 2,
 				show: false,
+				address: {
+					userName: '',
+					cityName: '',
+					telNumber: '',
+					countyName: '',
+					provinceName: '',
+					detailInfo: ''
+				},
 				order: {
 					note: '',
 					discount: 0.00,
@@ -161,9 +215,17 @@
 		},
 		onLoad(option){
 			this.order = this.$store.state.targetOrder
+			this.status = this.getStatus(this.order.status)
+			this.address = this.order.address
 			console.log('option', this.order)
 		},
 		filters: {
+			formatNumber(v){
+				return utils.formatNumber(v)
+			},
+			formatDate(v){
+				return utils.formatDate("y-m-d h:i:s", v)
+			},
 			getPrice(price) {
 				price = price || 0;
 				return price.toFixed(2)
@@ -175,26 +237,60 @@
 				})
 				return str.slice(0,-1)
 			},
+
 		},
 		methods: {
+			getStatus: function(status){
+				const statusList = [
+					{status: '待支付'}, {status: '待发货'}, {status: '待收货'},
+					{status: '待评价'}, {status: '交易完成'}, {status: '交易关闭'}
+				]
+				return statusList.findIndex((o)=>{
+					return o.status===status})
+			},
+			getTime(time){
+				const expireTime = 24*60*60*1000 //一天后过期
+				let t1 = Date.parse(new Date(time)) + expireTime
+				let t2 = Date.parse(new Date())
+				return (t1-t2)/1000
+			},
 			getImg: function(status) {
 				return this.webURL + ["img_order_payment3x.png", "img_order_send3x.png", "img_order_received3x.png",
-					"img_order_signed3x.png", "img_order_closed3x.png"
-				][status - 1]
+					"img_order_signed3x.png", "img_order_signed3x.png",  "img_order_closed3x.png"
+				][status]
 			},
 			getStatusText: function(status) {
-				return ["等待您付款", "付款成功", "待收货", "订单已完成", "交易关闭"][status - 1]
+				return ["等待您付款", "付款成功", "待收货", "待评价", "交易完成", "交易关闭"][status]
 			},
 			getReason: function(status) {
-				return ["剩余时间", "等待卖家发货", "还剩X天XX小时自动确认", "", "超时未付款，订单自动取消"][status - 1]
-			},
-			switchStatus() {
-				let status = this.status + 1
-				this.status = status > 5 ? 1 : status
-				this.tui.toast("状态切换成功")
+				return ["剩余时间", "等待卖家发货", "还剩X天XX小时自动确认", "", "", "超时未付款，订单自动取消"][status]
 			},
 			logistics() {
 				this.tui.href("/pages/my/logistics/logistics")
+			},
+			onEnd(order){
+				this.tui.toast('订单已失效')
+				this.cancelOrder(order)
+			},
+			cancelOrder(order) {
+				let url = '/closeOrder_miniProg/' + order.orderNum
+				this.tui.request(url).then(
+					(res)=>{
+						console.log('res', res)
+						if(res.code===204){
+							url = '/updateOrder/' + order.orderNum + '/' + 'status'
+							this.tui.request(url, 'PUT', {status : "交易关闭"}).then(
+								(res)=>{
+									if(res.code==='0'){
+										let index =  this.orderList.findIndex((o)=>{ return o.orderNum === order.orderNum})
+										this.orderList[index].status = "交易关闭"
+                                        this.switchTab(this.currentTab)
+									}
+							})
+						}else{
+							this.tui.toast('取消失败，请稍后再试')
+						}
+				})
 			},
 			btnPay() {
 				this.show = true
@@ -449,7 +545,6 @@
 		font-weight: 500;
 	}
 
-
 	.tui-primary-color {
 		color: #EB0909;
 	}
@@ -462,19 +557,8 @@
 		position: relative;
 		font-size: 28rpx;
 		line-height: 28rpx;
-		padding-left: 12rpx;
 		box-sizing: border-box;
 	}
-
-	/*.tui-order-title::before {*/
-	/*	content: '';*/
-	/*	position: absolute;*/
-	/*	left: 0;*/
-	/*	top: 0;*/
-	/*	border-left: 4rpx solid #EB0909;*/
-	/*	height: 100%;*/
-	/*}*/
-
 	.tui-order-content {
 		width: 100%;
 		padding: 24rpx 30rpx;

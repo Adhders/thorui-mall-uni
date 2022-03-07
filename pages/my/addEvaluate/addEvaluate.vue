@@ -15,10 +15,10 @@
 		<tui-list-cell :hover="false">
 			<view class="tui-img__title">添加图片</view>
 			<tui-upload :serverUrl="action"
-						:formData="formData"
-						:width = width
-						:height = height
-						@complete="onSuccess">
+				:formData="formData"
+				:width = width
+				:height = height
+				@complete="onSuccess">
 			</tui-upload>
 		</tui-list-cell>
 		<view class="tui-check__box">
@@ -40,24 +40,29 @@
 	export default {
 		data() {
 			return {
-				spu_id: 1,
+				mode: '', //first: 第一次评论, 'additional: 追评
+				spu_id: '',
+				index: '',
 				width: '',
 				height: '',
+				orderNum: '',
 				formData: {},
 				bucket_image: 'chuangbiying-review',
 				action: 'http://up-cn-east-2.qiniup.com',
 				goodsImage: 'https://system.chuangbiying.com/static/images/product/1.jpg',
 				postData: {
 					msg: '',
-					specs: '双血统；公母随机',
+					specs: '',
 					name: '',
 					avatar: '',
 					star: 5,
+					imgs: [],
 					anonymous: false,
+					reviewState: [],
 				}
 			}
 		},
-		onLoad(){
+		onLoad(options){
 
 			//将系统宽度px转换为rpx
 			let systemWidth = this.$store.state.width/(uni.upx2px(100)/100)
@@ -74,8 +79,20 @@
                     console.log(error.response)
                 }
             )
-			this.postData.name = this.userInfo.nickName
-			this.postData.avatar = this.userInfo.avatarUrl
+			this.mode = options.mode
+			const order = this.$store.state.targetOrder
+			this.index = order.index? order.index: 0 //对订单中第几个商品进行评价
+			this.orderNum = order.orderNum
+			this.postData.reviewState = JSON.parse(JSON.stringify(order.reviewState))
+			this.postData.reviewState[this.index].count +=1
+			if (this.mode==='first'){
+				let goods = order.goodsList[this.index]
+				this.spu_id = goods.id
+				this.postData.specs = this.getProperty(goods.propertyList)
+				this.postData.name = this.userInfo.nickName
+				this.postData.avatar = this.userInfo.avatarUrl
+			}
+			console.log('postDate', this.postData, this.mode)
 		},
 		computed: {
 			userInfo() {
@@ -86,6 +103,13 @@
 			}
 		},
 		methods: {
+			getProperty(attr) {
+				let str = ''
+				attr.forEach(o=>{
+					str = str + o.value + '，'
+				})
+				return str.slice(0,-1)
+			},
 			change(e) {
 				this.postData.star = e.index
 			},
@@ -95,12 +119,21 @@
 				}
 			},
 			onSubmit(){
-				let url = '/addGoodsReview/' + this.spu_id
-				this.tui.request(url,'POST', this.postData).then(res=>{
-					if(res.code==='0'){
+				const pid = uni.getStorageSync("pid")
+				let url = ''
+				let method = 'POST'
+				if (this.mode==='first'){
+					url = '/addGoodsReview/' + this.spu_id + '/' + pid + '/' +this.orderNum + '/' + this.index
+				}else{
+					method = 'PUT'
+					url = '/updateGoodsReview/' + this.postData.reviewState[this.index].id + '/additional'
+				}
+				this.tui.request(url, method, this.postData).then(res=>{
+					if(res.code==='0') {
+						this.$store.state.targetOrder.reviewState[this.index].count += 1
 						this.tui.toast('评论成功');
-						this.tui.href('/pages/my/myOrder/myOrder')
 					}
+					uni.navigateBack({delta: 1})
 				})
 			}
 		}

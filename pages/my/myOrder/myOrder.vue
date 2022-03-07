@@ -8,7 +8,13 @@
 				<tui-list-cell :hover="false" :lineLeft="false">
 					<view class="tui-goods-title">
 						<view>订单号：{{order.orderNum}}</view>
-						<view class="tui-order-status">{{order.status}}</view>
+						<view class="tui-countdown__box" v-if="order.status==='待支付'">
+							<view class="tui-countdown__title">待付款</view>
+							<view class="tui-flex__center">
+								<tui-countdown :time="getTime(order.create_time)" backgroundColor="transparent" borderColor="transparent" color="#EB0909" colonColor="#EB0909" @end="onEnd(order)"></tui-countdown>
+							</view>
+						</view>
+						<view class="tui-order-status" v-else >{{order.status}}</view>
 					</view>
 				</tui-list-cell>
 				<block v-for="(item,index) in order.goodsList" :key="index">
@@ -38,14 +44,14 @@
 <!--					<view class="tui-btn-ml">-->
 <!--						<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="invoiceDetail">查看发票</tui-button>-->
 <!--					</view>-->
-					<block v-if="order.status==='已取消'">
+					<block v-if="order.status==='交易关闭'">
 						<view class="tui-btn-ml">
 							<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @tap="onDelete(order)">删除订单</tui-button>
 						</view>
 					</block>
 					<block v-if="order.status==='待支付'">
 						<view class="tui-btn-ml">
-							<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @tap="onDelete(order)">取消订单</tui-button>
+							<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @tap="cancelOrder(order)">取消订单</tui-button>
 						</view>
 						<view class="tui-btn-ml">
 							<tui-button type="danger" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="pay(order)">去支付</tui-button>
@@ -74,8 +80,8 @@
 						<view class="tui-btn-ml">
 							<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="onReceipt(order)">退换/售后</tui-button>
 						</view>
-						<view class="tui-btn-ml">
-							<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="addEvaluate">追加评价</tui-button>
+						<view class="tui-btn-ml" v-if="isVisible(order.reviewState)">
+							<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="addEvaluate(order)">追加评价</tui-button>
 						</view>
 						<view class="tui-btn-ml">
 							<tui-button type="danger"  plain width="152rpx" height="56rpx" :size="26" shape="circle">再次购买</tui-button>
@@ -89,7 +95,7 @@
 							<tui-button type="black"  plain width="152rpx" height="56rpx" :size="26" shape="circle">再次购买</tui-button>
 						</view>
 						<view class="tui-btn-ml">
-							<tui-button type="danger" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="addEvaluate">评价</tui-button>
+							<tui-button type="danger" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="addEvaluate(order)">评价</tui-button>
 						</view>
 					</block>
 				</view>
@@ -187,11 +193,24 @@
 			}
 		},
 		methods: {
+			getTime(time){
+				const expireTime = 1*24*60*60*1000 //一天后过期
+				let t1 = Date.parse(new Date(time)) + expireTime
+				let t2 = Date.parse(new Date())
+				return (t1-t2)/1000
+			},
+			isVisible(state){
+				return state.findIndex(o=>{return o.count===1}) !==-1
+			},
 			change(e) {
 				this.currentTab = e.index
 			},
 			onCancel(){
 				this.isShow = false
+			},
+			onEnd(order){
+				this.tui.toast('订单已失效')
+				this.cancelOrder(order)
 			},
 			switchTab(v){
 				switch(v){
@@ -232,11 +251,11 @@
 						console.log('res', res)
 						if(res.code===204){
 							url = '/updateOrder/' + order.orderNum + '/' + 'status'
-							this.tui.request(url, 'PUT', {status : "已取消"}).then(
+							this.tui.request(url, 'PUT', {status : "交易关闭"}).then(
 								(res)=>{
 									if(res.code==='0'){
 										let index =  this.orderList.findIndex((o)=>{ return o.orderNum === order.orderNum})
-										this.orderList[index].status = "已取消"
+										this.orderList[index].status = "交易关闭"
                                         this.switchTab(this.currentTab)
 									}
 							})
@@ -278,7 +297,7 @@
 				this.isShow=true
 			},
 			onConfirm(){
-				this.tui.href('/pages/my/addEvaluate/addEvaluate')
+				this.addEvaluate(this.selectedOrder)
 				this.selectedOrder = null
 				this.selectedImg = ''
 			},
@@ -305,8 +324,18 @@
 			invoiceDetail(){
 				this.tui.href('/pages/my/invoiceDetail/invoiceDetail')
 			},
-			addEvaluate(){
-				this.tui.href('/pages/my/addEvaluate/addEvaluate')
+			addEvaluate(order){
+				let url = ''
+				if (order.goodsList.length>1) {
+					url  = '/pages/my/evaluateList/evaluateList'
+				}else {
+					url = '/pages/my/addEvaluate/addEvaluate'
+					order.reviewState[0]+=1
+				}
+				this.$store.commit('setTargetOrder', order)
+				uni.navigateTo({
+					url: url
+				})
 			}
 		},
 		onPullDownRefresh() {
@@ -344,6 +373,37 @@
 		overflow: hidden;
 	}
 
+	.tui-countdown__box {
+		width: 228rpx;
+		display: flex;
+		align-items: center;
+
+		color: #fff;
+		background-color: #fff;
+		font-weight: 400;
+		border: 1rpx solid #eb0909;
+		height: 40rpx;
+		border-radius: 30px;
+		overflow: hidden;
+		margin-left: 25rpx;
+	}
+	.tui-countdown__title {
+		width: 100rpx;
+		height: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background-color: #eb0909;
+		flex-shrink: 0;
+		font-size: 24rpx;
+		line-height: 24rpx;
+	}
+	.tui-flex__center {
+		flex: 1;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
 	.tui-goods-title {
 		width: 100%;
 		font-size: 28rpx;
@@ -374,7 +434,7 @@
 
 	.tui-goods-center {
 		flex: 1;
-		padding: 20rpx 8rpx;
+		padding: 20rpx 8rpx 0;
 		box-sizing: border-box;
 	}
 
