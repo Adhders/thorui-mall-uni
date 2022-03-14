@@ -18,13 +18,13 @@
 		</tui-list-cell>
 		<view class="tui-order-item">
 			<tui-list-cell :hover="false" :lineLeft="false"><view class="tui-order-title">订单信息</view></tui-list-cell>
-			<block v-for="(item, index) in 2" :key="index">
+			<block v-for="(item, index) in order.goodsList" :key="index">
 				<tui-list-cell padding="0">
 					<view class="tui-goods-item">
 						<image :src="`https://system.chuangbiying.com/static/images/mall/product/${index + 3}.jpg`" class="tui-goods-img"></image>
 						<view class="tui-goods-center">
-							<view class="tui-goods-name">欧莱雅（LOREAL）奇焕光彩粉嫩透亮修颜霜 30ml（欧莱雅彩妆 BB霜 粉BB 遮瑕疵 隔离）</view>
-							<view class="tui-goods-attr">黑色，50ml</view>
+							<view class="tui-goods-name">{{item.title}}</view>
+							<view class="tui-goods-attr">{{item.propertyList | getProperty}}</view>
 						</view>
 						<view class="tui-price-right">
 							<view>￥298.00</view>
@@ -36,38 +36,27 @@
 		</view>
 		<view class="tui-order-info">
 			<view class="tui-order-content">
-				<view class="tui-order-flex">
-					<view class="tui-item-title">售后类型：</view>
-					<view class="tui-item-content">退货退款</view>
+        <view class="tui-order-flex">
+					<view class="tui-item-title">服务单号：</view>
+					<view class="tui-item-content">{{order.refundNum}}</view>
 				</view>
-				<view class="tui-order-flex">
-					<view class="tui-item-title">付款方式：</view>
-					<view class="tui-item-content">余额</view>
-				</view>
-				<view class="tui-order-flex">
-					<view class="tui-item-title">商品数量：</view>
-					<view class="tui-item-content">4</view>
-				</view>
-				<view class="tui-order-flex">
-					<view class="tui-item-title">退款编号：</view>
-					<view class="tui-item-content">322090091111922</view>
-				</view>
-				<view class="tui-order-flex">
-					<view class="tui-item-title">退款原因：</view>
-					<view class="tui-item-content">买错了</view>
-				</view>
-				<view class="tui-order-flex">
-					<view class="tui-item-title">订单编号：</view>
-					<view class="tui-item-content">329900923328874</view>
-				</view>
-				<view class="tui-order-flex">
+        <view class="tui-order-flex">
 					<view class="tui-item-title">申请时间：</view>
-					<view class="tui-item-content">2020-09-01 20:30:19</view>
+					<view class="tui-item-content">{{order.create_time | formatDate}}</view>
+				</view>
+				<view class="tui-order-flex">
+					<view class="tui-item-title">服务类型：</view>
+					<view class="tui-item-content">{{order.refundType}}</view>
 				</view>
 				<view class="tui-order-flex">
 					<view class="tui-item-title">申请说明:</view>
-					<view class="tui-item-content">重新购买</view>
+					<view class="tui-item-content">{{order.reason}}</view>
 				</view>
+        <view class="tui-order-flex">
+					<view class="tui-item-title">退款方式:</view>
+					<view class="tui-item-content">原支付返还</view>
+				</view>
+
 			</view>
 			<tui-list-view unlined="bottom">
 				<tui-list-cell unlined>
@@ -82,15 +71,36 @@
 </template>
 
 <script>
+import utils from "@/utils/util.js"
 export default {
 	data() {
 		return {
 			webURL: 'https://www.thorui.cn/wx/static/images/mall/order/',
 			//1-退款中 2-退款成功 3-退款失败
 			status: 1,
+      order: null,
 			show: false
 		};
 	},
+  onLoad(){
+    this.order = this.$store.state.targetOrder
+  },
+   filters: {
+			getPrice(price) {
+				price = price || 0;
+				return price.toFixed(2)
+			},
+      formatDate(v){
+				return utils.formatDate("y-m-d h:i:s", v)
+			},
+			getProperty(attr) {
+				let str = ''
+				attr.forEach(o=>{
+					str = str + o.value + '，'
+				})
+				return str.slice(0,-1)
+			}
+  },
 	methods: {}
 };
 </script>
@@ -236,15 +246,6 @@ export default {
 	line-height: 28rpx;
 	padding-left: 12rpx;
 	box-sizing: border-box;
-}
-
-.tui-order-title::before {
-	content: '';
-	position: absolute;
-	left: 0;
-	top: 0;
-	border-left: 4rpx solid #eb0909;
-	height: 100%;
 }
 
 .tui-order-content {

@@ -42,7 +42,7 @@
 			return {
 				mode: '', //first: 第一次评论, 'additional: 追评
 				spu_id: '',
-				index: '',
+				index: 0,
 				width: '',
 				height: '',
 				orderNum: '',
@@ -82,6 +82,7 @@
 			this.mode = options.mode
 			const order = this.$store.state.targetOrder
 			this.index = order.index? order.index: 0 //对订单中第几个商品进行评价
+			console.log('index', order.index, this.index)
 			this.orderNum = order.orderNum
 			this.postData.reviewState = JSON.parse(JSON.stringify(order.reviewState))
 			this.postData.reviewState[this.index].count +=1
@@ -123,14 +124,26 @@
 				let url = ''
 				let method = 'POST'
 				if (this.mode==='first'){
-					url = '/addGoodsReview/' + this.spu_id + '/' + pid + '/' +this.orderNum + '/' + this.index
+					url = '/addGoodsReview/' + this.spu_id + '/' + pid + '/' + this.orderNum + '/' + this.index
 				}else{
 					method = 'PUT'
 					url = '/updateGoodsReview/' + this.postData.reviewState[this.index].id + '/additional'
+					console.log('put', url)
 				}
 				this.tui.request(url, method, this.postData).then(res=>{
 					if(res.code==='0') {
-						this.$store.state.targetOrder.reviewState[this.index].count += 1
+						console.log('res', res)
+						let orderList =  this.$store.state.orderList
+						let index =  orderList.findIndex(o=>{return o.orderNum === this.orderNum})
+						if(this.mode==='first'){
+							orderList[index].reviewState = res.reviewState
+							let findIndex = this.postData.reviewState.findIndex(o=>{return o.count===0})
+							if(findIndex===-1){
+								orderList[index].status='交易完成'
+							}
+						}else{
+							orderList[index].reviewState = this.postData.reviewState
+						}
 						this.tui.toast('评论成功');
 					}
 					uni.navigateBack({delta: 1})

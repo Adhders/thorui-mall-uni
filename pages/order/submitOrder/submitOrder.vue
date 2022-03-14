@@ -145,21 +145,13 @@
 					netCost: 0.00,
 					shipping_fee: 0.00,
 					goodsList: [{
-                        id: "t2020003120",
-                        title: '欧莱雅（LOREAL）奇焕光彩粉嫩透亮修颜霜 30ml（欧莱雅彩妆 BB霜 粉BB 遮瑕疵 隔离）',
-                        defaultImageUrl: 'https://system.chuangbiying.com/static/images/mall/product/3.jpg',
-                        propertyList: [{"name": "颜色", "value": "红色"}, {"name": "容量", "value": "100ml"}],
-                        buyNum: 2,
-                        price: 299.5
-                    }, {
-                            id: 't1020003122',
-                            title: '欧莱雅（LOREAL）',
-                            defaultImageUrl: 'https://system.chuangbiying.com/static/images/mall/product/4.jpg',
-                            propertyList: [{"name": "颜色", "value": "粉色"}, {"name": "容量", "value": "50ml"}],
-                            buyNum: 1,
-                            price: 499
-                        }
-                    ],
+                      id: 1,
+                      title: '欧莱雅（LOREAL）奇焕光彩粉嫩透亮修颜霜 30ml（欧莱雅彩妆 BB霜 粉BB 遮瑕疵 隔离）',
+                      defaultImageUrl: 'https://system.chuangbiying.com/static/images/mall/product/3.jpg',
+                      propertyList: [{"name": "颜色", "value": "红色"}, {"name": "容量", "value": "100ml"}],
+                      buyNum: 2,
+                      price: 299.5
+                  }],
 				},
 				buttons: [
 					{

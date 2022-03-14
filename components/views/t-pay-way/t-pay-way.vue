@@ -105,9 +105,13 @@
 					this.$emit("close",{})
 				}
 			},
-			requestPayment(result){
+			requestPayment(result, order){
 				let _this = this
 				let url = ''
+				let reviewState = []
+				console.log('order', order)
+				order.goodsList.forEach(()=>{reviewState.push({count: 0})})
+				order.reviewState = reviewState
 				wx.requestPayment({
 					appid: result.appid,
 					nonceStr: result.nonceStr,
@@ -116,19 +120,23 @@
 					signType: result.signType,
 					paySign: result.paySign,
 					success: function () {
-						url = '/updateOrder/' + _this.orderNum + '/' + 'status'
+						url = '/updateOrder/' + _this.orderNum + '/' + 'payment'
+						order.status = '待评价'
+						_this.$store.state.orderList.unshift(order)
 						_this.tui.request(url, 'PUT', {status: "待评价"}).then(
 							() => {
 								_this.success = true
 								_this.close()
-								_this.tui.href("/pages/order/success/success")
+								wx.redirectTo({url: "/pages/order/success/success"})
 							})
 					},
-
 					fail: function (err) {
+						_this.initial = false
 						url = '/updateOrder/' + _this.orderNum + '/' + 'paymentInfo'
-						_this.tui.request(url, 'PUT', {paymentInfo : result}).then(()=>{})
-						console.log('err', err)
+						_this.tui.request(url, 'PUT', {paymentInfo : result}).then(
+							()=>{
+								_this.$store.state.orderList.unshift(order)
+						})
 					},
 				})
 			},
@@ -140,19 +148,17 @@
 				if(this.initial){
 					this.orderForm.status = '待支付'
 					this.tui.request(url,'POST', this.orderForm).then((res)=>{
-						console.log('res', res)
 						if(res.code==='0'){
-							this.initial = false
 							this.result = res.result
 							this.orderNum = res.orderNum
-							this.requestPayment(this.result)
+							this.requestPayment(this.result, this.orderForm)
 						}else{
 							this.tui.toast('下单失败，请稍后再试')
 						}
 					})
 				}
 				else{
-					this.requestPayment(this.result)
+					this.requestPayment(this.result, this.orderForm)
 				}
 			}
 		}

@@ -28,12 +28,12 @@
 		},
 		methods: {
 			go(page) {
-				if (page == 1) {
+				if (page === 1) {
 					uni.switchTab({
 						url: "/pages/tabbar/index/index"
 					})
 				} else {
-					this.tui.href("/pages/my/myOrder/myOrder")
+					uni.redirectTo({url:"/pages/my/myOrder/myOrder"})
 				}
 			}
 		}

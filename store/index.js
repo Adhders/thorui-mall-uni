@@ -9,9 +9,7 @@ Vue.use(Vuex)
 const store = new Vuex.Store({
 // #endif
 // #ifdef VUE3
-import {
-	createStore
-} from 'vuex'
+import {createStore} from 'vuex'
 const store = createStore({
 // #endif
 	state: {
@@ -21,7 +19,7 @@ const store = createStore({
 		isLogin: false,
 		//用户信息
 		userInfo: {
-			avatarUrl: 'https://system.chuangbiying.com/static/images/my/mine_def_touxiang_3x.png',
+			avatarUrl: 'https://mmbiz.qpic.cn/mmbiz/icTdbqWNOwNRna42FI242Lcia07jQodd2FJGIYQfG0LAJGFxM4FbnQP6yfMxBgJ0F3YRqJCJ1aPAK2dQagdusBZg/0',
 			phone: '',
 			nickName: '',
 			gender: 0,
@@ -38,7 +36,10 @@ const store = createStore({
 		targetOrder: null,
 		likeList: [],
 		reviewList: [],
+		refundList: [],
 		orderList: [],
+		//1: "待支付",  2: '待发货', 3 : '待收货' 4: '待评价' 5: '退款'
+		orderState: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0},
 		addressList: [],
 		currentReview: []
 	},
@@ -70,11 +71,17 @@ const store = createStore({
 		setAddress(state, addressList){
 			state.addressList = addressList
 		},
+		setOrderState(state, orderState){
+		    state.orderState = orderState
+	    },
 		setTargetOrder(state, order){
 			state.targetOrder = order
 	    },
 		setReviewList(state, reviewList){
 			state.reviewList = reviewList
+		},
+		setRefundList(state, refundList){
+			state.refundList = refundList
 		},
 		setOrderList(state, orderList){
 			state.orderList = orderList

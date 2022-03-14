@@ -69,7 +69,7 @@
 		</view>
 		<view class="tui-content-box">
 			<view class="tui-box tui-order-box">
-				<tui-list-cell :arrow="true" padding="0" :lineLeft="false" @click="href(4)">
+				<tui-list-cell :arrow="true" padding="0" :lineLeft="false" @click="href(4,0)">
 					<view class="tui-cell-header">
 						<view class="tui-cell-title">我的订单</view>
 						<view class="tui-cell-sub">查看全部订单</view>
@@ -107,7 +107,7 @@
 					<view class="tui-order-item" @tap="href(10)">
 						<view class="tui-icon-box">
 							<image src="https://system.chuangbiying.com/static/images/mall/my/icon_tuikuan_3x.png" class="tui-order-icon"></image>
-							<view class="tui-badge tui-badge-red">2</view>
+							<view class="tui-badge tui-badge-red">{{orderState[5]}}</view>
 						</view>
 						<view class="tui-order-text">退款/售后</view>
 					</view>
@@ -224,8 +224,6 @@
 				top: 0, //标题图标距离顶部距离
 				opacity: 0,
 				scrollTop: 0.5,
-				//1: "待支付",  2: '待发货', 3 : '待收货' 4: '待评价'
-				orderState: { 1: 0, 2: 0, 3: 0, 4: 0},
 				pullUpOn: true
 			};
 		},
@@ -254,6 +252,7 @@
 			if(pid){
 				let url = '/queryUserInfo/' + pid
 				this.tui.request(url).then((res)=>{
+          console.log('res', res)
 					if(res.code==='0'){
 						let decoded = jwt.jwt_decode(res.token);
 						console.log(decoded)
@@ -266,6 +265,8 @@
 							data: decoded.pid,
 						})
 						this.$store.commit('login', true)
+            this.$store.commit('setOrderState', res.orderState)
+            console.log('orderState', this.$store.state.orderState)
 						this.$store.commit('setUserInfo', decoded.userInfo)
 					}
 				}).catch(err=>{
@@ -273,28 +274,21 @@
 				})
 			}
 		},
-		onShow: function(e){
-			let url = '/getOrderState/' + uni.getStorageSync("pid")
-			this.tui.request(url).then(
-				(res)=>{
-					if(res.code==='0'){
-						this.orderState = res.orderState
-					}
-				}
-			)
-		},
 		filters: {
 			formatNumber(v){
 				return utils.formatNumber(v)
 			}
 		},
 		computed: {
-		    userInfo(){
+      userInfo(){
 		    	return this.$store.state.userInfo
 			},
 			isLogin(){
 		    	return uni.getStorageSync("pid")
 			},
+      orderState(){
+          return this.$store.state.orderState
+      }
 		},
 		methods: {
 			getPhoneNumber: function(e) {

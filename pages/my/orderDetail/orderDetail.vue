@@ -217,7 +217,6 @@
 			this.order = this.$store.state.targetOrder
 			this.status = this.getStatus(this.order.status)
 			this.address = this.order.address
-			console.log('option', this.order)
 		},
 		filters: {
 			formatNumber(v){

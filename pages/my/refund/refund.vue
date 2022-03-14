@@ -5,17 +5,17 @@
 				<view class="tui-goods-title"><view>商品信息</view></view>
 			</tui-list-cell>
 			<block v-for="(item, index) in order.goodsList" :key="index">
-				<tui-list-cell padding="0" @click="detail">
+				<tui-list-cell padding="0" @click="detail(order)">
 					<view class="tui-goods-item">
 						<image :src="item.defaultImageUrl" class="tui-goods-img"></image>
 						<view class="tui-goods-center">
 							<view class="tui-goods-name">{{item.title}}</view>
-							<view class="tui-goods-attr">{{item.spec}}</view>
+							<view class="tui-goods-attr">{{item.propertyList | getProperty}}</view>
 						</view>
 						<view class="tui-price-right">
-							<view>￥{{item.price}}</view>
-							<view>x{{item.num}}</view>
-						</view>
+								<view>￥{{item.price}}</view>
+								<view>x{{item.buyNum}}</view>
+							</view>
 					</view>
 				</tui-list-cell>
 			</block>
@@ -42,7 +42,8 @@
 					<view class="tui-title">
 						<text>退款金额</text>
 					</view>
-					<input placeholder-class="tui-phcolor" class="tui-input refund_amount" v-model="amount" />
+          <view class="refund_amount">￥</view>
+					<input placeholder-class="tui-phcolor" class="tui-input refund_amount" v-model="ruleForm.refund_fee" />
 <!--						<text class="edit-label" @tap="focus=true">修改金额</text>-->
 				</view>
 			</tui-list-cell>
@@ -95,9 +96,9 @@
 </template>
 
 <script>
-import TuiTextarea from "../../../components/thorui/tui-textarea/tui-textarea";
+// import TuiTextarea from "../../../components/thorui/tui-textarea/tui-textarea";
 export default {
-	components: {TuiTextarea},
+	// components: {TuiTextarea},
 	data() {
 		return {
 			amount: '¥100',
@@ -110,9 +111,9 @@ export default {
 			action: 'http://up-cn-east-2.qiniup.com',
 			ruleForm: {
 				imgs: '',
+        refund_fee: '',
 				description: '',
 				refundType: '我要退货退款',
-				goodsList: '',
 				reason: '',
 			},
 			popupShow: false,
@@ -150,7 +151,8 @@ export default {
 		};
 	},
 	onLoad(option){
-		this.order = JSON.parse(option.order)
+		this.order = this.$store.state.targetOrder
+    this.ruleForm.refund_fee = this.order.netCost
 		//将系统宽度px转换为rpx
 		let systemWidth = this.$store.state.width/(uni.upx2px(100)/100)
 		// 100为页面两边的距离加上图片间隔
@@ -171,13 +173,25 @@ export default {
 			return 150-this.getCount(this.ruleForm.description.length)
 		}
 	},
+  filters: {
+    getProperty(attr) {
+				let str = ''
+				attr.forEach(o=>{
+					str = str + o.value + '，'
+				})
+				return str.slice(0,-1)
+			},
+  },
 	methods: {
 		hidePopup(){
 			this.popupShow = false
 		},
-		detail(){
-			console.log('detail')
-		},
+		detail(order) {
+      this.$store.commit('setTargetOrder', order)
+      uni.navigateTo({
+        url: '/pages/my/orderDetail/orderDetail'
+      })
+    },
 		getCount(count) {
 			const max = Number(this.maxlength)
 			if (count > max) {
@@ -204,13 +218,19 @@ export default {
 			}
 		},
 		onSubmit(){
-			let url = '/addGoodsReview/' + this.spu_id
-			this.tui.request(url,'POST', this.postData).then(res=>{
-				if(res.code==='0'){
-					this.tui.toast('评论成功');
-					this.tui.href('/pages/my/myOrder/myOrder')
-				}
-			})
+      let pid = uni.getStorageSync("pid")
+      let appid = this.$store.state.appid
+      let orderNum = this.order.orderNum
+      let url = '/addRefundOrder/' + pid + '/' + appid + '/' + orderNum
+      this.tui.request(url, 'POST', this.ruleForm).then(
+          (res) =>{
+            console.log('res', res)
+            this.ruleForm.netCost = this.order.netCost
+            this.ruleForm.goodsList = this.order.goodsList
+            this.$store.state.refundList.unshift(this.ruleForm)
+            uni.navigateBack({delta: 1})
+          }
+      )
 		}
 	}
 };
@@ -316,7 +336,7 @@ export default {
 .tui-btn__box{
 	padding: 60rpx 30rpx;
 }
-.tui-input.refund_amount{
+.refund_amount{
 	font-size: 40rpx;
 	font-weight: bold;
 }

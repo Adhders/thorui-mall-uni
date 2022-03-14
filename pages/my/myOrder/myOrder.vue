@@ -1,7 +1,7 @@
 <template>
 	<view class="container">
 		<tui-tab :tabs="tabs" :isFixed="scrollTop>=0" :currentTab="currentTab" selectedColor="#E41F19" sliderBgColor="#E41F19"
-		 @change="change" itemWidth="20%"></tui-tab>
+		 @change="change"></tui-tab>
 		<!--选项卡逻辑自己实现即可，此处未做处理-->
     <tui-loading v-if="loadding"></tui-loading>
 		<view :class="{'tui-order-list':scrollTop>=0}" v-else>

@@ -1,52 +1,125 @@
 <template>
 	<view class="container">
-		<view class="tui-order-list">
-			<view class="tui-order-item" v-for="(model, orderIndex) in 4" :key="orderIndex" @tap="detail">
-				<tui-list-cell :hover="false" :lineLeft="false">
+    <tui-tab :tabs="tabs" :isFixed="scrollTop>=0" :currentTab="currentTab" selectedColor="#E41F19" sliderBgColor="#E41F19"
+		 @change="change"></tui-tab>
+		<!--选项卡逻辑自己实现即可，此处未做处理-->
+    <tui-loading v-if="loadding"></tui-loading>
+		<view class="tui-order-list" v-else>
+			<view class="tui-order-item" v-for="(order, orderIndex) in displayList" :key="orderIndex" @tap="detail(order)">
+        <tui-list-cell :hover="false" :lineLeft="false">
 					<view class="tui-goods-title">
-						<view >2020-09-01 03:01:30</view>
-						<view class="tui-order-status">退款成功</view>
+						<view v-if='currentTab===0'>订单号：{{order.orderNum}}</view>
+						<view v-else>服务单号：{{order.refundNum}}</view>
+						<view></view>
+						<view class="tui-order-status">{{order.status}}</view>
 					</view>
 				</tui-list-cell>
-				<tui-list-cell padding="0" :hover="false">
-					<view class="tui-goods-item">
-						<image src="https://system.chuangbiying.com/static/images/mall/product/4.jpg" class="tui-goods-img"></image>
-						<view class="tui-goods-center">
-							<view class="tui-goods-name">欧莱雅（LOREAL）奇焕光彩粉嫩透亮修颜霜 30ml（欧莱雅彩妆 BB霜 粉BB 遮瑕疵 隔离）</view>
-							<view class="tui-goods-attr">黑色，50ml</view>
+        <block v-for="(item,index) in order.goodsList" :key="index">
+				  <tui-list-cell padding="0" :hover="false">
+          <view class="tui-goods-item">
+							<image :src=item.defaultImageUrl class="tui-goods-img"></image>
+							<view class="tui-goods-center">
+								<view class="tui-goods-name">{{item.title}}</view>
+								<view class="tui-goods-attr">{{item.propertyList | getProperty}}</view>
+							</view>
+							<view class="tui-price-right">
+								<view>￥{{item.price}}</view>
+								<view>x{{item.buyNum}}</view>
+							</view>
 						</view>
-						<view class="tui-price-right">
-							<view>￥298.00</view>
-							<view>x2</view>
-						</view>
-					</view>
 				</tui-list-cell>
+        </block>
 				<tui-list-cell :hover="false" unlined>
-					<view class="tui-goods-price">
-						<view>共2件商品 合计：</view>
-						<view class="tui-size-24">￥</view>
-						<view class="tui-price-large">596</view>
-						<view class="tui-size-24">.00</view>
+          <view class="tui-goods-price">
+						<view>实付：</view>
+						<view class="tui-price-large">￥{{order.netCost}}</view>
+            <view style="margin-left: 10px">退款金额：</view>
+						<view class="tui-price-large tui-order-status">￥{{order.netCost}}</view>
 					</view>
 				</tui-list-cell>
-				<view class="tui-order-btn">
-					<tui-button type="black" plain width="152rpx" height="52rpx" :size="26" shape="circle">查看详情</tui-button>
-				</view>
 			</view>
+      <tui-no-data v-if="displayList.length===0" :fixed="false"
+						 imgUrl="https://system.chuangbiying.com/static/images/index/img_noorder.png">
+				您还没有相关的订单</tui-no-data>
 		</view>
 		<tui-divider width="60%" gradual>没有更多了</tui-divider>
 	</view>
 </template>
 
 <script>
+import utils from "@/utils/util.js"
 export default {
 	data() {
 		return {
-
+			tabs: [ "售后申请",  "处理中", "申请记录"],
+			scrollTop: 0,
+			currentTab: 1,
+			loadding: true,
+			orderList: [],
+			refundList: [],
+      		displayList: [],
 		};
 	},
+  onLoad(){
+    let url = '/getRefundOrders/' + uni.getStorageSync("pid")
+    this.tui.request(url,'GET', undefined, true).then((res)=>{
+      console.log('res', res)
+      this.loadding = false
+      this.refundList = res.refundList
+      // this.$store.commit('setRefundList', res.refundList)
+      this.switchTab(this.currentTab)
+    })
+    url = '/getOrders/' + uni.getStorageSync("pid") + '/refundList'
+    this.tui.request(url,'GET', undefined, true).then((res)=>{
+      console.log('orderList', res)
+      this.orderList = res.orderList
+    })
+  },
+  filters: {
+			getPrice(price) {
+				price = price || 0;
+				return price.toFixed(2)
+			},
+      formatDate(v){
+				return utils.formatDate("y-m-d h:i:s", v)
+			},
+			getProperty(attr) {
+				let str = ''
+				attr.forEach(o=>{
+					str = str + o.value + '，'
+				})
+				return str.slice(0,-1)
+			}
+  },
+  watch: {
+    currentTab(v){
+      this.switchTab(v)
+    }
+	},
 	methods: {
-		detail() {
+    change(e) {
+      this.currentTab = e.index
+    },
+    switchTab(v){
+				switch(v){
+					case 0: {
+						this.displayList = this.orderList
+						break;
+					}
+					case 1: {
+						this.displayList = this.refundList.filter((o)=>{
+							return o.status==="处理中"
+						})
+						break;
+					}
+          case 2: {
+						this.displayList = this.refundList
+						break;
+					}
+				}
+			},
+		detail(order) {
+      this.$store.commit('setTargetOrder', order)
 			this.tui.href('/pages/my/refundDetail/refundDetail')
 		}
 	}
@@ -57,14 +130,14 @@ export default {
 .tui-order-list {
 	width: 100%;
 	padding: 0 25rpx;
+  margin-top: 80rpx;
 	box-sizing: border-box;
 }
 
 .tui-order-item {
-	margin-top: 20rpx;
-	border-radius: 12rpx;
-	box-shadow: 0 5rpx 10rpx 0 rgba(0, 0, 0, 0.06);
-	overflow: hidden;
+  margin-top: 20rpx;
+  border-radius: 10rpx;
+  overflow: hidden;
 }
 
 .tui-goods-title {
@@ -74,8 +147,6 @@ export default {
 	align-items: center;
 	justify-content: space-between;
 }
-
-
 .tui-order-status {
 	color: #eb0909;
 	font-size: 26rpx;
@@ -135,22 +206,12 @@ export default {
 	padding-top: 20rpx;
 }
 
-.tui-color-red {
-	color: #e41f19;
-	padding-right: 30rpx;
-}
-
 .tui-goods-price {
 	width: 100%;
 	display: flex;
 	align-items: flex-end;
 	justify-content: flex-end;
 	font-size: 24rpx;
-}
-
-.tui-size-24 {
-	font-size: 24rpx;
-	line-height: 24rpx;
 }
 
 .tui-price-large {
@@ -165,7 +226,7 @@ export default {
 	align-items: center;
 	justify-content: flex-end;
 	background: #fff;
-	padding: 10rpx 30rpx 20rpx;
+	padding: 0 30rpx 20rpx;
 	box-sizing: border-box;
 }
 </style>

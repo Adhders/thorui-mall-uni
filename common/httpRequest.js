@@ -11,7 +11,6 @@ const tui = {
 		// return 'https://www.thorui.cn'
 		//return 'https://test.thorui.cn'
 		//return 'https://uat.thorui.cn'
-		// return 'https://prod.thorui.cn'
 	},
 	toast: function(text, duration, success) {
 		uni.showToast({
