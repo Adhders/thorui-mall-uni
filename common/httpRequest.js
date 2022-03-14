@@ -6,7 +6,7 @@ import store from '../store'
 const tui = {
 	//接口地址
 	interfaceUrl: function() {
-		return 'http://192.168.1.5:8000'
+		return 'http://192.168.1.40:8000'
 		// return 'http://localhost:8000'
 		// return 'https://www.thorui.cn'
 		//return 'https://test.thorui.cn'

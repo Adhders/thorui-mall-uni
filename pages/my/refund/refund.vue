@@ -152,7 +152,7 @@ export default {
 	},
 	onLoad(option){
 		this.order = this.$store.state.targetOrder
-    this.ruleForm.refund_fee = this.order.netCost
+    	this.ruleForm.refund_fee = this.order.netCost
 		//将系统宽度px转换为rpx
 		let systemWidth = this.$store.state.width/(uni.upx2px(100)/100)
 		// 100为页面两边的距离加上图片间隔
@@ -187,9 +187,9 @@ export default {
 			this.popupShow = false
 		},
 		detail(order) {
-      this.$store.commit('setTargetOrder', order)
-      uni.navigateTo({
-        url: '/pages/my/orderDetail/orderDetail'
+     	 	this.$store.commit('setTargetOrder', order)
+      		uni.navigateTo({
+        	url: '/pages/my/orderDetail/orderDetail'
       })
     },
 		getCount(count) {
@@ -218,19 +218,19 @@ export default {
 			}
 		},
 		onSubmit(){
-      let pid = uni.getStorageSync("pid")
-      let appid = this.$store.state.appid
-      let orderNum = this.order.orderNum
-      let url = '/addRefundOrder/' + pid + '/' + appid + '/' + orderNum
-      this.tui.request(url, 'POST', this.ruleForm).then(
-          (res) =>{
-            console.log('res', res)
-            this.ruleForm.netCost = this.order.netCost
-            this.ruleForm.goodsList = this.order.goodsList
-            this.$store.state.refundList.unshift(this.ruleForm)
-            uni.navigateBack({delta: 1})
-          }
-      )
+     		let pid = uni.getStorageSync("pid")
+			let appid = this.$store.state.appid
+     		let orderNum = this.order.orderNum
+      		let url = '/addRefundOrder/' + pid + '/' + appid + '/' + orderNum
+      		this.tui.request(url, 'POST', this.ruleForm).then(
+                (res) =>{
+            		console.log('res', res)
+					this.ruleForm.netCost = this.order.netCost
+					this.ruleForm.goodsList = this.order.goodsList
+					this.$store.state.refundList.unshift(this.ruleForm)
+					uni.navigateBack({delta: 1})
+				}
+			)
 		}
 	}
 };

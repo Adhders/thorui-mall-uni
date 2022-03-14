@@ -1,22 +1,22 @@
 <template>
 	<view class="container">
-    <tui-tab :tabs="tabs" :isFixed="scrollTop>=0" :currentTab="currentTab" selectedColor="#E41F19" sliderBgColor="#E41F19"
-		 @change="change"></tui-tab>
+		<tui-tab :tabs="tabs" :isFixed="scrollTop>=0" :current="currentTab" selectedColor="#E41F19" sliderBgColor="#E41F19"
+			@change="change"></tui-tab>
 		<!--选项卡逻辑自己实现即可，此处未做处理-->
-    <tui-loading v-if="loadding"></tui-loading>
+    	<tui-loading v-if="loadding"></tui-loading>
 		<view class="tui-order-list" v-else>
 			<view class="tui-order-item" v-for="(order, orderIndex) in displayList" :key="orderIndex" @tap="detail(order)">
-        <tui-list-cell :hover="false" :lineLeft="false">
+				<tui-list-cell :hover="false" :lineLeft="false">
 					<view class="tui-goods-title">
 						<view v-if='currentTab===0'>订单号：{{order.orderNum}}</view>
 						<view v-else>服务单号：{{order.refundNum}}</view>
 						<view></view>
-						<view class="tui-order-status">{{order.status}}</view>
+						<view class="tui-order-status" v-if='currentTab!==0'>{{order.status}}</view>
 					</view>
 				</tui-list-cell>
-        <block v-for="(item,index) in order.goodsList" :key="index">
-				  <tui-list-cell padding="0" :hover="false">
-          <view class="tui-goods-item">
+				<block v-for="(item,index) in order.goodsList" :key="index">
+						<tui-list-cell padding="0" :hover="false">
+				<view class="tui-goods-item">
 							<image :src=item.defaultImageUrl class="tui-goods-img"></image>
 							<view class="tui-goods-center">
 								<view class="tui-goods-name">{{item.title}}</view>
@@ -28,17 +28,33 @@
 							</view>
 						</view>
 				</tui-list-cell>
-        </block>
-				<tui-list-cell :hover="false" unlined>
-          <view class="tui-goods-price">
+				</block>
+				<tui-list-cell :hover="false" unlined v-if="currentTab!==0">
+					<view class="tui-goods-price" v-if="order.status==='处理中'">
 						<view>实付：</view>
-						<view class="tui-price-large">￥{{order.netCost}}</view>
-            <view style="margin-left: 10px">退款金额：</view>
+							<view class="tui-price-large">￥{{order.netCost}}</view>
+						<view style="margin-left: 10px">退款金额：</view>
+						<view class="tui-price-large tui-order-status">￥{{order.netCost}}</view>
+					</view>
+					<view class="tui-goods-price" v-else>
+						<view style="margin-left: 10px">已退款：</view>
 						<view class="tui-price-large tui-order-status">￥{{order.netCost}}</view>
 					</view>
 				</tui-list-cell>
+				<view class="tui-order-btn">
+					<view class="tui-btn-ml" v-if="currentTab===0">
+						<tui-button type="danger" plain width="152rpx" height="56rpx" :size="26" shape="circle" @tap="onApply(order)">
+							申请售后
+						</tui-button>
+					</view>
+					<view class="tui-btn-ml" v-else>
+						<tui-button type="danger" plain width="152rpx" height="56rpx" :size="26" shape="circle" @tap="onCancel(order)">
+							 取消售后
+						</tui-button>
+					</view>
+				</view>
 			</view>
-      <tui-no-data v-if="displayList.length===0" :fixed="false"
+      		<tui-no-data v-if="displayList.length===0" :fixed="false"
 						 imgUrl="https://system.chuangbiying.com/static/images/index/img_noorder.png">
 				您还没有相关的订单</tui-no-data>
 		</view>
@@ -76,20 +92,20 @@ export default {
     })
   },
   filters: {
-			getPrice(price) {
-				price = price || 0;
-				return price.toFixed(2)
-			},
-      formatDate(v){
-				return utils.formatDate("y-m-d h:i:s", v)
-			},
-			getProperty(attr) {
-				let str = ''
-				attr.forEach(o=>{
-					str = str + o.value + '，'
-				})
-				return str.slice(0,-1)
-			}
+	getPrice(price) {
+		price = price || 0;
+		return price.toFixed(2)
+	},
+	formatDate(v){
+		return utils.formatDate("y-m-d h:i:s", v)
+	},
+	getProperty(attr) {
+		let str = ''
+		attr.forEach(o=>{
+			str = str + o.value + '，'
+		})
+		return str.slice(0,-1)
+	}
   },
   watch: {
     currentTab(v){
@@ -101,26 +117,39 @@ export default {
       this.currentTab = e.index
     },
     switchTab(v){
-				switch(v){
-					case 0: {
-						this.displayList = this.orderList
-						break;
-					}
-					case 1: {
-						this.displayList = this.refundList.filter((o)=>{
-							return o.status==="处理中"
-						})
-						break;
-					}
-          case 2: {
-						this.displayList = this.refundList
-						break;
-					}
-				}
-			},
-		detail(order) {
-      this.$store.commit('setTargetOrder', order)
-			this.tui.href('/pages/my/refundDetail/refundDetail')
+		switch(v){
+			case 0: {
+				this.displayList = this.orderList
+				break;
+			}
+			case 1: {
+				this.displayList = this.refundList.filter((o)=>{
+					return o.status==="处理中"
+				})
+				break;
+			}
+			case 2: {
+				this.displayList = this.refundList
+				break;
+			}
+		}
+	},
+	onCancel(order) {
+		let url = '/updateRefundOrders/' + order.refundNum + '/'
+
+   		this.tui.request(url, 'PUT', {status: '申请已撤销'}).then((res)=>{
+			console.log('res', res)
+			this.tui.totast('取消成功')
+		})
+
+	},
+	onApply(order) {
+		this.$store.commit('setTargetOrder', order)
+		this.tui.href('/pages/my/refund/refund')
+	},
+	detail(order) {
+     	 this.$store.commit('setTargetOrder', order)
+		this.tui.href('/pages/my/refundDetail/refundDetail')
 		}
 	}
 };
@@ -228,5 +257,9 @@ export default {
 	background: #fff;
 	padding: 0 30rpx 20rpx;
 	box-sizing: border-box;
+}
+
+.tui-btn-ml {
+	margin-left: 20rpx;
 }
 </style>

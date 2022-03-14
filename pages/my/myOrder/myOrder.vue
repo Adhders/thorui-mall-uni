@@ -1,6 +1,6 @@
 <template>
 	<view class="container">
-		<tui-tab :tabs="tabs" :isFixed="scrollTop>=0" :currentTab="currentTab" selectedColor="#E41F19" sliderBgColor="#E41F19"
+		<tui-tab :tabs="tabs" :isFixed="scrollTop>=0" :current="currentTab" selectedColor="#E41F19" sliderBgColor="#E41F19"
 		 @change="change"></tui-tab>
 		<!--选项卡逻辑自己实现即可，此处未做处理-->
     <tui-loading v-if="loadding"></tui-loading>
@@ -63,12 +63,12 @@
 							<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @tap="refund(order)">申请退款</tui-button>
 						</view>
 						<view class="tui-btn-ml">
-							<tui-button type="danger" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="">催发货</tui-button>
+							<tui-button type="danger" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="remind">催发货</tui-button>
 						</view>
 					</block>
 					<block v-if="order.status==='待收货'">
 						<view class="tui-btn-ml">
-							<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="">申请退款</tui-button>
+							<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="refund(order)">申请退款</tui-button>
 						</view>
 						<view class="tui-btn-ml">
 							<tui-button type="black"  plain width="152rpx" height="56rpx" :size="26" shape="circle">再次购买</tui-button>
@@ -276,8 +276,11 @@
 					},
 				})
 			},
+			remind() {
+                this.tui.toast('待开发')
+			},
 			refund(order){
-        this.$store.commit('setTargetOrder', order)
+        		this.$store.commit('setTargetOrder', order)
 				this.tui.href('/pages/my/refund/refund')
 			},
 			onHide(){
