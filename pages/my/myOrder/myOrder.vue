@@ -1,9 +1,10 @@
 <template>
 	<view class="container">
-		<tui-tabs :tabs="tabs" :isFixed="scrollTop>=0" :currentTab="currentTab" selectedColor="#E41F19" sliderBgColor="#E41F19"
-		 @change="change" itemWidth="20%"></tui-tabs>
+		<tui-tab :tabs="tabs" :isFixed="scrollTop>=0" :currentTab="currentTab" selectedColor="#E41F19" sliderBgColor="#E41F19"
+		 @change="change" itemWidth="20%"></tui-tab>
 		<!--选项卡逻辑自己实现即可，此处未做处理-->
-		<view :class="{'tui-order-list':scrollTop>=0}">
+    <tui-loading v-if="loadding"></tui-loading>
+		<view :class="{'tui-order-list':scrollTop>=0}" v-else>
 			<view class="tui-order-item" v-for="(order, orderIndex) in displayList" :key="orderIndex">
 				<tui-list-cell :hover="false" :lineLeft="false">
 					<view class="tui-goods-title">
@@ -59,7 +60,7 @@
 					</block>
 					<block v-if="order.status==='待发货'">
 						<view class="tui-btn-ml">
-							<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @tap="">申请退款</tui-button>
+							<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @tap="refund(order)">申请退款</tui-button>
 						</view>
 						<view class="tui-btn-ml">
 							<tui-button type="danger" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="">催发货</tui-button>
@@ -78,10 +79,10 @@
 					</block>
 					<block v-if="order.status==='交易完成'">
 						<view class="tui-btn-ml">
-							<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="onReceipt(order)">退换/售后</tui-button>
+							<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="refund(order)">退换/售后</tui-button>
 						</view>
 						<view class="tui-btn-ml" v-if="isVisible(order.reviewState)">
-							<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="addEvaluate(order)">追加评价</tui-button>
+							<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="addEvaluate(order, 'additional')">追加评价</tui-button>
 						</view>
 						<view class="tui-btn-ml">
 							<tui-button type="danger"  plain width="152rpx" height="56rpx" :size="26" shape="circle">再次购买</tui-button>
@@ -89,13 +90,13 @@
 					</block>
 					<block v-if="order.status==='待评价'">
 						<view class="tui-btn-ml">
-							<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="onReceipt(order)">退换/售后</tui-button>
+							<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="refund(order)">退换/售后</tui-button>
 						</view>
 						<view class="tui-btn-ml">
 							<tui-button type="black"  plain width="152rpx" height="56rpx" :size="26" shape="circle">再次购买</tui-button>
 						</view>
 						<view class="tui-btn-ml">
-							<tui-button type="danger" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="addEvaluate(order)">评价</tui-button>
+							<tui-button type="danger" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="addEvaluate(order, 'first')">评价</tui-button>
 						</view>
 					</block>
 				</view>
@@ -119,7 +120,7 @@
 		</tui-modal>
 		<tui-modal :show="isDelete" @click="onRemove"  title="确定删除订单？" content="删除之后订单无法恢复，请慎重考虑？"></tui-modal>
 		<!--加载loadding-->
-		<tui-loadmore v-if="loadding" :index="3" type="red"></tui-loadmore>
+		<tui-loadmore v-if="loaddingMore" :index="3" type="red"></tui-loadmore>
 		<tui-nomore v-if="!pullUpOn" backgroundColor="#fafafa"></tui-nomore>
 		<!--加载loadding-->
 
@@ -130,17 +131,8 @@
 	export default {
 		data() {
 			return {
-				tabs: [{
-					name: "全部"
-				}, {
-					name: "待付款"
-				}, {
-					name: "待发货"
-				}, {
-					name: "待收货"
-				}, {
-					name: "待评价"
-				}],
+				tabs: [ "全部", "待付款",  "待发货",  "待收货", "待评价"],
+        loadding: true,
 				displayList: [],
 				selectedOrder: null,
 				selectedImg: '',
@@ -148,17 +140,17 @@
 				pageIndex: 1,
 				isShow: false,
 				isDelete: false,
-				loadding: false,
+				loaddingMore: false,
 				pullUpOn: true,
 				scrollTop: 0,
 			}
 		},
 		onLoad(option){
 			let url = '/getOrders/' + uni.getStorageSync("pid")
-			this.tui.request(url).then((res)=>{
-				console.log('res', res)
+			this.tui.request(url,'GET', undefined, true).then((res)=>{
+                this.loadding = false
 				this.$store.commit('setOrderList', res.orderList)
-				this.currentTab= (option.currentTab!=='undefined')? parseInt(option.currentTab): 0
+				this.currentTab= (option.currentTab)? parseInt(option.currentTab): 0
 				this.switchTab(this.currentTab)
 			})
 		},
@@ -194,7 +186,7 @@
 		},
 		methods: {
 			getTime(time){
-				const expireTime = 1*24*60*60*1000 //一天后过期
+				const expireTime = 24*60*60*1000 //一天后过期
 				let t1 = Date.parse(new Date(time)) + expireTime
 				let t2 = Date.parse(new Date())
 				return (t1-t2)/1000
@@ -285,8 +277,8 @@
 				})
 			},
 			refund(order){
-				const url = '/pages/my/refund/refund?order=' + JSON.stringify(order)
-				this.tui.href(url)
+        this.$store.commit('setTargetOrder', order)
+				this.tui.href('/pages/my/refund/refund')
 			},
 			onHide(){
 				this.isDelete=false
@@ -297,7 +289,7 @@
 				this.isShow=true
 			},
 			onConfirm(){
-				this.addEvaluate(this.selectedOrder)
+				this.addEvaluate(this.selectedOrder, 'first')
 				this.selectedOrder = null
 				this.selectedImg = ''
 			},
@@ -324,14 +316,10 @@
 			invoiceDetail(){
 				this.tui.href('/pages/my/invoiceDetail/invoiceDetail')
 			},
-			addEvaluate(order){
+			addEvaluate(order, mode){
 				let url = ''
-				if (order.goodsList.length>1) {
-					url  = '/pages/my/evaluateList/evaluateList'
-				}else {
-					url = '/pages/my/addEvaluate/addEvaluate'
-					order.reviewState[0]+=1
-				}
+				url = (order.goodsList.length>1)?'/pages/my/evaluateList/evaluateList':
+					('/pages/my/addEvaluate/addEvaluate?mode=' + mode)
 				this.$store.commit('setTargetOrder', order)
 				uni.navigateTo({
 					url: url
@@ -345,10 +333,10 @@
 		},
 		onReachBottom() {
 			//只是测试效果，逻辑以实际数据为准
-			this.loadding = true
+			this.loaddingMore = true
 			this.pullUpOn = true
 			setTimeout(() => {
-				this.loadding = false
+				this.loaddingMore = false
 				this.pullUpOn = false
 			}, 1000)
 		},
@@ -496,7 +484,7 @@
 		align-items: center;
 		justify-content: flex-end;
 		background: #fff;
-		padding: 10rpx 30rpx 20rpx;
+		padding: 0 30rpx 20rpx;
 		box-sizing: border-box;
 	}
 	.tui-btn-ml {
