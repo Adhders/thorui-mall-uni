@@ -1,0 +1,23 @@
+@font-face {
+  font-family: "iconfont"; /* Project id 3245979 */
+  src: url('iconfont.woff2?t=1647252358046') format('woff2'),
+       url('iconfont.woff?t=1647252358046') format('woff'),
+       url('iconfont.ttf?t=1647252358046') format('truetype');
+}
+
+.iconfont {
+  font-family: "iconfont" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-huanhuo:before {
+  content: "\e603";
+}
+
+.icon-tuihuo:before {
+  content: "\e606";
+}
+

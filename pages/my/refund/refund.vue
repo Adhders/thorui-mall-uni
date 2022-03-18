@@ -13,69 +13,74 @@
 							<view class="tui-goods-attr">{{item.propertyList | getProperty}}</view>
 						</view>
 						<view class="tui-price-right">
-								<view>￥{{item.price}}</view>
-								<view>x{{item.buyNum}}</view>
-							</view>
+							<view>￥{{item.price}}</view>
+							<view>x{{item.buyNum}}</view>
+						</view>
 					</view>
 				</tui-list-cell>
 			</block>
 		</view>
-		<view class="tui-refund__form">
-			<tui-list-cell padding="0" arrow  @click="onPopup('refundType')">
-				<view class="tui-line-cell" >
-					<view class="tui-title">
-						<text>申请类型</text>
+		<form @submit="formSubmit">
+			<view class="tui-refund__form">
+				<tui-list-cell padding="0" arrow  @click="onPopup('refundType')">
+					<view class="tui-line-cell" >
+						<view class="tui-title">
+							<text>申请类型</text>
+						</view>
+						<input placeholder-class="tui-phcolor" class="tui-input" name="refundType"  v-model="ruleForm.refundType"/>
 					</view>
-					<input placeholder-class="tui-phcolor" class="tui-input" v-model="ruleForm.refundType"/>
-				</view>
-			</tui-list-cell>
-			<tui-list-cell padding="0" arrow @click="onPopup">
-				<view class="tui-line-cell">
-					<view class="tui-title">
-						<text>申请原因</text>
+				</tui-list-cell>
+				<tui-list-cell padding="0" arrow @click="onPopup">
+					<view class="tui-line-cell">
+						<view class="tui-title">
+							<text>申请原因</text>
+						</view>
+						<input placeholder-class="tui-phcolor" class="tui-input" name="reason"  v-model="ruleForm.reason"  placeholder="请选择退款原因" />
 					</view>
-					<input placeholder-class="tui-phcolor" class="tui-input"  v-model="ruleForm.reason"  placeholder="请选择退款原因" />
-				</view>
-			</tui-list-cell>
-			<tui-list-cell :hover="false" padding="0">
-				<view class="tui-line-cell tui-order-item">
-					<view class="tui-title">
-						<text>退款金额</text>
+				</tui-list-cell>
+				<tui-list-cell :hover="false" padding="0" v-if="ruleForm.refundType==='退货退款'">
+					<view class="tui-line-cell tui-order-item">
+						<view class="tui-title">
+							<text>退款金额</text>
+						</view>
+						<view class="refund_amount">￥</view>
+						<input placeholder-class="tui-phcolor" class="tui-input refund_amount" name="refund_fee" v-model="ruleForm.refund_fee" />
 					</view>
-          <view class="refund_amount">￥</view>
-					<input placeholder-class="tui-phcolor" class="tui-input refund_amount" v-model="ruleForm.refund_fee" />
-<!--						<text class="edit-label" @tap="focus=true">修改金额</text>-->
+				</tui-list-cell>
+				<view class="tui-line-cell tui-max-amount" v-if="!range">
+					<text>最大退款金额：</text>
+					<text>￥{{order.netCost}} </text>
 				</view>
-			</tui-list-cell>
-			<tui-list-cell :hover="false" padding="0">
-				<view class="tui-line-cell tui-order-item descption-box">
-					<view class="tui-title">
-						<text>申请说明</text>
+				<tui-list-cell :hover="false" padding="0">
+					<view class="tui-line-cell tui-order-item descption-box">
+						<view class="tui-title">
+							<text>申请说明</text>
+						</view>
+						<view style="color: #cccccc">您还可以输入{{count}}字</view>
 					</view>
-					<view style="color: #cccccc">您还可以输入{{count}}字</view>
-				</view>
-				<tui-textarea v-model="ruleForm.description" placeholderStyle="{fontSize: 28rpx}" :size="28" maxlength=150
-					:borderBottom="false" :textareaBorder="false" :borderTop="false" placeholder="请填写申请说明"/>
-				<view class="upload-image">
-					<tui-upload :serverUrl="action"
-						:formData="formData"
-						:width = width
-						:height = width
-						@complete="onSuccess">
-					</tui-upload>
-				</view>
-			</tui-list-cell>
+					<tui-textarea v-model="ruleForm.description" placeholder-class="tui-phcolor" :size="28" maxlength=150
+						:borderBottom="false" :textareaBorder="false" :borderTop="false" name="description" placeholder="请填写申请说明"/>
+					<view class="upload-image">
+						<tui-upload :serverUrl="action"
+							:formData="formData"
+							:width = width
+							:height = width
+							@complete="onSuccess">
+						</tui-upload>
+					</view>
+				</tui-list-cell>
 
-		</view>
-		<view class="tui-btn__box">
-			<tui-button height="88rpx" type="danger" shadow shape="circle" @tap="onSubmit">提交申请</tui-button>
-		</view>
+			</view>
+			<view class="tui-btn__box">
+				<tui-button height="88rpx" type="danger" shadow shape="circle" formType="submit" :disabled="!first">提交申请</tui-button>
+			</view>
+		</form>
 		<tui-bottom-popup :show="popupShow" @close="hidePopup" style="z-index: 1000;">
 			<view class="tui-popup-box">
 				<view class="tui-right">
 					<tui-icon name="close-fill" color="#999" :size="20"  @click="hidePopup"></tui-icon>
 				</view>
-				<view class="reason-header">请选择申请原因</view>
+				<view class="reason-header">{{choice==='refundType'? '请选择售后类型' : '请选择申请原因'}}</view>
 				<scroll-view scroll-y class="tui-popup-scroll">
 					<view class="tui-scrollview-box">
 						<tui-radio-group @change="radioChange">
@@ -96,31 +101,32 @@
 </template>
 
 <script>
-// import TuiTextarea from "../../../components/thorui/tui-textarea/tui-textarea";
+import form from "@/components/common/tui-validation/tui-validation.js"
 export default {
-	// components: {TuiTextarea},
 	data() {
 		return {
-			amount: '¥100',
 			focus: false,
+			first: true,
+			range: true,
 			order: {},
 			width: '',
-			choice: '',
+			choice: 'refundType',
 			formData: {},
 			bucket_image: 'chuangbiying-review',
 			action: 'http://up-cn-east-2.qiniup.com',
 			ruleForm: {
 				imgs: '',
-        refund_fee: '',
+        		refund_fee: '',
 				description: '',
-				refundType: '我要退货退款',
+				refundType: '退货退款',
 				reason: '',
+				
 			},
 			popupShow: false,
 			displayList: [],
 			typeList: [
-				{name: '我要退货退款', checked: false},
-				{name: '我要退款（无需退货）'	, checked: false},
+				{name: '换货', checked: false},
+				{name: '退货退款', checked: false},
 			],
 			reasonList: [
 				{name: '多拍、错拍、不喜欢', checked: false},
@@ -135,22 +141,12 @@ export default {
 				{name: '假冒品牌', checked: false},
 				{name: '其它', checked: false},
 			],
-			goodsList: [{
-				defaultImageUrl: 'https://system.chuangbiying.com/static/images/mall/product/3.jpg',
-				title: '欧莱雅（LOREAL）奇焕光彩粉嫩透亮修颜霜 30ml（欧莱雅彩妆 BB霜 粉BB 遮瑕疵 隔离）',
-				spec: '黑色，50ml',
-				price: 29,
-				num: 2,
-			},{
-				defaultImageUrl: 'https://system.chuangbiying.com/static/images/mall/product/4.jpg',
-				title: '欧莱雅（LOREAL）奇焕光彩粉嫩透亮修颜霜 30ml（欧莱雅彩妆 BB霜 粉BB 遮瑕疵 隔离）',
-				spec: '黑色，50ml',
-				price: 189,
-				num: 2,
-			}]
+			goodsList: []
 		};
 	},
 	onLoad(option){
+		this.ruleForm.refundType = option.refundType
+		console.log('option', option, this.ruleForm.refundType)
 		this.order = this.$store.state.targetOrder
     	this.ruleForm.refund_fee = this.order.netCost
 		//将系统宽度px转换为rpx
@@ -173,15 +169,26 @@ export default {
 			return 150-this.getCount(this.ruleForm.description.length)
 		}
 	},
-  filters: {
-    getProperty(attr) {
-				let str = ''
-				attr.forEach(o=>{
-					str = str + o.value + '，'
-				})
-				return str.slice(0,-1)
-			},
-  },
+	watch: {
+		'ruleForm.refund_fee': function(v){
+			console.log('refund_fee', v)
+			if(v > this.order.netCost){
+				this.range=false
+				this.tui.toast("退款金额不能大于最大退款金额")
+			}else{
+				this.range=true
+			}
+		}
+	},
+	filters: {
+		getProperty(attr) {
+			let str = ''
+			attr.forEach(o=>{
+				str = str + o.value + '，'
+			})
+			return str.slice(0,-1)
+		},
+	},
 	methods: {
 		hidePopup(){
 			this.popupShow = false
@@ -189,9 +196,9 @@ export default {
 		detail(order) {
      	 	this.$store.commit('setTargetOrder', order)
       		uni.navigateTo({
-        	url: '/pages/my/orderDetail/orderDetail'
-      })
-    },
+        		url: '/pages/my/orderDetail/orderDetail'
+			})
+		},
 		getCount(count) {
 			const max = Number(this.maxlength)
 			if (count > max) {
@@ -217,29 +224,67 @@ export default {
 				this.ruleForm.imgs = v.keyList
 			}
 		},
-		onSubmit(){
-     		let pid = uni.getStorageSync("pid")
-			let appid = this.$store.state.appid
-     		let orderNum = this.order.orderNum
-      		let url = '/addRefundOrder/' + pid + '/' + appid + '/' + orderNum
-      		this.tui.request(url, 'POST', this.ruleForm).then(
-                (res) =>{
-            		console.log('res', res)
-					this.ruleForm.netCost = this.order.netCost
-					this.ruleForm.goodsList = this.order.goodsList
-					this.$store.state.refundList.unshift(this.ruleForm)
-					uni.navigateBack({delta: 1})
-				}
-			)
+		formSubmit(e){
+		//表单规则
+			let rules = [{
+				name: "refundType",
+				rule: ["required"], //可使用区间，此处主要测试功能
+				msg: ["请选择售后类型"]
+			}, {
+				name: "reason",
+				rule: ["required"],
+				msg: ["请选择退款原因"]
+			},{
+				name: "description",
+				rule: ["required"],
+				msg: ["请输入申请说明"]
+			}];
+			let extra = {
+				name: "refund_fee",
+				rule: ["required"],
+				msg: ["请输入退款金额"]
+			}
+			if(this.ruleForm.refundType==='退货退款'){
+				rules.splice(2, 0, extra)
+			}
+			//进行表单检查
+			let formData = e.detail.value;
+			let checkRes = this.range?form.validation(formData, rules):"退款金额不能大于最大退款金额";
+			console.log('rule', checkRes)
+			if(!checkRes){
+				this.first=false
+				let pid = uni.getStorageSync("pid")
+				let appid = this.$store.state.appid
+				let orderNum = this.order.orderNum
+				let url = '/addRefundOrder/' + pid + '/' + appid + '/' + orderNum
+				this.tui.request(url, 'POST', this.ruleForm).then(
+					(res) =>{
+						if(res.code==='0'){
+							this.tui.toast("申请售后成功")
+							this.ruleForm.orderNum = orderNum
+							this.ruleForm.refundNum = res.refundNum
+							this.ruleForm.status = '处理中'
+							this.ruleForm.netCost = this.order.netCost
+							this.ruleForm.goodsList = this.order.goodsList
+							this.$store.state.refundList.unshift(this.ruleForm)
+							setTimeout(()=>{
+								uni.navigateBack({delta: 1})
+							}, 1000);
+						}
+					}
+				)
+			}else {
+				uni.showToast({
+					title: checkRes,
+					icon: "none"
+				});
+			}
 		}
 	}
 };
 </script>
 
-<style lang="less" scoped>
-.tui-order-list {
-	margin-top: 80rpx;
-}
+<style lang="less">
 
 .tui-order-item {
 	margin-top: 20rpx;
@@ -318,6 +363,10 @@ export default {
 	box-sizing: border-box;
 	display: flex;
 	align-items: center;
+}
+.tui-max-amount {
+	color: #e41f19; 
+	font-size: 28rpx;
 }
 .tui-title {
 	width: 160rpx;

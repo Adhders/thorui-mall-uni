@@ -1,5 +1,11 @@
 <template>
 	<view class="tui-addr-box">
+		<tui-list-cell padding="0" arrow @tap="handleChoiceAddress">
+			<view class="tui-list-cell" >
+				<view><tui-icon name="wechat" color="#28c445"></tui-icon></view>
+				<view class="wechat-address">获取微信收货地址</view>
+			</view>
+		</tui-list-cell>
 		<form @submit="formSubmit">
 			<tui-list-cell :hover="false" padding="0">
 				<view class="tui-line-cell">
@@ -59,9 +65,9 @@
 				</view>
 			</tui-list-cell>
 
-			<view class="tui-get-address">
+			<!-- <view class="tui-get-address">
 				<tui-button shadow shape="circle" type="green"  @click="handleChoiceAddress">获取微信收货地址</tui-button>
-			</view>
+			</view> -->
 
 			<!-- 保存地址 -->
 			<view class="tui-addr-save">
@@ -266,14 +272,23 @@
 	}
 </script>
 
-<style>
+<style scoped>
 	.tui-input input{
 		font-size: 28rpx;
 	}
 	.tui-addr-box {
 		padding: 20rpx 0;
 	}
-
+	.tui-list-cell {
+		display: flex;
+		align-items: center;
+		padding: 24rpx 30rpx;
+		margin-bottom: 20rpx;
+	}
+    .wechat-address{
+		margin-left: 20rpx
+	}
+    
 	.tui-line-cell {
 		width: 100%;
 		padding: 24rpx 30rpx;
@@ -367,19 +382,8 @@
 
 	/* #endif */
 
-	/* #ifdef H5 */
-	>>>uni-switch .uni-switch-input {
-		margin-right: 0 !important;
-	}
-
-	/* #endif */
-
 	.tui-addr-save{
-		padding: 0 30rpx;
-	}
-	.tui-get-address {
-		padding: 30rpx;
-		margin-top: 100rpx;
+		padding: 30rpx 30rpx;
 	}
 	.tui-del {
 		padding: 24rpx 30rpx;

@@ -140,16 +140,16 @@ export default {
 
 .tui-cell-arrow::before {
 	content: ' ';
-	height: 10px;
-	width: 10px;
-	border-width: 2px 2px 0 0;
+	height: 16rpx;
+	width: 16rpx;
+	border-width: 4rpx 4rpx 0 0;
 	border-color: #c0c0c0;
 	border-style: solid;
 	-webkit-transform: matrix(0.5, 0.5, -0.5, 0.5, 0, 0);
 	transform: matrix(0.5, 0.5, -0.5, 0.5, 0, 0);
 	position: absolute;
 	top: 50%;
-	margin-top: -6px;
+	margin-top: -8rpx;
 	right: 30rpx;
 }
 .tui-arrow-right::before {

@@ -444,7 +444,14 @@
 					"bounce": "vertical"
 				}
 			}
-
+		}, {
+			"path": "pages/my/refundType/refundType",
+			"style": {
+				"navigationBarTitleText": "选择售后类型",
+				"app-plus": {
+					"bounce": "vertical"
+				}
+			}
 		}, {
 			"path": "pages/my/refundDetail/refundDetail",
 			"style": {
@@ -570,7 +577,8 @@
 	"easycom": {
 		"autoscan": true,
 		"custom": {
-			"tui-(.*)": "@/components/thorui/tui-$1/tui-$1.vue"
+			"tui-(.*)": "@/components/thorui/tui-$1/tui-$1.vue",
+			"iconfont": "@/components/iconfont/iconfont.vue"
 		}
 	},
 	"globalStyle": {

@@ -1,0 +1,23 @@
+{
+  "id": "3245979",
+  "name": "mini",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "21865818",
+      "name": "换货",
+      "font_class": "huanhuo",
+      "unicode": "e603",
+      "unicode_decimal": 58883
+    },
+    {
+      "icon_id": "21865837",
+      "name": "退货",
+      "font_class": "tuihuo",
+      "unicode": "e606",
+      "unicode_decimal": 58886
+    }
+  ]
+}

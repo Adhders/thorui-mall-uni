@@ -3,17 +3,16 @@
 		<view class="tui-order-header">
 			<view class="tui-header-content">
 				<view>
-					<view class="tui-status-text">退款成功</view>
-					<view class="tui-reason"><text class="tui-reason-text">退款原路退回 2020-09-02 08:20:19</text></view>
+					<view class="tui-status-text">{{order.status}}</view>
+					<view class="tui-reason" v-if="order.status==='退款成功'"><text class="tui-reason-text">退款原路退回 {{order.refund_time | formatDate}}</text></view>
 				</view>
-				<!-- img_refundfailure.png -->
-				<image src="https://thorui.cn/images/mall/group/img_success3x.png" class="tui-status-img" mode="widthFix"></image>
+				<image :src="getImageUrl(order.status)" class="tui-status-img" mode="widthFix"></image>
 			</view>
 		</view>
 		<tui-list-cell :hover="false" unlined>
 			<view class="tui-title">
 				<text>退款金额</text>
-				<text>￥596.00</text>
+				<text>￥{{order.refund_fee}}</text>
 			</view>
 		</tui-list-cell>
 		<view class="tui-order-item">
@@ -21,14 +20,14 @@
 			<block v-for="(item, index) in order.goodsList" :key="index">
 				<tui-list-cell padding="0">
 					<view class="tui-goods-item">
-						<image :src="`https://system.chuangbiying.com/static/images/mall/product/${index + 3}.jpg`" class="tui-goods-img"></image>
+						<image :src="item.defaultImageUrl" class="tui-goods-img"></image>
 						<view class="tui-goods-center">
 							<view class="tui-goods-name">{{item.title}}</view>
 							<view class="tui-goods-attr">{{item.propertyList | getProperty}}</view>
 						</view>
 						<view class="tui-price-right">
-							<view>￥298.00</view>
-							<view>x2</view>
+							<view>￥{{item.price}}</view>
+							<view>x{{item.buyNum}}</view>
 						</view>
 					</view>
 				</tui-list-cell>
@@ -52,7 +51,7 @@
 					<view class="tui-item-title">申请说明:</view>
 					<view class="tui-item-content">{{order.reason}}</view>
 				</view>
-        <view class="tui-order-flex">
+        		<view class="tui-order-flex">
 					<view class="tui-item-title">退款方式:</view>
 					<view class="tui-item-content">原支付返还</view>
 				</view>
@@ -75,33 +74,40 @@ import utils from "@/utils/util.js"
 export default {
 	data() {
 		return {
-			webURL: 'https://www.thorui.cn/wx/static/images/mall/order/',
+			webURL: 'https://system.chuangbiying.com/static/images/mall/order/',
 			//1-退款中 2-退款成功 3-退款失败
 			status: 1,
-      order: null,
+      		order: {goodsList:[]},
 			show: false
 		};
 	},
-  onLoad(){
-    this.order = this.$store.state.targetOrder
-  },
-   filters: {
-			getPrice(price) {
-				price = price || 0;
-				return price.toFixed(2)
-			},
-      formatDate(v){
-				return utils.formatDate("y-m-d h:i:s", v)
-			},
-			getProperty(attr) {
-				let str = ''
-				attr.forEach(o=>{
-					str = str + o.value + '，'
-				})
-				return str.slice(0,-1)
-			}
-  },
-	methods: {}
+	onLoad(){
+		this.order = this.$store.state.targetOrder
+		console.log('order', this.order)
+	},
+   	filters: {
+		getPrice(price) {
+			price = price || 0;
+			return price.toFixed(2)
+		},
+      	formatDate(v){
+			return utils.formatDate("y-m-d h:i:s", v)
+		},
+		getProperty(attr) {
+			let str = ''
+			attr.forEach(o=>{
+				str = str + o.value + '，'
+			})
+			return str.slice(0,-1)
+		}
+ 	},
+	methods: {
+		getImageUrl(status){
+			let fileName = (status==='退款成功')? 'img_success3x.png' : (status==='处理中' )? 'img_waiting.png' : 'img_refundfailure.png'
+			return this.webURL + fileName
+			
+		}
+	}
 };
 </script>
 
@@ -244,7 +250,6 @@ export default {
 	position: relative;
 	font-size: 28rpx;
 	line-height: 28rpx;
-	padding-left: 12rpx;
 	box-sizing: border-box;
 }
 

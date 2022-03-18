@@ -281,12 +281,9 @@
 			},
 			refund(order){
         		this.$store.commit('setTargetOrder', order)
-				this.tui.href('/pages/my/refund/refund')
+				this.tui.href('/pages/my/refundList/refundList?order=' + order.orderNum)
 			},
-			onHide(){
-				this.isDelete=false
-			},
-			onReceipt(item){
+			onReceipt(item){  
 				this.selectedOrder = item
 				this.selectedImg = item.goodsList[0].defaultImageUrl
 				this.isShow=true
@@ -306,7 +303,7 @@
 					this.orderList.splice(selectedIndex,1)
 					this.switchTab(this.currentTab)
 					let url = '/deleteOrder/' + this.selectedOrder.orderNum
-					this.tui.request(url, 'DELETE').then(()=>{this.tui.toast('删除成功')})
+					this.tui.request(url, 'DELETE').then(()=>{this.tui.toast('删除订单成功')})
 				}
 				this.isDelete = false
 			},
