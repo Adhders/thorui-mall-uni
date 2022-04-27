@@ -40,7 +40,7 @@
 				</view>
 			</tui-list-cell>
 			<block v-for="(item,index) in order.goodsList" :key="index">
-				<tui-list-cell padding="0">
+				<tui-list-cell padding="0" @tap="detail(item)">
 					<view class="tui-goods-item">
 						<image :src="item.defaultImageUrl" class="tui-goods-img"></image>
 						<view class="tui-goods-center">
@@ -78,7 +78,7 @@
 						<view class="tui-black">实付款<text class="tui-colon">:</text></view>
 						<view class="tui-size-24">￥</view>
 						<view class="tui-price-large">{{order.netCost.toFixed(2).split('.')[0]}}</view>
-						<view class="tui-size-24">{{order.netCost.toFixed(2).split('.')[1]}}</view>
+						<view class="tui-size-24">.{{order.netCost.toFixed(2).split('.')[1]}}</view>
 					</view>
 				</view>
 			</view>
@@ -155,7 +155,7 @@
 					<tui-button type="danger" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="onReceipt(order)">确认收货</tui-button>
 				</view>
 			</block>
-			<block v-if="order.status==='交易完成'">
+			<block v-if="order.status==='交易成功'">
 				<view class="tui-btn-mr">
 					<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="onReceipt(order)">退换/售后</tui-button>
 				</view>
@@ -225,10 +225,6 @@
 			formatDate(v){
 				return utils.formatDate("y-m-d h:i:s", v)
 			},
-			getPrice(price) {
-				price = price || 0;
-				return price.toFixed(2)
-			},
 			getProperty(attr) {
 				let str = ''
 				attr.forEach(o=>{
@@ -239,10 +235,15 @@
 
 		},
 		methods: {
+			detail(item) {
+				uni.navigateTo({
+					url: '/pages/index/productDetail/productDetail?spu_id=' + item.spu_id + '&sku_id=' + item.id
+				})
+			},
 			getStatus: function(status){
 				const statusList = [
 					{status: '待支付'}, {status: '待发货'}, {status: '待收货'},
-					{status: '待评价'}, {status: '交易完成'}, {status: '交易关闭'}
+					{status: '待评价'}, {status: '交易成功'}, {status: '交易关闭'}
 				]
 				return statusList.findIndex((o)=>{
 					return o.status===status})
@@ -259,7 +260,7 @@
 				][status]
 			},
 			getStatusText: function(status) {
-				return ["等待您付款", "付款成功", "待收货", "待评价", "交易完成", "交易关闭"][status]
+				return ["等待您付款", "付款成功", "待收货", "待评价", "交易成功", "交易关闭"][status]
 			},
 			getReason: function(status) {
 				return ["剩余时间", "等待卖家发货", "还剩X天XX小时自动确认", "", "", "超时未付款，订单自动取消"][status]
@@ -445,31 +446,31 @@
 		height: 180rpx;
 		display: block;
 		flex-shrink: 0;
+		border-radius: 8rpx;
 	}
 
 	.tui-goods-center {
 		flex: 1;
-		padding: 20rpx 8rpx;
+		padding: 8rpx;
 		box-sizing: border-box;
 	}
 
 	.tui-goods-name {
-		max-width: 310rpx;
+		max-width: 90%;
 		word-break: break-all;
 		overflow: hidden;
 		text-overflow: ellipsis;
 		display: -webkit-box;
 		-webkit-box-orient: vertical;
 		-webkit-line-clamp: 2;
-		font-size: 26rpx;
+		font-size: 24rpx;
 		line-height: 32rpx;
 	}
 
 	.tui-goods-attr {
 		font-size: 22rpx;
 		color: #888888;
-		line-height: 32rpx;
-		padding-top: 20rpx;
+		padding-top: 5rpx;
 		word-break: break-all;
 		overflow: hidden;
 		text-overflow: ellipsis;
@@ -483,7 +484,7 @@
 		font-size: 24rpx;
 		color: #888888;
 		line-height: 30rpx;
-		padding-top: 20rpx;
+		padding-top: 10rpx;
 	}
 
 	.tui-color-red {

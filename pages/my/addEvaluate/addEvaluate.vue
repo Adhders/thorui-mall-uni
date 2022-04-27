@@ -82,7 +82,6 @@
 			this.mode = options.mode
 			const order = this.$store.state.targetOrder
 			this.index = order.index? order.index: 0 //对订单中第几个商品进行评价
-			console.log('index', order.index, this.index)
 			this.orderNum = order.orderNum
 			this.postData.reviewState = JSON.parse(JSON.stringify(order.reviewState))
 			this.postData.reviewState[this.index].count +=1
@@ -93,7 +92,6 @@
 				this.postData.name = this.userInfo.nickName
 				this.postData.avatar = this.userInfo.avatarUrl
 			}
-			console.log('postDate', this.postData, this.mode)
 		},
 		computed: {
 			userInfo() {

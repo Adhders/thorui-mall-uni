@@ -1,9 +1,9 @@
 <template>
 	<view class="container">
-		<tui-tab :tabs="tabs" :isFixed="scrollTop>=0" :current="currentTab" selectedColor="#E41F19" sliderBgColor="#E41F19"
-		 @change="change"></tui-tab>
+		<tui-tabs :tabs="tabs" :isFixed="scrollTop>=0" :currentTab="currentTab" selectedColor="#E41F19" sliderBgColor="#E41F19"
+		 @change="change"></tui-tabs>
 		<!--选项卡逻辑自己实现即可，此处未做处理-->
-    <tui-loading v-if="loadding"></tui-loading>
+    	<tui-loading v-if="loadding"></tui-loading>
 		<view :class="{'tui-order-list':scrollTop>=0}" v-else>
 			<view class="tui-order-item" v-for="(order, orderIndex) in displayList" :key="orderIndex">
 				<tui-list-cell :hover="false" :lineLeft="false">
@@ -77,7 +77,7 @@
 							<tui-button type="danger" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="onReceipt(order)">确认收货</tui-button>
 						</view>
 					</block>
-					<block v-if="order.status==='交易完成'">
+					<block v-if="order.status==='交易成功'">
 						<view class="tui-btn-ml">
 							<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="refund(order)">退换/售后</tui-button>
 						</view>
@@ -131,8 +131,8 @@
 	export default {
 		data() {
 			return {
-				tabs: [ "全部", "待付款",  "待发货",  "待收货", "待评价"],
-        loadding: true,
+				tabs: [{name: "全部"},  {name: "待付款"},  {name: "待发货"},  {name: "待收货"}, {name: "待评价"}],
+        		loadding: true,
 				displayList: [],
 				selectedOrder: null,
 				selectedImg: '',
@@ -151,6 +151,7 @@
                 this.loadding = false
 				this.$store.commit('setOrderList', res.orderList)
 				this.currentTab= (option.currentTab)? parseInt(option.currentTab): 0
+				console.log(option,this.currentTab, res)
 				this.switchTab(this.currentTab)
 			})
 		},
@@ -418,23 +419,24 @@
 		height: 180rpx;
 		display: block;
 		flex-shrink: 0;
+		border-radius: 8rpx;
 	}
 
 	.tui-goods-center {
 		flex: 1;
-		padding: 20rpx 8rpx 0;
+		padding: 8rpx;
 		box-sizing: border-box;
 	}
 
 	.tui-goods-name {
-		max-width: 310rpx;
+		max-width: 90%;
 		word-break: break-all;
 		overflow: hidden;
 		text-overflow: ellipsis;
 		display: -webkit-box;
 		-webkit-box-orient: vertical;
 		-webkit-line-clamp: 2;
-		font-size: 26rpx;
+		font-size: 24rpx;
 		line-height: 32rpx;
 	}
 
@@ -442,7 +444,7 @@
 		font-size: 22rpx;
 		color: #888888;
 		line-height: 32rpx;
-		padding-top: 20rpx;
+		padding-top: 5rpx;
 		word-break: break-all;
 		overflow: hidden;
 		text-overflow: ellipsis;
@@ -456,7 +458,7 @@
 		font-size: 24rpx;
 		color: #888888;
 		line-height: 30rpx;
-		padding-top: 20rpx;
+		padding-top: 10rpx;
 	}
 	.tui-color-red {
 		color: #E41F19;

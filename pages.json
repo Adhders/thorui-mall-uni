@@ -146,37 +146,6 @@
 			}
 		},
 		{
-			"path": "pages/index/seckillList/seckillList",
-			"style": {
-				// #ifdef H5
-				"titleNView": false,
-				// #endif
-				"navigationBarTitleText": "限时秒杀",
-				"navigationBarBackgroundColor": "#fff",
-				"navigationBarTextStyle": "black",
-				"app-plus": {
-					"bounce": "vertical"
-				}
-			}
-
-		}, {
-			"path": "pages/index/seckillDetail/seckillDetail",
-			"style": {
-				"navigationBarTitleText": "",
-				"navigationBarBackgroundColor": "#fff",
-				"navigationBarTextStyle": "black",
-				"navigationStyle": "custom",
-				"app-plus": {
-					"titleNView": false,
-					"bounce": "vertical"
-				},
-				"mp-alipay":{
-					"transparentTitle": "always",
-					"titlePenetrate":"YES"
-				}
-			}
-
-		}, {
 			"path": "pages/index/groupList/groupList",
 			"style": {
 				"navigationBarTitleText": "拼团专区",

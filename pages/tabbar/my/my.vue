@@ -107,7 +107,7 @@
 					<view class="tui-order-item" @tap="href(10)">
 						<view class="tui-icon-box">
 							<image src="https://system.chuangbiying.com/static/images/mall/my/icon_tuikuan_3x.png" class="tui-order-icon"></image>
-							<view class="tui-badge tui-badge-red">{{orderState[5]}}</view>
+							<view class="tui-badge tui-badge-red" v-if="orderState[5]">{{orderState[5]}}</view>
 						</view>
 						<view class="tui-order-text">退款/售后</view>
 					</view>
@@ -252,10 +252,9 @@
 			if(pid){
 				let url = '/queryUserInfo/' + pid
 				this.tui.request(url).then((res)=>{
-          console.log('res', res)
+          		console.log('res', res)
 					if(res.code==='0'){
 						let decoded = jwt.jwt_decode(res.token);
-						console.log(decoded)
 						uni.setStorage({
 							key: 'token',
 							data: res.token,
@@ -265,8 +264,7 @@
 							data: decoded.pid,
 						})
 						this.$store.commit('login', true)
-            this.$store.commit('setOrderState', res.orderState)
-            console.log('orderState', this.$store.state.orderState)
+						this.$store.commit('setOrderState', res.orderState)
 						this.$store.commit('setUserInfo', decoded.userInfo)
 					}
 				}).catch(err=>{
@@ -280,11 +278,11 @@
 			}
 		},
 		computed: {
-      userInfo(){
+     		 userInfo(){
 		    	return this.$store.state.userInfo
 			},
 			isLogin(){
-		    	return uni.getStorageSync("pid")
+		    	return this.$store.state.isLogin
 			},
       orderState(){
           return this.$store.state.orderState

@@ -34,9 +34,18 @@
 								<image :src="item.defaultImageUrl" class="tui-goods-img"></image>
 								<view class="tui-goods-center">
 									<view class="tui-goods-name">{{item.title}}</view>
-									<view class="tui-goods-attr">{{item.propertyList | getProperty}}</view>
+									<view class="tui-goods-attr">
+										<view class="tui-sub-info">{{item.slogan}}</view>
+										<view>
+											{{item.propertyList | getProperty}}
+										</view>
+									</view>
 									<view class="tui-price-box">
-										<view class="tui-goods-price">￥{{item.price | getPrice}}</view>
+										<view>
+											<text class="tui-size-24">￥</text>
+											<text class="tui-goods-price">{{ item.price.split('.')[0] }}</text>
+											<text class="tui-size-24">.{{ item.price.split('.')[1]}}</text>
+										</view>
 										<tui-numberbox :value="item.buyNum" :height="36" :width="64" :min="1" :index="index" @change="changeNum"></tui-numberbox>
 									</view>
 								</view>
@@ -87,7 +96,7 @@
 				<view class="tui-top">
 					<tui-list-cell unlined :hover="insufficient" :radius="true" :arrow="insufficient">
 						<view class="tui-flex">
-							<view class="tui-balance">余额支付<text class="tui-gray">(￥2020.00)</text></view>
+							<view class="tui-balance">余额支付<text class="tui-gray">(￥0.00)</text></view>
 							<switch color="#19be6b" class="tui-scale-small" v-show="!insufficient" />
 							<view class="tui-pr-30 tui-light-dark" v-show="insufficient">余额不足, 去充值</view>
 						</view>
@@ -144,20 +153,12 @@
 					totalCost: 0.00,
 					netCost: 0.00,
 					shipping_fee: 0.00,
-					goodsList: [{
-                      id: 1,
-                      title: '欧莱雅（LOREAL）奇焕光彩粉嫩透亮修颜霜 30ml（欧莱雅彩妆 BB霜 粉BB 遮瑕疵 隔离）',
-                      defaultImageUrl: 'https://system.chuangbiying.com/static/images/mall/product/3.jpg',
-                      propertyList: [{"name": "颜色", "value": "红色"}, {"name": "容量", "value": "100ml"}],
-                      buyNum: 2,
-                      price: 299.5
-                  }],
+					goodsList: [],
 				},
 				buttons: [
 					{
 						text: '取消',
-						// color: '#999'
-
+						// color: '#999'    
 					},
 					{
 						text: '去设置',
@@ -167,10 +168,6 @@
 			}
 		},
 		filters: {
-			getPrice(price) {
-				price = price || 0;
-				return price.toFixed(2)
-			},
 			getProperty(attr) {
 				let str = ''
 				attr.forEach(o=>{
@@ -182,7 +179,8 @@
 				return utils.formatNumber(v)
 			}
 		},
-		onLoad(){
+		onLoad(options){
+			this.orderForm.goodsList = JSON.parse(options.goods)
 			this.calcHandle()
 		},
 		onShow(){
@@ -335,6 +333,7 @@
 		width: 180rpx;
 		height: 180rpx;
 		display: block;
+        border-radius: 8rpx;
 		flex-shrink: 0;
 	}
     .tui-price-box {
@@ -345,6 +344,18 @@
 		align-items: flex-end;
 		justify-content: space-between;
 	}
+	.tui-sub-info {
+		max-width: 80%;
+		box-sizing: border-box;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+	.tui-size-24 {
+		font-size: 24rpx;
+		font-weight: 500;
+		color: #e41f19;
+	}
 	.tui-goods-price {
 		font-size: 34rpx;
 		font-weight: 500;
@@ -353,7 +364,7 @@
 	.tui-goods-center {
 		flex: 1;
 		position: relative;
-		padding: 0rpx 8rpx;
+		padding: 8rpx 8rpx;
 		box-sizing: border-box;
 	}
 	.tui-goods-name {
@@ -367,10 +378,10 @@
 		line-height: 32rpx;
 	}
 	.tui-goods-attr {
-		font-size: 24rpx;
+		font-size: 22rpx;
 		color: #888888;
 		line-height: 32rpx;
-		padding-top: 20rpx;
+		padding-top: 5rpx;
 		word-break: break-all;
 		overflow: hidden;
 		text-overflow: ellipsis;
@@ -416,12 +427,6 @@
 		color: #666;
 	}
 
-	.tui-goods-price {
-		display: flex;
-		align-items: center;
-		padding-top: 20rpx;
-	}
-
 	.tui-size-26 {
 		font-size: 26rpx;
 		line-height: 26rpx;
@@ -429,7 +434,7 @@
 
 	.tui-price-large {
 		font-size: 34rpx;
-		line-height: 32rpx;
+		line-height: 28rpx;
 		font-weight: 600;
 	}
 

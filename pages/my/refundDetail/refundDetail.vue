@@ -9,7 +9,7 @@
 				<image :src="getImageUrl(order.status)" class="tui-status-img" mode="widthFix"></image>
 			</view>
 		</view>
-		<tui-list-cell :hover="false" unlined>
+		<tui-list-cell :hover="false" unlined v-if="order.refundType==='退货退款'">
 			<view class="tui-title">
 				<text>退款金额</text>
 				<text>￥{{order.refund_fee}}</text>

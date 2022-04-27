@@ -47,41 +47,7 @@
 		</view>
 		<image src="https://thorui.cn/images/mall/activity/img_coupon_banner.png" class="tui-img__coupon" @tap="coupon"></image>
 		<view class="tui-product-box">
-			<!--秒杀-->
-			<view class="tui-block__box ">
-				<view class="tui-group-name">
-					<view class="tui-seckill__box">
-						<image src="https://thorui.cn/images/mall/img_home_seckill_3x.png" class="tui-seckill__img" mode="widthFix"></image>
-						<view class="tui-countdown__box">
-							<view class="tui-countdown__title">距结束</view>
-							<view class="tui-flex__center">
-								<tui-countdown :time="3800" backgroundColor="transparent" borderColor="transparent" color="#EB0909" colonColor="#EB0909"></tui-countdown>
-							</view>
-						</view>
-					</view>
-					<view class="tui-more__box" @tap="seckill(1)">
-						<text>更多</text>
-						<tui-icon name="arrowright" :size="36" unit="rpx" color="#999"></tui-icon>
-					</view>
-				</view>
-				<scroll-view scroll-x>
-					<view class="tui-goods__list">
-						<view class="tui-goods__item" @tap="seckill(2)" v-for="(item, index) in 8" :key="index">
-							<view class="tui-goods__imgbox">
-								<image :src="`https://system.chuangbiying.com/static/images/mall/product/${index % 2 == 0 ? 4 : 2}.jpg`" mode="widthFix" class="tui-goods__img"></image>
-							</view>
-							<view class="tui-pri__box">
-								<view class="tui-sale-pri">
-									<view class="tui-size-sm">¥</view>
-									<view>298</view>
-									<view class="tui-size-sm">.50</view>
-								</view>
-							</view>
-							<view class="tui-original__pri">¥399.00</view>
-						</view>
-					</view>
-				</scroll-view>
-			</view>
+			
 			<!--超值拼团-->
 			<view class="tui-block__box tui-mtop__20">
 				<view class="tui-group-name">
@@ -127,7 +93,7 @@
 				</view>
 				<view class="tui-new-box">
 					<view class="tui-new-item" :class="[index != 0 && index != 1 ? 'tui-new-mtop' : '']" v-for="(item, index) in newProduct"
-					 :key="index" @tap="detail">
+					 :key="index" @tap="detail(index)">
 						<image :src="'https://system.chuangbiying.com/static/images/mall/new/' + (item.type == 1 ? 'new' : 'discount') + '.png'" class="tui-new-label"
 						 v-if="item.isLabel"></image>
 						<view class="tui-title-box">
@@ -149,18 +115,19 @@
 			</view>
 			<view class="tui-product-list">
 				<view class="tui-product-container">
-					<block v-for="(item, index) in productList" :key="index" v-if="(index + 1) % 2 != 0">
+					<block v-for="(item, index) in productList" :key="index">
 						<!--商品列表-->
-						<view class="tui-pro-item" hover-class="hover" :hover-start-time="150" @tap="detail">
-							<image :src="'https://system.chuangbiying.com/static/images/mall/product/' + item.img + '.jpg'" class="tui-pro-img" mode="widthFix" />
+						<view class="tui-pro-item" hover-class="hover" :hover-start-time="150" @tap="detail(item.spu_id)" v-if="(index + 1) % 2 != 0">
+							<image :src="item.defaultImageUrl" class="tui-pro-img" mode="widthFix" />
 							<view class="tui-pro-content">
-								<view class="tui-pro-tit">{{ item.name }}</view>
+								<view class="tui-pro-tit">{{ item.title }}</view>
 								<view>
 									<view class="tui-pro-price">
-										<text class="tui-sale-price">￥{{ item.sale }}</text>
-										<text class="tui-factory-price">￥{{ item.factory }}</text>
+										<text class="tui-sale-price">￥{{ item.price.split('.')[0] }}</text>
+										<text class="tui-size-24">.{{ item.price.split('.')[1]}}</text>
+										<text class="tui-factory-price">￥{{ item.originalPrice }}</text>
 									</view>
-									<view class="tui-pro-pay">{{ item.payNum }}人付款</view>
+									<view class="tui-pro-pay">{{ item.salesNum }}人付款</view>
 								</view>
 							</view>
 						</view>
@@ -169,19 +136,18 @@
 					</block>
 				</view>
 				<view class="tui-product-container">
-					<block v-for="(item, index) in productList" :key="index" v-if="(index + 1) % 2 == 0">
+					<block v-for="(item, index) in productList" :key="index">
 						<!--商品列表-->
-						<view class="tui-pro-item" hover-class="hover" :hover-start-time="150" @tap="detail">
-							<image :src="'https://system.chuangbiying.com/static/images/mall/product/' + item.img + '.jpg'" class="tui-pro-img" mode="widthFix" />
+						<view class="tui-pro-item" hover-class="hover" :hover-start-time="150" @tap="detail(item.spu_id)" v-if="(index + 1) % 2 == 0">
+							<image :src="item.defaultImageUrl" class="tui-pro-img" mode="widthFix" />
 							<view class="tui-pro-content">
-								<view class="tui-pro-tit">{{ item.name }}</view>
-								<view>
-									<view class="tui-pro-price">
-										<text class="tui-sale-price">￥{{ item.sale }}</text>
-										<text class="tui-factory-price">￥{{ item.factory }}</text>
-									</view>
-									<view class="tui-pro-pay">{{ item.payNum }}人付款</view>
+								<view class="tui-pro-tit">{{ item.title }}</view>
+								<view class="tui-pro-price">
+									<text class="tui-sale-price">￥{{ item.price.split('.')[0] }}</text>
+									<text class="tui-size-24">.{{ item.price.split('.')[1]}}</text>
+									<text class="tui-factory-price">￥{{ item.originalPrice }}</text>
 								</view>
+								<view class="tui-pro-pay">{{ item.salesNum }}人付款</view>
 							</view>
 						</view>
 						<!--商品列表-->
@@ -293,82 +259,11 @@
 						isLabel: true
 					}
 				],
-				productList: [{
-						img: 1,
-						name: '欧莱雅（LOREAL）奇焕光彩粉嫩透亮修颜霜 30ml（欧莱雅彩妆 BB霜 粉BB 遮瑕疵 隔离）',
-						sale: 599,
-						factory: 899,
-						payNum: 2342
-					},
-					{
-						img: 2,
-						name: '德国DMK进口牛奶  欧德堡（Oldenburger）超高温处理全脂纯牛奶1L*12盒',
-						sale: 29,
-						factory: 69,
-						payNum: 999
-					},
-					{
-						img: 3,
-						name: '【第2支1元】柔色尽情丝柔口红唇膏女士不易掉色保湿滋润防水 珊瑚红',
-						sale: 299,
-						factory: 699,
-						payNum: 666
-					},
-					{
-						img: 4,
-						name: '百雀羚套装女补水保湿护肤品',
-						sale: 1599,
-						factory: 2899,
-						payNum: 236
-					},
-					{
-						img: 5,
-						name: '百草味 肉干肉脯 休闲零食 靖江精制猪肉脯200g/袋',
-						sale: 599,
-						factory: 899,
-						payNum: 2399
-					},
-					{
-						img: 6,
-						name: '短袖睡衣女夏季薄款休闲家居服短裤套装女可爱韩版清新学生两件套 短袖粉色长颈鹿 M码75-95斤',
-						sale: 599,
-						factory: 899,
-						payNum: 2399
-					},
-					{
-						img: 1,
-						name: '欧莱雅（LOREAL）奇焕光彩粉嫩透亮修颜霜',
-						sale: 599,
-						factory: 899,
-						payNum: 2342
-					},
-					{
-						img: 2,
-						name: '德国DMK进口牛奶',
-						sale: 29,
-						factory: 69,
-						payNum: 999
-					},
-					{
-						img: 3,
-						name: '【第2支1元】柔色尽情丝柔口红唇膏女士不易掉色保湿滋润防水 珊瑚红',
-						sale: 299,
-						factory: 699,
-						payNum: 666
-					},
-					{
-						img: 4,
-						name: '百雀羚套装女补水保湿护肤品',
-						sale: 1599,
-						factory: 2899,
-						payNum: 236
-					}
-				],
+				productList: [],
 				pageIndex: 1,
 				loadding: false,
 				pullUpOn: true,
 				appid: '',
-				secret: '',
 				opacity: 1
 			};
 		},
@@ -383,13 +278,23 @@
 				});
 			}, 1800);
 			this.appid = this.$store.state.appid
-			this.secret = this.$store.state.secret
+			let url = '/getStoreSpu/' + this.appid
+			this.tui.request(url).then(res=>{
+				if (res.code==='0'){
+					res.skuList.forEach(
+						sku=>{
+							this.productList.push(sku.data[0])
+						}
+					)
+					this.$store.commit('setGoodsList', res.skuList)
+				}
+			})
 			this.hotSearch = uni.getStorageSync('hotKeys') || []
 		},
 		methods: {
-			detail: function() {
+			detail(spu_id) {
 				uni.navigateTo({
-					url: '/pages/index/productDetail/productDetail'
+					url: '/pages/index/productDetail/productDetail?spu_id=' + spu_id
 				});
 			},
 			coupon() {
@@ -438,12 +343,12 @@
 				this.loadding = false;
 				this.pullUpOn = false;
 			} else {
-				let loadData = JSON.parse(JSON.stringify(this.productList));
-				loadData = loadData.splice(0, 10);
-				if (this.pageIndex == 1) {
-					loadData = loadData.reverse();
-				}
-				this.productList = this.productList.concat(loadData);
+				// let loadData = JSON.parse(JSON.stringify(this.productList));
+				// loadData = loadData.splice(0, 10);
+				// if (this.pageIndex == 1) {
+				// 	loadData = loadData.reverse();
+				// }
+				// this.productList = this.productList.concat(loadData);
 				this.pageIndex = this.pageIndex + 1;
 				this.loadding = false;
 			}
@@ -1033,7 +938,11 @@
 	.tui-pro-price {
 		padding-top: 18rpx;
 	}
-
+    .tui-size-24 {
+		font-size: 24rpx;
+		font-weight: 500;
+		color: #e41f19;
+	}
 	.tui-sale-price {
 		font-size: 34rpx;
 		font-weight: 500;

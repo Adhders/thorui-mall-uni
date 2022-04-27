@@ -14,6 +14,8 @@ const store = createStore({
 // #endif
 	state: {
 		appid: "wx09760711e33ab5bb",
+		corpId: 'ww5dc8a0b776f02df8',
+		serviceId: "https://work.weixin.qq.com/kfid/kfcb67b111a2c17d9e0",
 		secret: "53dc8454d875811c698b8d42bfac644e",
 		//是否登录 项目中改为真实登录信息判断，如token
 		isLogin: false,
@@ -21,7 +23,7 @@ const store = createStore({
 		userInfo: {
 			avatarUrl: 'https://mmbiz.qpic.cn/mmbiz/icTdbqWNOwNRna42FI242Lcia07jQodd2FJGIYQfG0LAJGFxM4FbnQP6yfMxBgJ0F3YRqJCJ1aPAK2dQagdusBZg/0',
 			phone: '',
-			nickName: '',
+			nickName: '请登录',
 			gender: 0,
 		},
 		//登录后跳转的页面路径 + 页面参数
@@ -40,6 +42,7 @@ const store = createStore({
 		orderList: [],
 		//1: "待支付",  2: '待发货', 3 : '待收货' 4: '待评价' 5: '退款'
 		orderState: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0},
+		goodsList: [],
 		addressList: [],
 		currentReview: []
 	},
@@ -77,6 +80,9 @@ const store = createStore({
 		setTargetOrder(state, order){
 			state.targetOrder = order
 	    },
+		setGoodsList(state, goodsList){
+			state.goodsList = goodsList
+		},
 		setReviewList(state, reviewList){
 			state.reviewList = reviewList
 		},

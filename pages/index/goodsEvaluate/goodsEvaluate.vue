@@ -3,7 +3,7 @@
 		<view class="tui-header">
 			<view>
 				<text>商品好评度</text>
-				<text class="active rate" >{{goodRate}}%</text>
+				<text class="active rate">{{goodRate}}%</text>
 			</view>
 			<view >
 				<text :class="{active: active===1}" @tap="onChange(1)">默认排序</text>
@@ -35,28 +35,36 @@
 		</view>
 		<view class="tui-evaluate__box" v-for="(item,index) in displayList" :key="index">
 			<view class="tui-flex__center">
-				<img :src="item.avatar" class="tui-avatar"></img>
-				<view class="tui-nickname">{{item.name}}</view>
+				<image :src="item.avatar" class="tui-avatar">
+			    <view style="flex: 1">
+					<view class="tui-nickname">{{item.name}}</view>
+					<text class="tui-review-time">{{item.create_time | timeFormat}}前评论</text>
+				</view>		
+				<tui-rate :current="item.star" :size="14"></tui-rate>
 			</view>
 			<view class="tui-content__box">
-				<view class="tui-rate__box">
-					<tui-rate :current="item.star" :size="14"></tui-rate>
-					<text>{{item.create_time | timeFormat}}</text>
-				</view>
 				<view class="tui-desc">
 					{{item.msg}}
 				</view>
-				<view class="tui-img__box" v-if="item.imgs && item.imgs.length>0">
+				<view class="tui-img__box" v-if="item.imgs.length>0">
 					<block v-for="(src,subIndex) in item.imgs" :key="subIndex">
 						<image @tap.stop="previewImage(index,subIndex)"
-							   :class="{'tui-image':item.imgs.length===1}"
+							   :class="{'tui-image':item.imgs.length===1, 'tui-image-double': item.imgs.length===2}"
 							   :src="webURL+src"
-							   :mode="item.imgs.length===1?'widthFix':'aspectFill'"></image>
+							   mode="aspectFill"></image>
 					</block>
 				</view>
 				<view class="tui-desc" v-if="item.additional">
-					<view class="additional">购买{{item.additional.date}}后追平</view>
+					<view class="additional">购买{{item.additional.date | timeFormat}}后追平</view>
 					<view>{{item.additional.msg}}</view>
+				</view>
+				<view class="tui-img__box" v-if="item.additional.imgs.length>0">
+					<block v-for="(src,subIndex) in item.additional.imgs" :key="subIndex">
+						<image @tap.stop="previewImage(index,subIndex)"
+							   :class="{'tui-image':item.additional.imgs.length===1, 'tui-image-double': item.additional.imgs.length===2}"
+							   :src="webURL+src"
+							   mode='aspectFill'></image>
+					</block>
 				</view>
 				<view class="tui-op__box tui-flex__center">
 					<view class="tui-specs">{{item.specs}}</view>
@@ -79,7 +87,7 @@
 </template>
 
 <script>
-	import utils from '@/utils/util.js'
+	// import utils from '@/utils/util.js'
 	export default {
 		data() {
 			return {
@@ -98,7 +106,27 @@
 		},
 		filters: {
 			timeFormat(v){
-				return utils.formatDate('y-m-d', v)
+				var new_date = new Date(); //新建一个日期对象，默认现在的时间
+				var old_date = new Date(v); //设置过去的一个时间点，"yyyy-MM-dd HH:mm:ss"格式化日期
+				
+				var difftime = (new_date - old_date)/1000; //计算时间差,并把毫秒转换成秒
+				
+				var days = parseInt(difftime/86400); // 天  
+				var hours = parseInt(difftime/3600); // 小时 
+				var minutes = parseInt(difftime/60); // 分钟
+
+				if (days>0){
+					 return  days + "天"
+				}
+	            else if(hours>0){
+					return hours + '小时'
+				}
+				else if(minutes>0){
+					return minutes + '分钟'
+				}
+				else {
+					return parseInt(difftime) + '秒'
+				}
 			}
 		},
 		onLoad(){
@@ -167,7 +195,9 @@
 		},
 		computed: {
 			reviewList(){
-				return this.$store.state.reviewList
+				return this.$store.state.reviewList.sort((a,b) => {
+								return b.star - a.star
+							})
 			},
 			likeList(){
 				return this.$store.state.likeList
@@ -291,6 +321,7 @@
 	.tui-flex__center {
 		display: flex;
 		align-items: center;
+		justify-content: space-between;
 	}
 
 	.tui-avatar {
@@ -302,6 +333,12 @@
 	.tui-nickname {
 		font-size: 28rpx;
 		padding-left: 12rpx;
+	}
+
+	.tui-review-time {
+		font-size: 24rpx;
+   		margin-left: 12rpx;
+    	color: #999;
 	}
 
 	.tui-content__box {
@@ -321,11 +358,13 @@
 	}
 
 	.tui-desc {
+		margin-top: 20rpx;
 		font-size: 28rpx;
 		word-break: break-all;
 		text-align: justify;
 		.additional{
 			margin: 10rpx 0;
+			color: #e41f19;
 		}
 	}
 
@@ -341,10 +380,18 @@
 		margin-right: 12rpx;
 		margin-top: 12rpx;
 	}
-
+	
 	.tui-image {
-		width: 400rpx !important;
-		height: auto;
+		width: 375rpx !important;
+		height: 375rpx !important;
+	}
+
+	.tui-image-double {
+		width: 315rpx !important;
+		height: 315rpx  !important;
+		&:last-child{
+			margin-right: 0;
+		}
 	}
 
 	.tui-op__box {

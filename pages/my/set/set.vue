@@ -90,7 +90,7 @@
 			},
 			logout() {
 				this.$store.commit('login',false)
-				let userInfo = {avatarUrl: 'https://system.chuangbiying.com/static/images/my/mine_def_touxiang_3x.png'}
+				let userInfo = {avatarUrl: 'https://mmbiz.qpic.cn/mmbiz/icTdbqWNOwNRna42FI242Lcia07jQodd2FJGIYQfG0LAJGFxM4FbnQP6yfMxBgJ0F3YRqJCJ1aPAK2dQagdusBZg/0'}
 				this.$store.commit('setUserInfo', userInfo)
 				uni.removeStorageSync('token')
 				uni.removeStorageSync('pid')

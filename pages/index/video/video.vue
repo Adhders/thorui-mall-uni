@@ -1,6 +1,6 @@
 <template>
 	<view class="container">
-		<video class="tui-video" src="https://1251542705.vod2.myqcloud.com/4a8d9c67vodtransgzp1251542705/f7b5199b5285890805797463637/v.f100820.mp4" enable-danmu danmu-btn controls autoplay>
+		<video class="tui-video" id="tui-video" :src="videoUrl" controls>
 		</video>
 	</view>
 </template>
@@ -9,8 +9,17 @@
 	export default {
 		data() {
 			return {
-				
+				videoUrl: '',
 			}
+		},
+		onLoad(options){
+			this.videoUrl = options.videoUrl
+			console.log('currentTime', options.currentTime)
+			// #ifdef MP-WEIXIN
+			this.videoplayObj = wx.createVideoContext('tui-video')
+			this.videoplayObj.play()
+			this.videoplayObj.seek(parseInt(options.currentTime))
+			// #endif
 		},
 		methods: {
 			
