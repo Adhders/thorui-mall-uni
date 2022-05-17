@@ -1,6 +1,12 @@
 <template>
 	<view class="container">
-		<view class="tui-avatar-box">
+		<view class="tui-header-box" :style="{ height: height + 'px', background: '#fff' }">
+			<view class="tui-header" :style="{ paddingTop: top + 'px'}">授权登陆</view>
+			<view class="tui-header-icon" :style="{ marginTop: top + 'px' }" @tap="onCancel">
+				<tui-icon name="arrowleft" :size="30" color="#000" ></tui-icon>
+			</view>
+		</view>
+		<view class="tui-avatar-box" :style="{ paddingTop: height + 'px' }">
 			<!--只显示头像不获取-->
 			<open-data type="userAvatarUrl" class="tui-avatar"></open-data>
 <!--			<image :src="userInfo.avatarUrl" class="tui-avatar"></image>-->
@@ -21,10 +27,27 @@
 	export default {
 		data() {
 			return {
-				nickname: ''
+				height: 64, //header高度
+				top: 26, //标题图标距离顶部距离
+				nickname: '',
+				from: ''
 			};
 		},
-		onLoad() {
+		onLoad(options) {
+			let obj = {};
+			// #ifdef MP-WEIXIN
+			obj = wx.getMenuButtonBoundingClientRect();
+			// #endif
+			setTimeout(() => {
+				uni.getSystemInfo({
+					success: res => {
+						this.width = obj.left || res.windowWidth;
+						this.height = obj.top ? obj.top + obj.height + 8 : res.statusBarHeight + 44;
+						this.top = obj.top ? obj.top + (obj.height - 32) / 2 : res.statusBarHeight + 6;
+					}
+				});
+			}, 0);
+	        this.from = options.from
 			this.appid = this.$store.state.appid
 			this.secret = this.$store.state.secret
 		},
@@ -32,14 +55,13 @@
 			userInfo(){
 				return this.$store.state.userInfo
 			},
-		},
+		},		
 		methods: {
 			onConfirm(){
 				let _this = this
 				uni.getUserProfile({
 					desc: '获取您的昵称、头像',
 					success: res => {
-						console.log('userInfo', res.userInfo)
 						let data = res.userInfo
 						uni.login({
 							provider: 'weixin',
@@ -57,10 +79,20 @@
 											key: 'pid',
 											data: decoded.pid,
 										})
+										uni.setStorage({
+											key: 'userInfo',
+											data: decoded.pid,
+										})
 										data.phone = decoded.userInfo.phone
-										_this.$store.commit('login', true)
+					                    _this.$store.commit('login', true)
 										_this.$store.commit('setUserInfo', data)
-										uni.navigateBack({delta: 1})
+										_this.$store.commit('setReviewLikes', res.reviewLikes)
+										
+										if(_this.from === 'cart'){
+											uni.switchTab({url: '/pages/tabbar/cart/cart'})
+										}else{
+											uni.navigateBack({delta: 1})
+										}
 									}else{
 										uni.showToast({
 											title: '请求失败,请重新进入小程序',
@@ -78,7 +110,11 @@
 				})
 			},
 			onCancel(){
-				uni.navigateBack({delta: 1})
+				if(this.from === 'cart'){
+					uni.switchTab({url: '/pages/tabbar/index/index'})
+				}else{
+					uni.navigateBack({delta: 1})
+				}
 			}
 		}
 	};
@@ -87,6 +123,38 @@
 <style lang="scss" scoped>
 .container {
 	padding: 0 60rpx;
+	.tui-header-box {
+		width: 100%;
+		position: fixed;
+		left: 0;
+		top: 0;
+		z-index: 995;
+	}
+	.tui-header {
+		width: 100%;
+		font-size: 14px;
+		font-weight: 500;
+		height: 32px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+	.tui-header-icon {
+		position: fixed;
+		top: 0;
+		left: 10px;
+		display: flex;
+		align-items: flex-start;
+		justify-content: space-between;
+		height: 32px;
+		transform: translateZ(0);
+		z-index: 9999;
+		.tui-badge {
+			background: #e41f19 !important;
+			position: absolute;
+			right: -4px;
+		}
+	}
 	.tui-btn-box {
 		padding: 40rpx 20rpx;
 		box-sizing: border-box;

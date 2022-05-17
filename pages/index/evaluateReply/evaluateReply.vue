@@ -1,9 +1,9 @@
 <template>
 	<view class="container">
 		<textarea class="tui-textarea"
-				  :placeholder="placeholder"
-				  v-model = "ruleForm.msg"
-				  maxlength="200" auto-focus>
+			:placeholder="placeholder"
+			v-model = "ruleForm.msg"
+			maxlength="200" auto-focus>
 		</textarea>
 		<view class="tui-btn__box">
 			<tui-button type="danger" height="88rpx" shape="circle" @tap="onSubmit">发送</tui-button>
@@ -19,17 +19,20 @@
 				placeholder: '回复留言',
 				ruleForm: {
 					id: '',
-					name: '张三',
-					avatar: 'https://system.chuangbiying.com/static/images/news/avatar_1.jpg',
+					name: '',
+					avatar: '',
 					reply: false,
 					create_time: "",
+					repliedMsg: null,
 					msg: '',
 					likes: 0,
 				}
 			}
 		},
 		onLoad(options) {
-			if (options.index==='undefined'){
+			this.ruleForm.name = this.$store.state.userInfo.nickName
+			this.ruleForm.avatar = this.$store.state.userInfo.avatarUrl
+			if (options.index==='-1'){
 				this.placeholder = '回复' + this.reviewDetail.name
 			}else{
 				this.ruleForm.reply = true
@@ -50,7 +53,6 @@
 					this.ruleForm.id = timestamp
 					this.ruleForm.create_time = utils.formatDate('y-m-d h:i:s', timestamp, 2)
 					this.reviewDetail.children.push(this.ruleForm)
-					this.reviewDetail.reviews +=1
 					let url = '/updateGoodsReview/' + this.reviewDetail.id + '/reply'
 					this.tui.request(url,'PUT', this.reviewDetail).then(res=>{
 						if (res.code==='0'){

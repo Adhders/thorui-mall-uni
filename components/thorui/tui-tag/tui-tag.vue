@@ -148,7 +148,7 @@
 	}
 
 	.tui-translucent {
-		background-color: rgba(0, 0, 0, 0.7);
+		background-color: rgba(0, 0, 0, 0.4);
 	}
 
 	.tui-light-black {

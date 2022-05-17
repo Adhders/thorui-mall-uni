@@ -149,7 +149,7 @@ export default {
 	transform: matrix(0.5, 0.5, -0.5, 0.5, 0, 0);
 	position: absolute;
 	top: 50%;
-	margin-top: -8rpx;
+	margin-top: -10rpx;
 	right: 30rpx;
 }
 .tui-arrow-right::before {

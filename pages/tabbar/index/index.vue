@@ -115,7 +115,7 @@
 			</view>
 			<view class="tui-product-list">
 				<view class="tui-product-container">
-					<block v-for="(item, index) in productList" :key="index">
+					<block v-for="(item, index) in goodsList" :key="index">
 						<!--商品列表-->
 						<view class="tui-pro-item" hover-class="hover" :hover-start-time="150" @tap="detail(item.spu_id)" v-if="(index + 1) % 2 != 0">
 							<image :src="item.defaultImageUrl" class="tui-pro-img" mode="widthFix" />
@@ -124,7 +124,7 @@
 								<view>
 									<view class="tui-pro-price">
 										<text class="tui-sale-price">￥{{ item.price.split('.')[0] }}</text>
-										<text class="tui-size-24">.{{ item.price.split('.')[1]}}</text>
+										<text class="tui-size-24" v-show="item.price.indexOf('.')!==-1">.{{ item.price.split('.')[1]}}</text>
 										<text class="tui-factory-price">￥{{ item.originalPrice }}</text>
 									</view>
 									<view class="tui-pro-pay">{{ item.salesNum }}人付款</view>
@@ -136,7 +136,7 @@
 					</block>
 				</view>
 				<view class="tui-product-container">
-					<block v-for="(item, index) in productList" :key="index">
+					<block v-for="(item, index) in goodsList" :key="index">
 						<!--商品列表-->
 						<view class="tui-pro-item" hover-class="hover" :hover-start-time="150" @tap="detail(item.spu_id)" v-if="(index + 1) % 2 == 0">
 							<image :src="item.defaultImageUrl" class="tui-pro-img" mode="widthFix" />
@@ -144,7 +144,7 @@
 								<view class="tui-pro-tit">{{ item.title }}</view>
 								<view class="tui-pro-price">
 									<text class="tui-sale-price">￥{{ item.price.split('.')[0] }}</text>
-									<text class="tui-size-24">.{{ item.price.split('.')[1]}}</text>
+									<text class="tui-size-24" v-show="item.price.indexOf('.')!==-1">.{{ item.price.split('.')[1]}}</text>
 									<text class="tui-factory-price">￥{{ item.originalPrice }}</text>
 								</view>
 								<view class="tui-pro-pay">{{ item.salesNum }}人付款</view>
@@ -210,6 +210,7 @@
 						name: '卫衣'
 					}
 				],
+				goodsGroup: [],
 				newProduct: [{
 						name: '时尚舒适公主裙高街修身长裙',
 						present: 198,
@@ -259,7 +260,7 @@
 						isLabel: true
 					}
 				],
-				productList: [],
+				goodsList: [],
 				pageIndex: 1,
 				loadding: false,
 				pullUpOn: true,
@@ -278,24 +279,28 @@
 				});
 			}, 1800);
 			this.appid = this.$store.state.appid
-			let url = '/getStoreSpu/' + this.appid
+			let url = '/getStoreGoods/' + this.appid
 			this.tui.request(url).then(res=>{
+				console.log('res', res)
 				if (res.code==='0'){
-					res.skuList.forEach(
-						sku=>{
-							this.productList.push(sku.data[0])
-						}
-					)
-					this.$store.commit('setGoodsList', res.skuList)
+					this.goodsList = res.goodsList
+					this.$store.commit('setGoodsList', this.goodsList)
 				}
 			})
+			 url = '/queryGoodsGroup/' + this.user + '/' + this.store_id
+            this.$axios.get(url).then(
+                res => {
+                    if(res.data.code==='0'){
+						console.log('goodsGroup', res.data)
+						// this.$store.state.commit('setGoodsGroup', this.goodsGroup)
+                    }
+                }
+            ).catch(err => { console.log('err', err) })
 			this.hotSearch = uni.getStorageSync('hotKeys') || []
 		},
 		methods: {
 			detail(spu_id) {
-				uni.navigateTo({
-					url: '/pages/index/productDetail/productDetail?spu_id=' + spu_id
-				});
+				this.tui.href('/pages/index/productDetail/productDetail?spu_id=' + spu_id);
 			},
 			coupon() {
 				uni.navigateTo({
@@ -310,7 +315,7 @@
 			more: function(e) {
 				let key = e.currentTarget.dataset.key || '';
 				uni.navigateTo({
-					url: '/pages/index/productList/productList?searchKey=' + key
+					url: '/pages/index/goodsList/goodsList?searchKey=' + key
 				});
 			},
 			search: function() {
@@ -328,9 +333,9 @@
 			}
 		},
 		onPullDownRefresh: function() {
-			let loadData = JSON.parse(JSON.stringify(this.productList));
+			let loadData = JSON.parse(JSON.stringify(this.goodsList));
 			loadData = loadData.splice(0, 10);
-			this.productList = loadData;
+			this.goodsList = loadData;
 			this.pageIndex = 1;
 			this.pullUpOn = true;
 			this.loadding = false;
@@ -343,12 +348,12 @@
 				this.loadding = false;
 				this.pullUpOn = false;
 			} else {
-				// let loadData = JSON.parse(JSON.stringify(this.productList));
+				// let loadData = JSON.parse(JSON.stringify(this.goodsList));
 				// loadData = loadData.splice(0, 10);
 				// if (this.pageIndex == 1) {
 				// 	loadData = loadData.reverse();
 				// }
-				// this.productList = this.productList.concat(loadData);
+				// this.goodsList = this.goodsList.concat(loadData);
 				this.pageIndex = this.pageIndex + 1;
 				this.loadding = false;
 			}

@@ -54,7 +54,7 @@
 				return this.$store.state.userInfo
 			},
 			isLogin(){
-				return this.$store.state.isLogin
+				return uni.getStorageSync("pid") || this.$store.state.isLogin
 			}
 		},
 		methods: {
@@ -89,12 +89,17 @@
 				})
 			},
 			logout() {
-				this.$store.commit('login',false)
-				let userInfo = {avatarUrl: 'https://mmbiz.qpic.cn/mmbiz/icTdbqWNOwNRna42FI242Lcia07jQodd2FJGIYQfG0LAJGFxM4FbnQP6yfMxBgJ0F3YRqJCJ1aPAK2dQagdusBZg/0'}
+				let userInfo = {
+					avatarUrl: 'https://mmbiz.qpic.cn/mmbiz/icTdbqWNOwNRna42FI242Lcia07jQodd2FJGIYQfG0LAJGFxM4FbnQP6yfMxBgJ0F3YRqJCJ1aPAK2dQagdusBZg/0',
+					phone: '',
+					nickName: '未登录'}
 				this.$store.commit('setUserInfo', userInfo)
+				this.$store.commit('login', false)
 				uni.removeStorageSync('token')
 				uni.removeStorageSync('pid')
+				uni.removeStorageSync('userInfo')
 				uni.navigateBack({delta: 1})
+
 			}
 		}
 	}

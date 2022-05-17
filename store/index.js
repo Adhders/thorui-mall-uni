@@ -15,17 +15,17 @@ const store = createStore({
 	state: {
 		appid: "wx09760711e33ab5bb",
 		corpId: 'ww5dc8a0b776f02df8',
+		qrcode: 'https://thorui.cn/extend/share/applets.png',
 		serviceId: "https://work.weixin.qq.com/kfid/kfcb67b111a2c17d9e0",
 		secret: "53dc8454d875811c698b8d42bfac644e",
-		//是否登录 项目中改为真实登录信息判断，如token
-		isLogin: false,
 		//用户信息
-		userInfo: {
+		userInfo: uni.getStorageSync("userInfo") ? uni.getStorageSync("userInfo") : {
 			avatarUrl: 'https://mmbiz.qpic.cn/mmbiz/icTdbqWNOwNRna42FI242Lcia07jQodd2FJGIYQfG0LAJGFxM4FbnQP6yfMxBgJ0F3YRqJCJ1aPAK2dQagdusBZg/0',
 			phone: '',
 			nickName: '请登录',
 			gender: 0,
 		},
+		isLogin: false,
 		//登录后跳转的页面路径 + 页面参数
 		returnUrl: "",
 		//app版本
@@ -37,12 +37,14 @@ const store = createStore({
 		openid: '',
 		targetOrder: null,
 		likeList: [],
+		reviewLikes: [],
 		reviewList: [],
 		refundList: [],
 		orderList: [],
 		//1: "待支付",  2: '待发货', 3 : '待收货' 4: '待评价' 5: '退款'
 		orderState: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0},
 		goodsList: [],
+		goodsGroup: [],
 		addressList: [],
 		currentReview: []
 	},
@@ -83,8 +85,17 @@ const store = createStore({
 		setGoodsList(state, goodsList){
 			state.goodsList = goodsList
 		},
+		setGoodsGroup(state, goodsGroup){
+            state.goodsGroup = goodsGroup  
+		},
 		setReviewList(state, reviewList){
 			state.reviewList = reviewList
+		},
+		setLikeList(state, likeList){
+			state.likeList = likeList
+		},
+		setReviewLikes(state, reviewLikes){
+			state.reviewLikes = reviewLikes
 		},
 		setRefundList(state, refundList){
 			state.refundList = refundList

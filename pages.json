@@ -85,6 +85,17 @@
 			}
 
 		}, {
+			"path": "pages/index/invalidProduct/invalidProduct",
+			"style": {
+				"backgroundColorTop": "#F7F7F7",
+				"backgroundColorBottom": "#F7F7F7",
+				"navigationBarTitleText": "商品已下架",
+				"app-plus": {
+					"bounce": "vertical"
+				}
+			}
+		},
+		{
 			"path": "pages/index/coupon/coupon",
 			"style": {
 				"navigationBarTitleText": "领券中心",
@@ -434,8 +445,12 @@
 		{
 			"path": "pages/my/login/login",
 			"style": {
-				"navigationBarTitleText": "授权登录",
+				"backgroundColorTop": "#F7F7F7",
+				"backgroundColorBottom": "#F7F7F7",
+				"navigationBarTitleText": " ",
+				"navigationStyle": "custom",
 				"app-plus": {
+					"titleNView": false,
 					"bounce": "vertical"
 				}
 			}

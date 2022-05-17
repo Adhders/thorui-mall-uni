@@ -1,7 +1,7 @@
 <template>
-	<text class="tui-icon"
+	<view class="tui-icon"
 		:style="{ color: color || '#999', fontSize: size + unit, fontWeight: bold ? 'bold' : 'normal',margin:margin }"
-		@tap="handleClick">{{ icons[name] }}</text>
+		@tap="handleClick">{{ icons[name] }}</view>
 
 </template>
 
@@ -76,6 +76,7 @@
 	.tui-icon {
 		font-family: thoruiFont;
 		text-align: center;
+		display: inline-flex;
 		text-decoration: none;
 	}
 </style>

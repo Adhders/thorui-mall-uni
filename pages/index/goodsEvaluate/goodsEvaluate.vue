@@ -36,11 +36,11 @@
 		<view class="tui-evaluate__box" v-for="(item,index) in displayList" :key="index">
 			<view class="tui-flex__center">
 				<image :src="item.avatar" class="tui-avatar">
-			    <view style="flex: 1">
+			    <view class="tui-user-info">
 					<view class="tui-nickname">{{item.name}}</view>
-					<text class="tui-review-time">{{item.create_time | timeFormat}}前评论</text>
+					<tui-rate :current="item.star" :size="11"></tui-rate>
 				</view>		
-				<tui-rate :current="item.star" :size="14"></tui-rate>
+				<text class="tui-review-time">{{item.create_time | timeFormat}}</text>
 			</view>
 			<view class="tui-content__box">
 				<view class="tui-desc">
@@ -60,7 +60,7 @@
 				</view>
 				<view class="tui-img__box" v-if="item.additional.imgs.length>0">
 					<block v-for="(src,subIndex) in item.additional.imgs" :key="subIndex">
-						<image @tap.stop="previewImage(index,subIndex)"
+						<image @tap.stop="previewImage(index,subIndex,true)"
 							   :class="{'tui-image':item.additional.imgs.length===1, 'tui-image-double': item.additional.imgs.length===2}"
 							   :src="webURL+src"
 							   mode='aspectFill'></image>
@@ -71,11 +71,11 @@
 					<view class="tui-flex__center">
 						<view class="tui-op-item" @tap="onLike(item.id)">
 							<text :class="{'tui-color-red':item.zan}">{{item.likes}}</text>
-							<tui-icon :name="likeList.includes(item.id)?'agree-fill':'agree'" :size="34" unit="rpx"
-									  :color="likeList.includes(item.id)?'#EB0909':'#333'"></tui-icon>
+							<tui-icon :name="reviewLikes.includes(item.id)?'agree-fill':'agree'" :size="34" unit="rpx"
+									  :color="reviewLikes.includes(item.id)?'#EB0909':'#333'"></tui-icon>
 						</view>
 						<view class="tui-op-item" @tap="evaluateDetail(item)">
-							<text>{{item.reviews}}</text>
+							<text>{{item.children.length}}</text>
 							<tui-icon name="message" :size="40" unit="rpx" color="#333"></tui-icon>
 						</view>
 					</view>
@@ -87,7 +87,7 @@
 </template>
 
 <script>
-	// import utils from '@/utils/util.js'
+	import utils from '@/utils/util.js'
 	export default {
 		data() {
 			return {
@@ -106,27 +106,15 @@
 		},
 		filters: {
 			timeFormat(v){
-				var new_date = new Date(); //新建一个日期对象，默认现在的时间
-				var old_date = new Date(v); //设置过去的一个时间点，"yyyy-MM-dd HH:mm:ss"格式化日期
+				// var new_date = new Date(); //新建一个日期对象，默认现在的时间
+				// var old_date = new Date(v); //设置过去的一个时间点，"yyyy-MM-dd HH:mm:ss"格式化日期
 				
-				var difftime = (new_date - old_date)/1000; //计算时间差,并把毫秒转换成秒
+				// var difftime = (new_date - old_date)/1000; //计算时间差,并把毫秒转换成秒
 				
-				var days = parseInt(difftime/86400); // 天  
-				var hours = parseInt(difftime/3600); // 小时 
-				var minutes = parseInt(difftime/60); // 分钟
-
-				if (days>0){
-					 return  days + "天"
-				}
-	            else if(hours>0){
-					return hours + '小时'
-				}
-				else if(minutes>0){
-					return minutes + '分钟'
-				}
-				else {
-					return parseInt(difftime) + '秒'
-				}
+				// var days = parseInt(difftime/86400); // 天  
+				// var hours = parseInt(difftime/3600); // 小时 
+				// var minutes = parseInt(difftime/60); // 分钟
+				return utils.formatDate("y-m-d", v);
 			}
 		},
 		onLoad(){
@@ -199,13 +187,12 @@
 								return b.star - a.star
 							})
 			},
-			likeList(){
-				return this.$store.state.likeList
+			reviewLikes(){
+				return this.$store.state.reviewLikes
 			}
 		},
 		methods: {
 			onChange(v){
-				console.log('change', v)
 				this.active=v
 				if(v===1){
 					this.displayList = this.reviewList.sort(
@@ -220,18 +207,33 @@
 				}
 			},
 			onLike(id) {
-				let index = this.likeList.indexOf(id)
-				let review_index = this.reviewList.findIndex((v)=>{return v.id===id})
-				if( index!== -1){
-					this.reviewList[review_index].likes -=1
-					this.likeList.splice(index,1)
+				if(!this.tui.isLogin()) {
+					uni.navigateTo({url: '/pages/my/login/login'})
 				}else{
-					this.reviewList[review_index].likes +=1
-					this.likeList.push(id)
+					let index = this.reviewLikes.indexOf(id)
+					let review_index = this.reviewList.findIndex((v)=>{return v.id===id})
+					let count = this.reviewList[review_index].likes
+					if( index!== -1){
+						count -=1
+						this.reviewLikes.splice(index,1)
+					}else{
+						count +=1
+						this.reviewLikes.push(id)
+					}
+					this.reviewList[review_index].likes = count
+					let url = "/updateGoodsReview/" + id + '/likes'
+					this.tui.request(url, 'PUT', {'likes': count}).then(res=>{})
+					let customer_url =  "/updateCustomer/" +  uni.getStorageSync("pid") + '/reviewLikes'
+					this.tui.request(customer_url, 'PUT', {'reviewLikes': id}).then(res=>{})
 				}
 			},
-			previewImage(index, current) {
-				let imgs = this.reviewList[index].imgs
+			previewImage(index, current, additional) {
+				let imgs = []
+				if(additional){
+					imgs = this.reviewList[index].additional.imgs
+				}else{
+					imgs = this.reviewList[index].imgs
+				}
 				let urls = imgs.map(item => {
 					return this.webURL + item
 				})
@@ -323,7 +325,10 @@
 		align-items: center;
 		justify-content: space-between;
 	}
-
+	.tui-user-info {
+		flex: 1;
+		 margin-left: 10rpx
+	}
 	.tui-avatar {
 		width: 64rpx;
 		height: 64rpx;
@@ -331,10 +336,9 @@
 	}
 
 	.tui-nickname {
-		font-size: 28rpx;
-		padding-left: 12rpx;
+		margin-left: 5rpx;
+		font-size: 22rpx;
 	}
-
 	.tui-review-time {
 		font-size: 24rpx;
    		margin-left: 12rpx;
@@ -359,7 +363,7 @@
 
 	.tui-desc {
 		margin-top: 20rpx;
-		font-size: 28rpx;
+		font-size: 24rpx;
 		word-break: break-all;
 		text-align: justify;
 		.additional{
@@ -379,16 +383,19 @@
 		height: 200rpx;
 		margin-right: 12rpx;
 		margin-top: 12rpx;
+		border-radius: 8rpx;
 	}
 	
 	.tui-image {
 		width: 375rpx !important;
 		height: 375rpx !important;
+		border-radius: 10rpx;
 	}
 
 	.tui-image-double {
 		width: 315rpx !important;
 		height: 315rpx  !important;
+		border-radius: 10rpx;
 		&:last-child{
 			margin-right: 0;
 		}
@@ -413,7 +420,7 @@
 	}
 
 	.tui-specs {
-		font-size: 24rpx;
+		font-size: 22rpx;
 		color: #999;
 		font-weight: 400;
 		word-break: break-all;

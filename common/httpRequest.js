@@ -174,7 +174,7 @@ const tui = {
 	},
 	//判断是否登录
 	isLogin: function() {
-		return store.state.isLogin
+		return uni.getStorageSync("pid") || store.state.isLogin
 	},
 	//跳转页面，校验登录状态
 	href(url, isVerify) {

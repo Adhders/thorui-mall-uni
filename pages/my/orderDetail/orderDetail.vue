@@ -114,7 +114,7 @@
 			</view>
 			<tui-list-view unlined="bottom">
 				<tui-list-cell unlined>
-					<view class="tui-contact">
+					<view class="tui-contact" @tap="openService">
 						<image src="https://system.chuangbiying.com/static/images/mall/icon_contactmerchant.png"></image>
 						<text>联系商家</text>
 					</view>
@@ -138,15 +138,15 @@
 			</block>
 			<block v-if="order.status==='待发货'">
 				<view class="tui-btn-mr">
-					<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @tap="">申请退款</tui-button>
+					<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @tap="refund(order)">申请退款</tui-button>
 				</view>
 				<view class="tui-btn-mr">
-					<tui-button type="danger" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="">催发货</tui-button>
+					<tui-button type="danger" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="remind">催发货</tui-button>
 				</view>
 			</block>
 			<block v-if="order.status==='待收货'">
 				<view class="tui-btn-mr">
-					<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="">申请退款</tui-button>
+					<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="refund(order)">申请退款</tui-button>
 				</view>
 				<view class="tui-btn-mr">
 					<tui-button type="black"  plain width="152rpx" height="56rpx" :size="26" shape="circle">再次购买</tui-button>
@@ -235,10 +235,10 @@
 
 		},
 		methods: {
-			detail(item) {
-				uni.navigateTo({
-					url: '/pages/index/productDetail/productDetail?spu_id=' + item.spu_id + '&sku_id=' + item.id
-				})
+			detail(item) {    
+				this.tui.href(
+					'/pages/index/productDetail/productDetail?spu_id=' + item.spu_id + '&sku_id=' + item.id
+				)
 			},
 			getStatus: function(status){
 				const statusList = [
@@ -253,6 +253,17 @@
 				let t1 = Date.parse(new Date(time)) + expireTime
 				let t2 = Date.parse(new Date())
 				return (t1-t2)/1000
+			},
+			openService: function() {
+				// #ifdef MP-WEIXIN
+				let servieId = this.$store.state.serviceId
+				let corpId = this.$store.state.corpId
+				wx.openCustomerServiceChat({
+				  extInfo: {url: servieId},
+				  corpId: corpId,
+				  success(res) {console.log('res',res) }
+				})
+				// #endif
 			},
 			getImg: function(status) {
 				return this.webURL + ["img_order_payment3x.png", "img_order_send3x.png", "img_order_received3x.png",
@@ -271,6 +282,9 @@
 			onEnd(order){
 				this.tui.toast('订单已失效')
 				this.cancelOrder(order)
+			},
+			remind() {
+                this.tui.toast('待开发')
 			},
 			cancelOrder(order) {
 				let url = '/closeOrder_miniProg/' + order.orderNum
@@ -291,6 +305,10 @@
 							this.tui.toast('取消失败，请稍后再试')
 						}
 				})
+			},
+			refund(order){
+        		this.$store.commit('setTargetOrder', order)
+				this.tui.href('/pages/my/refundList/refundList?order=' + order.orderNum)
 			},
 			btnPay() {
 				this.show = true

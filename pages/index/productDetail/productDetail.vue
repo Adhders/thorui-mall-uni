@@ -26,10 +26,10 @@
 							<view style="position: relative;">
 								<video id="myVideo" ref="myVideoRef" :style="{ height: scrollH + 'px' }"
 									@timeupdate="timeupdate" @ended.stop="endedFun()" autoplay :controls="false"
-									:src="goodsDetail.videoUrl" :show-center-play-btn="false">
+									:src="goodsDetail.videoUrl" :show-center-play-btn="false" :muted="ismute">
 								</video>
 								<view class="video-img" @tap.stop="videoPlay()" v-if="startVideo">
-									<image src="/static/images/index/bofang.svg" mode="widthFix"></image>
+									<image src="/static/images/index/play.svg" mode=""></image>
 								</view>
 							</view>
 						</view>
@@ -40,8 +40,13 @@
 					</swiper-item>
 				</swiper>
 
+				<view class="tui-video-voice" v-if="goodsDetail.videoUrl && bannerIndex === 0"  @click="onChange">
+					<tui-tag padding="6rpx 18rpx" type="translucent" shape="circle" :scaleMultiple="0.82" originRight>
+						<image :src="voiceControl" mode=""></image>
+					</tui-tag>
+				</view>
 				<view class="tui-banner-tag">
-					<tui-tag padding="12rpx 18rpx" type="translucent" shape="circleLeft" :scaleMultiple="0.82" originRight>{{ bannerIndex + 1 }}/{{ goodsDetail.goodsImageUrls.length + (goodsDetail.videoUrl? 1: 0) }}</tui-tag>
+					<tui-tag padding="12rpx 18rpx" type="translucent" shape="circle" :scaleMultiple="0.82" originRight>{{ bannerIndex + 1 }}/{{ goodsDetail.goodsImageUrls.length + (goodsDetail.videoUrl? 1: 0) }}</tui-tag>
 				</view>
 			</view>
 
@@ -50,7 +55,7 @@
 			<view class="tui-pro-detail">
 				<view class="tui-product-title tui-border-radius">
 					<view class="tui-pro-pricebox tui-padding">
-						<view class="tui-pro-price tui-skeleton-rect">
+						<view class="tui-pro-price ">
 							<view>
 								<text>￥</text>
 								<text class="tui-price">{{goodsDetail.price}}</text>
@@ -79,14 +84,14 @@
 						</view>
 					</view>
 					<view class="tui-padding">
-						<view class="tui-sub-title tui-size tui-gray tui-skeleton-rect">{{goodsDetail.slogan}}</view>
+						<view class="tui-sub-title tui-size tui-gray ">{{goodsDetail.slogan}}</view>
 					</view>
 				</view>
 
 				<!-- <view class="tui-discount-box tui-radius-all tui-mtop">
 					<view class="tui-list-cell" @tap="coupon">     
 						<view class="tui-bold tui-cell-title" >领券</view>
-						<view class="tui-flex-center tui-skeleton-rect">
+						<view class="tui-flex-center ">
 							<tui-tag type="red" shape="circle" padding="12rpx 24rpx" size="24rpx">满99减8</tui-tag>
 							<tui-tag margin="0 0 0 20rpx" type="red" padding="12rpx 24rpx" size="24rpx" shape="circle">满59减5</tui-tag>
 						</view>
@@ -98,18 +103,19 @@
 
 				<view class="tui-basic-info tui-mtop tui-radius-all">
 					<view class="tui-list-cell" @tap="showPopup('choice')">
-						<view class="tui-bold tui-cell-title tui-skeleton-rect">已选</view>
-						<view class="tui-selected-box tui-skeleton-rect">{{goodsDetail.selectedGoodsAttrList | attrFormat}}</view>
+						<view class="tui-bold tui-cell-title">已选</view>
+						<view class="tui-selected-box">{{selectedGoodsAttrList | attrFormat}}，</view>
+						<view class="tui-buyNum">{{buyNum}}{{goodsDetail.sellUnit}}</view>
 						<view class="tui-ml-auto">
-							<tui-icon name="more-fill" :size="20" color="#666"></tui-icon>
+							<tui-icon name="arrowright" :size="16" color="#666"></tui-icon>
 						</view>
 					</view>
 
 					<view class="tui-list-cell tui-last" @tap="showPopup('property')">
-						<view class="tui-bold tui-cell-title" tui-skeleton-rect>参数</view>
-						<view class="tui-selected-box tui-skeleton-rect">{{ goodsDetail.selectedGoodsPropList | propsFormat}}</view>
+						<view class="tui-bold tui-cell-title" >参数</view>
+						<view class="tui-selected-box ">{{ goodsDetail.selectedGoodsPropList | propsFormat}}</view>
 						<view class="tui-ml-auto">
-							<tui-icon name="more-fill" :size="20" color="#666"></tui-icon>
+							<tui-icon name="arrowright" :size="16" color="#666"></tui-icon>
 						</view>
 					</view>
 					<view class="tui-guarantee" @tap="showPopup('service')">
@@ -122,11 +128,12 @@
 
 				<view class="tui-cmt-box tui-mtop tui-radius-all">
 					<view class="tui-list-cell tui-last tui-between">
-						<view class="tui-bold tui-cell-title tui-skeleton-rect">评价
+						<view class="tui-bold tui-cell-title ">评价
                             <text>({{reviews}})</text>
                         </view>
-						<view class="tui-skeleton-rect" @tap="evaluate">
-							<tui-icon name="more-fill" :size="20" color="#666"></tui-icon>
+						<view style="display: flex" @tap="evaluate">
+							<view class="tui-cell-notice">查看全部</view>
+							<tui-icon name="arrowright" :size="16" color="#666"></tui-icon>
 						</view>
 					</view>
 
@@ -134,13 +141,12 @@
 						<view class="tui-cmt-content tui-padding" v-if="index<=1">
 							<view class="tui-cmt-user">
 								<image :src="review.avatar" class="tui-avatar"></image>
-								<view style="flex: 1">
+								<view style="margin-left: 10rpx">
 									<view class="tui-nickname">{{review.name}}</view>
-									<text class="tui-review-time">{{review.create_time | timeFormat}}评论</text>
+									<tui-rate :current="review.star" :size="11"></tui-rate>
 								</view>	
-								<tui-rate :current="review.star" :size="14"></tui-rate>
 							</view>
-							<view class="tui-cmt tui-skeleton-rect">{{review.msg}}</view>
+							<view class="tui-cmt ">{{review.msg}}</view>
 						</view>
 					</block>
 				</view>
@@ -251,7 +257,7 @@
 						<view class="tui-price-box">
 							<view class="tui-popup-price">
 								<view class="tui-amount tui-bold">￥{{goodsDetail.price}}</view>
-								<view class="tui-number">已选择: {{goodsDetail.selectedGoodsAttrList | attrFormat}}</view>
+								<view class="tui-number">已选择: {{selectedGoodsAttrList | attrFormat}}</view>
 							</view>
 							<tui-numberbox :max="99" :min="1" :value="buyNum" @change="change"></tui-numberbox>
 						</view>
@@ -264,7 +270,8 @@
 									<view class="tui-attr-item"
 										v-for="(value, j) in item.values" :key=j
 										 @tap="onSelect(i,j)"
-										:class="{ 'tui-attr-active': selectIndex[i]===j }"> {{value}}
+										:class="{ 'tui-attr-active': selectedIndex[i]===j, 'invalid': isInvalid(i,j)}">
+										 {{value}}
 									</view>
 								</view>
 							</view>
@@ -326,6 +333,7 @@
 	import thorui from '@/components/common/tui-clipboard/tui-clipboard.js'
 	import poster from '@/components/common/tui-poster/tui-poster.js'
 	import uParse from '@/components/uni/uParse/src/wxParse'
+import invalidProductVue from '../invalidProduct/invalidProduct.vue';
 	export default {
 		components:{
 			uParse
@@ -333,10 +341,15 @@
 		data() {
 			return {
 				initial: true,
+				ismute: true,
+				voiceControl: "/static/images/index/mute.svg",
 				detail: '',
 			    reviews: 0,
+				skuArray: [], 
 				labelList: [],
-				selectIndex: [],
+				invalidSkuList: [],
+				invalidSkuIndexList: [],
+				selectedIndex: [],
 				height: 64, //header高度
 				top: 26, //标题图标距离顶部距离
 				scrollH: 0, //滚动总高度
@@ -403,7 +416,8 @@
 				startVideo: true, //中间播放按钮
 				currentTime: 0,
 				duration: 15,
-				goodsDetail: {selectedGoodsAttrList: [], selectedGoodsPropList: []},
+				selectedGoodsAttrList: [], //商品去重后的属性
+				goodsDetail: {selectedGoodsPropList: []},
 			};
 		},
 		
@@ -413,9 +427,10 @@
 			this.videoplayObj = wx.createVideoContext('myVideo')
 			obj = wx.getMenuButtonBoundingClientRect();
 			// #endif
+			uni.setStorageSync('currentTime', 0)
 			setTimeout(() => {
 				this.startVideo = false
-			}, 1000);
+			}, 600);
 			setTimeout(() => {
 				uni.getSystemInfo({
 					success: res => {
@@ -426,25 +441,39 @@
 					}
 				});
 			}, 0);
-            this.spu_id = options.spu_id
+            this.spu_id = parseInt(options.spu_id)
+			this.skuList = this.goodsList.filter((o)=>{return o.spu_id === this.spu_id})
+			if(this.skuList.length===0){
+				uni.redirectTo({url: '/pages/index/invalidProduct/invalidProduct'})
+			}
 			let url = '/getGoodsReview/' + this.spu_id
 			this.tui.request(url).then(res=>{
 				if (res.code==='0'){
 				    this.reviews = res.reviewList.length
 					this.$store.commit('setReviewList', res.reviewList)
-					console.log('review', res.reviewList)
 				}
 			})
-      
-            let index = this.goodsList.findIndex((o)=>{return o.id===parseInt(this.spu_id)})
-			this.skuList = this.goodsList[index].data
-			const sku_id = options.sku_id
+			const sku_id = parseInt(options.sku_id)
 			if (sku_id){
-                let index = this.skuList.findIndex((o)=>{return o.id === parseInt(sku_id)})
-				this.goodsDetail = this.skuList[index]
+                let index = this.skuList.findIndex((o)=>{return o.id === sku_id})
+				if(index === -1){
+					uni.redirectTo({url: '/pages/index/invalidProduct/invalidProduct'})
+				}else{
+					this.goodsDetail = this.skuList[index]
+				}
 			}else{
 				this.goodsDetail = this.skuList[0]
 			}
+			let attrs = {}
+			this.goodsDetail.selectedGoodsAttrList.forEach(v=>{
+				if(!attrs[v.name]){
+					attrs[v.name] = v.value
+				}
+			})
+			this.selectedGoodsAttrList=Object.keys(attrs).map((i)=>{
+				return { 'name': i, 'value': attrs[i] }
+			}); //对象转数组   
+
 			this.$nextTick(()=>{
 				let attrs = {}
 				this.skuList.forEach((o) => {
@@ -456,9 +485,52 @@
 						}
 					})
 				})
-				this.labelList = Object.keys(attrs).map(function(i){return { 'name': i, 'values': Array.from(attrs[i])}}); //对象转数组
-				this.selectIndex = new Array(this.labelList.length).fill(0)
-			})
+				this.labelList = Object.keys(attrs).map((i)=>{
+					return { 'name': i, 'values': Array.from(attrs[i])}
+				}); //对象转数组
+				this.labelList.forEach((o)=>{
+					let skuValues = o.values.map((v)=>{return { 'name': o.name, 'value': v }})
+					this.skuArray.push(skuValues)
+				})
+				console.log('skuArray', this.skuArray)
+				this.verify() // 获取失效sku列表invalidList
+
+			    this.invalidSkuList.forEach((o)=>{ // 获取失效sku列表invalidList 的索引
+					let indexList = []
+					o.forEach((v)=>{
+						let prop = JSON.parse(v)
+						console.log('prop', prop)
+						indexList.push(Array.from(attrs[prop.name]).indexOf(prop.value)) 
+					})
+					this.invalidSkuIndexList.push(JSON.stringify(indexList))
+				})
+				console.log('invalidSkuIndexList', this.invalidSkuIndexList)
+				let labelNames = Object.keys(attrs)
+				this.selectedIndex = new Array(this.labelList.length).fill(0)
+				this.selectedGoodsAttrList.forEach((o)=>{
+                    let i = labelNames.indexOf(o.name)
+                    this.selectedIndex[i] = this.labelList[i].values.indexOf(o.value) 
+				})
+			})    
+		},
+		onShow(){
+			// 视频全屏播放返回后的处理
+			const playState = uni.getStorageSync("playState")
+			if(playState!==''){
+				uni.removeStorageSync("playState")
+				let currentTime = uni.getStorageSync("currentTime")
+				this.videoplayObj.seek(currentTime)
+				if(playState){
+					this.videoplayObj.play()
+					this.startVideo = false
+					this.playing = true
+				}
+				else{
+					this.videoplayObj.pause()
+					this.startVideo = true
+					this.palying = false
+				}
+			}
 		},
 		filters: {
 			getPrice(price) {
@@ -479,28 +551,6 @@
 				})
 				return str
 			},
-			timeFormat(v){
-				var new_date = new Date(); //新建一个日期对象，默认现在的时间
-				var old_date = new Date(v); //设置过去的一个时间点，"yyyy-MM-dd HH:mm:ss"格式化日期
-				
-				var difftime = (new_date - old_date)/1000; //计算时间差,并把毫秒转换成秒
-				
-				var days = parseInt(difftime/86400); // 天  
-				var hours = parseInt(difftime/3600);    // 小时 
-				var minutes = parseInt(difftime%3600/60); // 分钟
-
-				if (days>0){
-					 return  days + "天前"
-				}
-	            else if(hours>0){
-					return hours + '小时前'
-				}
-				else if(minutes>0){
-					return minutes + '分钟前'
-				}
-				else { return '刚刚'}	
-			}
-			
 		},
 		computed: {
 			reviewList() {
@@ -514,28 +564,81 @@
 			endedFun() {
 				this.startVideo = true
 				this.playing = false
+				uni.setStorageSync('currentTime', 0)
+			},
+			onChange(){
+				this.ismute = !this.ismute
+				this.voiceControl = this.ismute? '/static/images/index/mute.svg' : '/static/images/index/volume.svg'
 			},
 			videoPlay() {
 				this.startVideo = false
+				this.playing = true
+				let currentTime = uni.getStorageSync("currentTime")
 				this.videoplayObj.play()
+				this.videoplayObj.seek(currentTime)
 			},
 			timeupdate(e){
 				this.duration = parseInt(e.detail.duration)
 				this.currentTime = parseInt(e.detail.currentTime)
 			},
 			onSelect(i,j){
-				this.selectIndex[i]=j
-				let attr = new Array()
-				this.labelList.forEach((o, index)=>{
-                    attr.push({name: o.name, value: o.values[this.selectIndex[index]]})
-				})
-				let skuIndex = this.skuList.findIndex(o=>{
-					console.log(JSON.stringify(o.selectedGoodsAttrList))
-					return JSON.stringify(o.selectedGoodsAttrList) === JSON.stringify(attr)})
-				if(skuIndex!==-1){
+                if(!this.isInvalid(i,j)){
+					this.selectedIndex[i]=j
+					let attr = new Array()
+					let selectedGoodsAttrList = []
+					this.labelList.forEach((o, index)=>{
+						let res = {name: o.name, value: o.values[this.selectedIndex[index]]}
+						selectedGoodsAttrList.push(res)
+						attr.push(JSON.stringify(res))
+					})
+					this.selectedGoodsAttrList = selectedGoodsAttrList
+					let skuIndex = this.skuList.findIndex(o=>{
+					      	let intersection = o.selectedGoodsAttrList.filter((v) =>
+							attr.includes(JSON.stringify(v)))   
+						return intersection.length === attr.length})
 					this.goodsDetail = this.skuList[skuIndex]
-				}	
-				this.$forceUpdate()
+					console.log('id', this.goodsDetail.id)
+				}else{
+					this.tui.toast('该规格已售罄')
+				}
+			},
+            isInvalid(i,j){
+				let selectedIndex = JSON.parse(JSON.stringify(this.selectedIndex))
+				selectedIndex[i]=j
+				return this.invalidSkuIndexList.includes(JSON.stringify(selectedIndex))
+			},
+			// 计算商品sku笛卡尔积
+			calcDescartes(array) {
+				if (array.length < 2) return array[0] || [];
+				return array.reduce((total, currentValue) => {
+					let res = [];
+					total.forEach(t => {
+						currentValue.forEach(cv => {
+							if (t instanceof Array) // 或者使用 Array.isArray(t)
+							res.push([...t, cv]);
+							else
+							res.push([t, cv]);
+						})
+					})
+					return res;
+				})
+			},
+			//验证商品sku是否失效
+			verify(){
+				let descartes = this.calcDescartes(this.skuArray)
+				console.log('descartes', descartes)
+				descartes.forEach((m)=>{
+					let attr = []
+					m.forEach((n)=>{attr.push(JSON.stringify(n))})
+					let skuIndex = this.skuList.findIndex(o=>{
+					let intersection = o.selectedGoodsAttrList.filter((v) =>
+					 	attr.includes(JSON.stringify(v)))   
+					return intersection.length === attr.length})
+					if(skuIndex===-1){
+						this.invalidSkuList.push(attr)
+					}
+				})
+				 console.log('invalidSkuList', this.invalidSkuList)
 			},
 			bannerChange: function(e) { 
 				this.bannerIndex = e.detail.current;
@@ -548,12 +651,13 @@
 						this.videoplayObj.pause()
 					}
 					else{
-						let currentTime = uni.getStorageSync("currentTime")
-						this.videoplayObj.play()
-						this.videoplayObj.seek(currentTime)
-						this.playing=true
+						if(!this.startVideo){
+							let currentTime = uni.getStorageSync("currentTime")
+							this.videoplayObj.play()
+							this.videoplayObj.seek(currentTime)
+							this.playing=true
+						}	
 					}
-
 				}
 			},
 			previewImage: function(e) {
@@ -585,7 +689,7 @@
 						const matchedStr = o.match(/url=(.*)&coverurl/)
 						if(matchedStr){
 							const src = matchedStr[1]
-							this.detail = this.detail + `<video style="width:100%" src=${src} enable-danmu danmu-btn controls></video>`
+							this.detail = this.detail + `<video style="width:100%" src=${src} controls></video>`
 						}else{
 							this.detail = this.detail + o
 						}
@@ -653,16 +757,21 @@
 					title: this.goodsDetail.title,
 					slogan: this.goodsDetail.slogan,
 					defaultImageUrl: this.goodsDetail.defaultImageUrl,
-					propertyList: this.goodsDetail.selectedGoodsAttrList,
+					propertyList: this.selectedGoodsAttrList,
 					buyNum: this.buyNum,
 				}
-				let url = '/updateCustomer/' + uni.getStorageSync("pid") +'/addCart'
-				this.tui.request(url, 'PUT', {'newGoods': newGoods}).then(res=>{
-						if(res.code==='0'){
-							this.tui.toast('添加成功')
+				if(!this.tui.isLogin()) {
+					uni.navigateTo({url: '/pages/my/login/login'})
+				}else{
+					let url = '/updateCustomer/' + uni.getStorageSync("pid") +'/addCart'
+					this.tui.request(url, 'PUT', {'newGoods': newGoods}).then(res=>{
+							if(res.code==='0'){
+								this.tui.toast('成功添加到购物车')
+							}
 						}
-					}
-				)
+					)
+
+				}
 				this.popupShow = false;
 			},
 			submit() {
@@ -674,7 +783,7 @@
 					title: this.goodsDetail.title,
 					slogan: this.goodsDetail.slogan,
 					defaultImageUrl: this.goodsDetail.defaultImageUrl,
-					propertyList: this.goodsDetail.selectedGoodsAttrList,
+					propertyList: this.selectedGoodsAttrList,
 					buyNum: this.buyNum,
 				}]
 				let url = '/pages/order/submitOrder/submitOrder?goods=' + JSON.stringify(goods)
@@ -722,8 +831,8 @@
 					mask: true,
 					title: '图片生成中...'
 				});
-				let mainPic = await poster.getImage('https://www.thorui.cn/img/product/poster.jpg');
-				let qrcode = await poster.getImage('https://thorui.cn/extend/share/applets.png');
+				let mainPic = await poster.getImage(this.goodsDetail.defaultImageUrl);
+				let qrcode = await poster.getImage(this.$store.state.qrcode);
 				// #ifdef MP-WEIXIN
 				await poster.removeSavedFile();
 				// #endif
@@ -732,8 +841,8 @@
 						mainPic: mainPic,
 						qrcode: qrcode
 					};
-					let text = '谈判官明星同款耳坠韩国气质简约显脸瘦的耳环女百搭个性长款耳钉 个性水滴耳环【A2】';
-					poster.drawGoodsPoster('posterId', this.winWidth, this.winHeight, imgs, text, '49.00', '199.00', 'ThorUI示例小程序',
+					poster.drawGoodsPoster('posterId', this.winWidth, this.winHeight, imgs,
+					    this.goodsDetail.title, this.goodsDetail.price, this.goodsDetail.originalPrice, 'ThorUI示例小程序',
 						res => {
 							uni.hideLoading();
 							if (res) {
@@ -796,8 +905,7 @@
 
 	.tui-header {
 		width: 100%;
-		font-size: 18px;
-		line-height: 18px;
+		font-size: 14px;
 		font-weight: 500;
 		height: 32px;
 		display: flex;
@@ -815,12 +923,11 @@
 		height: 32px;
 		transform: translateZ(0);
 		z-index: 9999;
-	}
-
-	.tui-header-icon .tui-badge {
-		background: #e41f19 !important;
-		position: absolute;
-		right: -4px;
+		.tui-badge {
+			background: #e41f19 !important;
+			position: absolute;
+			right: -4px;
+		}
 	}
 
 	.tui-icon-ml {
@@ -857,19 +964,18 @@
 		/* 自定义按钮 */
 		.video-img {
 			display: inline-block;
-			width: 90upx;
-			height: 90upx;
+			width: 80upx;
+			height: 80upx;
 			position: absolute;
 			bottom: 0;
 			left: 50%;
 			top: 50%;
 			transform: translateX(-50%) translateY(-50%);
 			image {
-				width: 90upx;
-				height: 90upx;
+				width: 80upx;
+				height: 80upx;
 				z-index: 999;
-				border: 2px solid #FFFFFF;
-				border-radius: 50%;
+				opacity: 0.5;
 			}
 		}
 
@@ -910,7 +1016,18 @@
 		position: absolute;
 		color: #fff;
 		bottom: 30rpx;
-		right: 0;
+		right: 15rpx;
+	}
+	.tui-video-voice {
+		position: absolute;
+		color: #fff;
+		bottom: 100rpx;
+		right: 15rpx;
+		image {
+			width: 38rpx;
+			height: 38rpx;
+			z-index: 999;
+		}
 	}
 
 	.tui-slide-image {
@@ -1153,8 +1270,7 @@
 		display: flex;
 		align-items: center;
 		font-size: 26rpx;
-		line-height: 26rpx;
-		padding: 36rpx 30rpx;
+		padding: 30rpx 30rpx;
 		box-sizing: border-box;
 	}
 
@@ -1175,12 +1291,18 @@
 	.tui-list-cell::after {
 		content: '';
 		position: absolute;
-		border-bottom: 1rpx solid #eaeef1;
+		// border-bottom: 1rpx solid #eaeef1;
 		-webkit-transform: scaleY(0.5);
 		transform: scaleY(0.5);
 		bottom: 0;
 		right: 0;
 		left: 126rpx;
+	}
+
+	.tui-cell-notice{
+		color: #888;
+		font-size: 22rpx;
+		margin-right: -4rpx;
 	}
 
 	.tui-last::after {
@@ -1273,17 +1395,11 @@
 		display: block;
 	}
 	.tui-nickname {
-		font-size: 28rpx;
-		padding-left: 12rpx;
+		margin-left: 5rpx;
+		font-size: 22rpx;
 	}
-
-	.tui-review-time {
-		font-size: 24rpx;
-   		margin-left: 12rpx;
-    	color: #999;
-	}
-
 	.tui-cmt {
+		font-size: 24rpx;
 		padding: 14rpx 0;
 	}
 
@@ -1527,7 +1643,7 @@
 	}
 
 	.tui-attr-active {
-		background: #fcedea !important;
+		background: #fcedea;
 		color: #e41f19;
 		font-weight: bold;
 		position: relative;
@@ -1542,6 +1658,14 @@
 		border-radius: 40rpx;
 		left: 0;
 		top: 0;
+	}
+	.invalid {
+		color: #888;
+    	opacity: 0.5;
+		background: #f7f7f7;
+	}
+	.tui-attr-active.invalid::after{
+		display: none;
 	}
 
 	.tui-number-box {

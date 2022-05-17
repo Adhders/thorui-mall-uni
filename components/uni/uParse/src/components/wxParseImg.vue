@@ -78,15 +78,17 @@ export default {
 			}
 
 			// 判断按照那种方式进行缩放
-			if (originalWidth > windowWidth) {
-				// 在图片width大于手机屏幕width时候
-				results.imageWidth = windowWidth;
-				results.imageheight = windowWidth * (originalHeight / originalWidth);
-			} else {
-				// 否则展示原来的数据
-				results.imageWidth = originalWidth;
-				results.imageheight = originalHeight;
-			}
+			// if (originalWidth > windowWidth) {
+			// 	// 在图片width大于手机屏幕width时候
+			// 	results.imageWidth = windowWidth;
+			// 	results.imageheight = windowWidth * (originalHeight / originalWidth);
+			// } else {
+			// 	// 否则展示原来的数据
+			// 	results.imageWidth = originalWidth;
+			// 	results.imageheight = originalHeight;
+			// }
+			results.imageWidth = windowWidth;
+			results.imageheight = windowWidth * (originalHeight / originalWidth);
 			return results;
 		}
 	}

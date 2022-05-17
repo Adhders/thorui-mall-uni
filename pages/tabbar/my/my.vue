@@ -27,8 +27,8 @@
 						</view>
 					</view>
 				</view>
-				<view class="tui-login" v-if="!isLogin" @tap="href(5)">
-					<text>点击登录</text>
+				<view class="tui-login" v-else @tap="href(5)">
+					<text class="tui-login-btn">点击登录</text>
 					<tui-icon name="arrowright" color="#fff" :size="36" unit="rpx"></tui-icon>
 				</view>
 				<!-- #ifndef MP -->
@@ -252,7 +252,7 @@
 			if(pid){
 				let url = '/queryUserInfo/' + pid
 				this.tui.request(url).then((res)=>{
-          		console.log('res', res)
+
 					if(res.code==='0'){
 						let decoded = jwt.jwt_decode(res.token);
 						uni.setStorage({
@@ -263,13 +263,20 @@
 							key: 'pid',
 							data: decoded.pid,
 						})
+						uni.setStorage({
+							key: 'userInfo',
+							data: decoded.userInfo,
+						})
 						this.$store.commit('login', true)
 						this.$store.commit('setOrderState', res.orderState)
 						this.$store.commit('setUserInfo', decoded.userInfo)
+						this.$store.commit('setReviewLikes', res.reviewLikes)
 					}
 				}).catch(err=>{
 					console.log('err', err)
 				})
+			}else{
+				this.tui.href('/pages/my/login/login')
 			}
 		},
 		filters: {
@@ -278,15 +285,15 @@
 			}
 		},
 		computed: {
-     		 userInfo(){
+     		userInfo(){
 		    	return this.$store.state.userInfo
 			},
 			isLogin(){
-		    	return this.$store.state.isLogin
+		    	return uni.getStorageSync("pid") || this.$store.state.isLogin
 			},
-      orderState(){
-          return this.$store.state.orderState
-      }
+			orderState(){
+				return this.$store.state.orderState
+			}
 		},
 		methods: {
 			getPhoneNumber: function(e) {
@@ -459,7 +466,6 @@
 		width: 60%;
 		padding-left: 30rpx;
 	}
-
 	.tui-login {
 		width: 60%;
 		padding-left: 30rpx;
@@ -469,7 +475,9 @@
 		display: flex;
 		align-items: center;
 	}
-
+    .tui-login-btn {
+		font-size: 26rpx;
+	}
 	.tui-nickname {
 		font-size: 30rpx;
 		font-weight: 500;
@@ -581,7 +589,7 @@
 	}
 
 	.tui-cell-sub {
-		font-size: 26rpx;
+		font-size: 24rpx;
 		font-weight: 400;
 		color: #999;
 		padding-right: 28rpx;

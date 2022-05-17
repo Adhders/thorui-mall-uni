@@ -3,11 +3,18 @@
 		<view class="tui-collapse-head" :style="{backgroundColor:hdBgColor}" @tap.stop="handleClick">
 			<view class="tui-header" :class="{'tui-opacity':disabled}">
 				<slot name="title"></slot>
-				<view class="tui-collapse-icon tui-icon-arrow" :class="{'tui-icon-active':isOpen}" :style="{color:arrowColor}" v-if="arrow"></view>
+				<view class="tui-all-box tui-icon-ml">
+					<view class="tui-attr-right tui-active">{{condition}}</view>
+					<view class="tui-icon-arrow-notice" v-if="!isOpen">展开</view>
+					<view class="tui-collapse-icon tui-icon-arrow" :class="{'tui-icon-active':isOpen}" :style="{color:arrowColor}" v-if="arrow"></view>
+				</view>	
 			</view>
 		</view>
-		<view class="tui-collapse-body_box" :style="{backgroundColor:bdBgColor,height:isOpen?height:'0rpx'}">
-			<view class="tui-collapse-body" :class="{'tui-collapse-transform':height=='auto','tui-collapse-body_show':isOpen && height=='auto'}">
+		<view class="tui-collapse-body_box" :style="{backgroundColor:bdBgColor}">
+			<slot name="top"></slot>
+			<view class="tui-collapse-body" 
+			    :style="{height:isOpen?height:'0rpx'}"
+				:class="{'tui-collapse-transform':height=='auto','tui-collapse-body_show':isOpen && height=='auto'}">
 				<slot name="content"></slot>
 			</view>
 		</view>
@@ -33,6 +40,10 @@
 			bdBgColor: {
 				type: String,
 				default: 'transparent'
+			},
+			condition: {
+				type: String,
+				default: ''
 			},
 			//collapse-body实际高度 open时使用
 			height: {
@@ -112,16 +123,35 @@
 	}
 
 	.tui-icon-arrow {
-		font-size: 32rpx;
+		font-size: 18rpx;
 		transform: rotate(0);
 		transform-origin: center center;
 		transition: all 0.3s;
-		position: absolute;
-		top: 50%;
-		margin-top: -8px;
-		right: 30rpx;
+		line-height: 30rpx;
 	}
 
+	.tui-all-box {
+		width: 90%;
+		font-size: 20rpx;
+		margin-right: 30rpx;
+		white-space: nowrap;
+		display: flex;
+		align-items: center;
+		justify-content: flex-end;
+	}
+	.tui-attr-right {
+		width: 70%;
+		color: #e41f19;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		text-align: right;
+		margin-right: 15rpx;
+	}
+	.tui-icon-arrow-notice{
+		transition: all 0.3s;
+		margin-right: 6rpx
+	}
 	.tui-arrow-padding {
 		padding-right: 62rpx;
 		box-sizing: border-box;
@@ -133,7 +163,8 @@
 	}
 
 	.tui-header {
-		position: relative;
+		display: flex;
+		align-items: center;
 		z-index: 2;
 	}
    .tui-collapse-body_box{

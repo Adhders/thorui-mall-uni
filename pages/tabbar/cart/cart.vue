@@ -46,108 +46,117 @@
 					imgUrl="https://system.chuangbiying.com/static/images/index/img_noorder.png">
 					请添加商品到购物车</tui-no-data>
 			</view>
-		</block>
-		<!--商品失效-->
-		<view class="tui-cart-cell  tui-mtop" v-if="invalidList.length>0">
-			<view class="tui-activity">
-				<view class="tui-bold">失效商品</view>
-				<view class="tui-buy">
-					<tui-button type="gray" :plain="true" shape="circle" width="200rpx" height="56rpx" :size="24" @tap="clearAll">清空失效商品</tui-button>
+			<!--商品失效-->
+			<view class="tui-cart-cell  tui-mtop" v-if="invalidList.length>0">
+				<view class="tui-activity">
+					<view class="tui-bold">失效商品</view>
+					<view class="tui-buy">
+						<tui-button type="gray" :plain="true" shape="circle" width="200rpx" height="56rpx" :size="24" @tap="clearAll">清空失效商品</tui-button>
+					</view>
 				</view>
-			</view>
-			<view :class="{'tui-invalid-ptop':index!==0}" v-for="(item,index) in invalidList" :key="index">
-				<tui-swipe-action :actions="actions2" @click="handlerButton" :params="item">
-					<template v-slot:content>
-						<view class="tui-goods-item">
-							<view class="tui-checkbox tui-invalid-pr">
-								<view class="tui-invalid-text">失效</view>
-							</view>
-							<image :src="item.defaultImageUrl" class="tui-goods-img opcity" />
-							<view class="tui-goods-info">
-								<view class="tui-goods-title tui-gray">
-									{{item.title}}
+				<view :class="{'tui-invalid-ptop':index!==0}" v-for="(item,index) in invalidList" :key="index">
+					<tui-swipe-action :actions="actions2" @click="handlerButton" :params="item">
+						<template v-slot:content>
+							<view class="tui-goods-item">
+								<view class="tui-checkbox tui-invalid-pr">
+									<view class="tui-invalid-text">失效</view>
 								</view>
-								<view class="tui-price-box tui-flex-center">
-									<view class="tui-goods-invalid">宝贝已不能购买</view>
-									<view class="tui-btn-alike">
-										<tui-button type="danger" shape="circle" width="120rpx" height="48rpx" :size="24">找相似</tui-button>
+								<image :src="item.defaultImageUrl" class="tui-goods-img opcity" />
+								<view class="tui-goods-info">
+									<view class="tui-goods-title tui-gray">
+										{{item.title}}
+									</view>
+									<view class="tui-price-box tui-flex-center">
+										<view class="tui-goods-invalid">宝贝已不能购买</view>
+										<view class="tui-btn-alike">
+											<tui-button type="danger" shape="circle" width="120rpx" height="48rpx" :size="24">找相似</tui-button>
+										</view>
 									</view>
 								</view>
 							</view>
-						</view>
-					</template>
-				</tui-swipe-action>
-			</view>
-		</view>
-		<!--猜你喜欢-->
-        <block v-if="!isEdit">
-			<tui-divider :size="28" :bold="true" color="#333" width="50%">
-			<tui-icon name="like" :size="18" color="#e41f19"></tui-icon>
-			<text class="tui-youlike">猜你喜欢</text>
-			</tui-divider>
-			<view class="tui-product-list">
-				<view class="tui-product-container">
-					<block v-for="(item,index) in productList" :key="index">
-						<!--商品列表-->
-						<view class="tui-pro-item" hover-class="hover" :hover-start-time="150" @tap="detail(item)" v-if="(index+1)%2!==0">
-							<image :src="item.defaultImageUrl" class="tui-pro-img" mode="widthFix" />
-							<view class="tui-pro-content">
-								<view class="tui-pro-tit">{{item.title}}</view>
-								<view class="tui-pro-price">
-									<text class="tui-size-24">￥</text>
-									<text class="tui-sale-price">{{ item.price.split('.')[0] }}</text>
-									<text class="tui-size-24">.{{ item.price.split('.')[1]}}</text>
-									<text class="tui-factory-price">￥{{ item.originalPrice }}</text>
-								</view>
-								<view class="tui-pro-pay">{{ item.salesNum }}人付款</view>
-							</view>
-						</view>
-					</block>
-				</view>
-				<view class="tui-product-container">
-					<block v-for="(item,index) in productList" :key="index">
-						<!--商品列表-->
-						<view class="tui-pro-item" hover-class="hover" :hover-start-time="150" @tap="detail(item)" v-if="(index+1)%2==0">
-							<image :src="item.defaultImageUrl" class="tui-pro-img" mode="widthFix" />
-							<view class="tui-pro-content">
-								<view class="tui-pro-tit">{{item.title}}</view>
-								<view class="tui-pro-price">
-									<text class="tui-size-24">￥</text>
-									<text class="tui-sale-price">{{ item.price.split('.')[0] }}</text>
-									<text class="tui-size-24">.{{ item.price.split('.')[1]}}</text>
-									<text class="tui-factory-price">￥{{ item.originalPrice }}</text>
-								</view>
-								<view class="tui-pro-pay">{{ item.salesNum }}人付款</view>
-							</view>
-						</view>
-					</block>
+						</template>
+					</tui-swipe-action>
 				</view>
 			</view>
-		</block>
+			<!--猜你喜欢-->
+			<block v-if="!isEdit && productList.length>0">
+				<tui-divider :size="28" :bold="true" color="#333" width="50%">
+				<tui-icon name="like" :size="18" color="#e41f19"></tui-icon>
+				<text class="tui-youlike">猜你喜欢</text>
+				</tui-divider>
+				<view class="tui-product-list">
+					<view class="tui-product-container">
+						<block v-for="(item,index) in productList" :key="index">
+							<!--商品列表-->
+							<view class="tui-pro-item" hover-class="hover" :hover-start-time="150" @tap="detail(item)" v-if="(index+1)%2!==0">
+								<image :src="item.defaultImageUrl" class="tui-pro-img" mode="widthFix" />
+								<view class="tui-pro-content">
+									<view class="tui-pro-tit">{{item.title}}</view>
+									<view class="tui-sub-info">{{item.slogan}}</view>
+									<view class="tui-pro-price">
+										<text class="tui-size-24">￥</text>
+										<text class="tui-sale-price">{{ item.price.split('.')[0] }}</text>
+										<text class="tui-size-24"  v-show="item.price.indexOf('.')!==-1">.{{ item.price.split('.')[1]}}</text>
+										<text class="tui-factory-price">￥{{ item.originalPrice }}</text>
+									</view>
+									<view class="tui-cart">
+										<view class="tui-pro-pay">{{ item.salesNum }}人付款</view>
+										<tui-icon name="cart" :size="16" color="#e41f19" @tap.stop="addCart(item)"></tui-icon>
+									</view>
+								</view>
+							</view>
+						</block>
+					</view>
+					<view class="tui-product-container">
+						<block v-for="(item,index) in productList" :key="index">
+							<!--商品列表-->
+							<view class="tui-pro-item" hover-class="hover" :hover-start-time="150" @tap="detail(item)" v-if="(index+1)%2==0">
+								<image :src="item.defaultImageUrl" class="tui-pro-img" mode="widthFix" />
+								<view class="tui-pro-content">
+									<view class="tui-pro-tit">{{item.title}}</view>
+									<view class="tui-sub-info">{{item.slogan}}</view>
+									<view class="tui-pro-price">
+										<text class="tui-size-24">￥</text>
+										<text class="tui-sale-price">{{ item.price.split('.')[0] }}</text>
+										<text class="tui-size-24"  v-show="item.price.indexOf('.')!==-1">.{{ item.price.split('.')[1]}}</text>
+										<text class="tui-factory-price">￥{{ item.originalPrice }}</text>
+									</view>
+									<view class="tui-cart">
+										<view class="tui-pro-pay">{{ item.salesNum }}人付款</view>
+										<tui-icon name="cart" :size="16" color="#e41f19" @tap.stop="addCart(item)"></tui-icon>
+									</view>
+								</view>
+							</view>
+						</block>
+					</view>
+				</view>
+				<tui-nomore text="没有更多了"></tui-nomore>
+			</block>
 
-		<!--tabbar-->
-		<view class="tui-tabbar" v-if="dataList.length>0">
-			<view class="tui-checkAll">
-				<checkbox-group @change="checkAll">
-					<label class="tui-checkbox">
-						<checkbox :checked="isAll" color="#fff"></checkbox>
-						<text class="tui-checkbox-pl">全选</text>
-					</label>
-				</checkbox-group>
-				<view class="tui-total-price" v-if="!isEdit">合计:<text class="tui-bold">￥{{totalPrice | getPrice}}</text> </view>
-			</view>
-			<view>
-				<tui-button width="200rpx" height="70rpx" :size="30" type="danger" shape="circle" v-if="!isEdit" @click="btnPay">去结算({{buyNum}})</tui-button>
-				<view v-else style="display: flex">
-					<tui-button width="200rpx" height="70rpx" margin="0 20rpx" :size="30" type="danger" shape="circle" :plain="true" @tap="openActionSheet(1)">移入收藏</tui-button>
-					<tui-button width="130rpx" height="70rpx" :size="30" type="danger" shape="circle" :plain="true" @tap="openActionSheet(2)">删除</tui-button>
+			<!--tabbar-->
+			<view class="tui-tabbar" v-if="dataList.length>0">
+				<view class="tui-checkAll">
+					<checkbox-group @change="checkAll">
+						<label class="tui-checkbox">
+							<checkbox :checked="isAll" color="#fff"></checkbox>
+							<text class="tui-checkbox-pl">全选</text>
+						</label>
+					</checkbox-group>
+					<view class="tui-total-price" v-if="!isEdit">合计:<text class="tui-bold">￥{{totalPrice | getPrice}}</text> </view>
+				</view>
+				<view>
+					<tui-button width="200rpx" height="70rpx" :size="30" type="danger" shape="circle" v-if="!isEdit" @click="btnPay">去结算({{buyNum}})</tui-button>
+					<view v-else style="display: flex">
+						<tui-button width="200rpx" height="70rpx" margin="0 20rpx" :size="30" type="danger" shape="circle" :plain="true" @tap="openActionSheet(1)">移入收藏</tui-button>
+						<tui-button width="130rpx" height="70rpx" :size="30" type="danger" shape="circle" :plain="true" @tap="openActionSheet(2)">删除</tui-button>
+					</view>
 				</view>
 			</view>
-		</view>
-		<!--加载loadding-->
-		<tui-loadmore v-if="loadding" :index="3" type="red"></tui-loadmore>
-		<tui-actionsheet :show="showActionSheet" :tips="tips" :item-list="itemList" :mask-closable="maskClosable" :color="color"
-		 :is-cancel="isCancel" @click="itemClick" @cancel="closeActionSheet"></tui-actionsheet>
+			<!--加载loadding-->
+			<tui-loadmore v-if="loadding" :index="3" type="red"></tui-loadmore>
+			<tui-actionsheet :show="showActionSheet" :tips="tips" :item-list="itemList" :mask-closable="maskClosable" :color="color"
+			:is-cancel="isCancel" @click="itemClick" @cancel="closeActionSheet"></tui-actionsheet>
+		</block>
 	</view>
 </template>
 
@@ -226,19 +235,27 @@
 				return str.slice(0,-1)
 			},
 		},
-		onLoad(){
-			let goodsList = this.$store.state.goodsList
-			goodsList.forEach((sku)=>{this.productList.push(sku.data[0])})
-		},
+	
 		onShow(){
-			let url = '/getCartInfo/' + this.$store.state.appid + '/' + uni.getStorageSync("pid")
-			this.tui.request(url,'GET', undefined, true).then((res)=>{
-				this.loadding = false
-				this.cart = res.cart
-				this.dataList.map((item) => {
-					this.total += item.buyNum;
+			if(!this.tui.isLogin()) {
+				uni.redirectTo({url: '/pages/my/login/login?from=cart'})
+			}else{
+				let goodsList = this.$store.state.goodsList
+				let url = '/getCartInfo/' + this.$store.state.appid + '/' + uni.getStorageSync("pid")
+				this.tui.request(url,'GET', undefined, true).then((res)=>{
+					this.cart = res.cart
+					let total = 0
+					this.dataList.map((item) => {
+						total += item.buyNum;
+					})
+					this.total = total
+					this.productList = goodsList.filter((sku)=>{ 
+						let index = this.cart.findIndex((o) => {return sku.id === o.id})
+						return sku.stock>0 && index ===-1
+					})
+					this.loadding = false
 				})
-			})
+			}
 		},
 		computed: {
 			dataList() {
@@ -279,7 +296,6 @@
 				if(index===2 || index ===1&&!item.valid){
 					let _index = this.cart.findIndex((o)=>{return o.id === item.id})
 					this.cart.splice(_index, 1)
-					this.updateCart()
 				}
 			},
 			editGoods() {
@@ -295,6 +311,34 @@
 				uni.navigateTo({
 					url: '/pages/order/submitOrder/submitOrder?goods=' + JSON.stringify(goods)
 				})
+			},
+			addCart(item){
+				let newGoods = {
+					id: item.id,
+					spu_id: item.spu_id,
+					price: item.price,
+					title: item.title,
+					slogan: item.slogan,
+					defaultImageUrl: item.defaultImageUrl,
+					propertyList: item.selectedGoodsAttrList,
+					buyNum: 1,
+					valid: true,
+				}
+				let url = '/updateCustomer/' + uni.getStorageSync("pid") +'/addCart'
+				this.tui.request(url, 'PUT', {'newGoods': newGoods}).then(res=>{
+					if(res.code==='0'){
+						this.total += 1
+						let index = this.cart.findIndex((o)=>{return o.id===newGoods.id})
+						if(index !==-1){
+							this.cart[index].buyNum +=1
+						}else{
+							this.cart.push(newGoods)
+						}
+						
+					}
+				}
+				)
+				
 			},
 			updateCart(){
 				let url = '/updateCustomer/' + uni.getStorageSync("pid") +'/updateCart'
@@ -416,7 +460,7 @@
 				this.loadding = false
 			}
 		},
-	
+	    
 		onNavigationBarButtonTap(e) {
 			this.isEdit = !this.isEdit;
 			let text = this.isEdit ? "完成" : "编辑";
@@ -426,6 +470,10 @@
 				text: text
 			});
 			// #endif
+		}, 
+		onHide(){
+			let url = '/updateCustomer/' + uni.getStorageSync("pid") +'/updateCart'
+			this.tui.request(url, 'PUT', {'cart': this.cart}).then()
 		}
 	}
 </script>
@@ -580,7 +628,10 @@
 		font-size: 22rpx;
 	}
 	.tui-sub-info {
-		max-width: 80%;
+		color: #888;
+		max-width: 90%;
+		padding-top: 5rpx;
+		font-size: 22rpx;
 		box-sizing: border-box;
 		white-space: nowrap;
 		overflow: hidden;
@@ -667,6 +718,7 @@
 
 	.tui-product-list {
 		display: flex;
+		margin: 0px 18rpx;
 		justify-content: space-between;
 		flex-direction: row;
 		flex-wrap: wrap;
@@ -723,7 +775,7 @@
 	}
 
 	.tui-pro-price {
-		padding-top: 18rpx;
+		padding-top: 10rpx;
 	}
 
 	.tui-sale-price {
@@ -739,8 +791,12 @@
 		padding-left: 12rpx;
 	}
 
+	.tui-cart {
+		display: flex;
+		margin-top: 10rpx;
+		justify-content: space-between;
+	}
 	.tui-pro-pay {
-		padding-top: 10rpx;
 		font-size: 24rpx;
 		color: #656565;
 	}
