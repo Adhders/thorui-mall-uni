@@ -113,7 +113,7 @@
 
 					<view class="tui-list-cell tui-last" @tap="showPopup('property')">
 						<view class="tui-bold tui-cell-title" >参数</view>
-						<view class="tui-selected-box ">{{ goodsDetail.selectedGoodsPropList | propsFormat}}</view>
+						<view class="tui-selected-box" style="max-width: 160rpx">{{ goodsDetail.selectedGoodsPropList | propsFormat}}</view>
 						<view class="tui-ml-auto">
 							<tui-icon name="arrowright" :size="16" color="#666"></tui-icon>
 						</view>
@@ -264,7 +264,7 @@
 					</view>
 					<scroll-view scroll-y class="tui-popup-scroll">
 						<view class="tui-scrollview-box">
-							<view v-for="(item, i) in labelList" :key=i>
+							<view v-for="(item, i) in propsList" :key=i>
 								<view class="tui-bold tui-attr-title">{{item.name}}</view>
 								<view class="tui-attr-box">
 									<view class="tui-attr-item"
@@ -346,7 +346,7 @@ import invalidProductVue from '../invalidProduct/invalidProduct.vue';
 				detail: '',
 			    reviews: 0,
 				skuArray: [], 
-				labelList: [],
+				propsList: [], //商品属性
 				invalidSkuList: [],
 				invalidSkuIndexList: [],
 				selectedIndex: [],
@@ -485,31 +485,28 @@ import invalidProductVue from '../invalidProduct/invalidProduct.vue';
 						}
 					})
 				})
-				this.labelList = Object.keys(attrs).map((i)=>{
+				this.propsList = Object.keys(attrs).map((i)=>{
 					return { 'name': i, 'values': Array.from(attrs[i])}
 				}); //对象转数组
-				this.labelList.forEach((o)=>{
+				this.propsList.forEach((o)=>{
 					let skuValues = o.values.map((v)=>{return { 'name': o.name, 'value': v }})
 					this.skuArray.push(skuValues)
 				})
-				console.log('skuArray', this.skuArray)
 				this.verify() // 获取失效sku列表invalidList
 
 			    this.invalidSkuList.forEach((o)=>{ // 获取失效sku列表invalidList 的索引
 					let indexList = []
 					o.forEach((v)=>{
 						let prop = JSON.parse(v)
-						console.log('prop', prop)
 						indexList.push(Array.from(attrs[prop.name]).indexOf(prop.value)) 
 					})
 					this.invalidSkuIndexList.push(JSON.stringify(indexList))
 				})
-				console.log('invalidSkuIndexList', this.invalidSkuIndexList)
 				let labelNames = Object.keys(attrs)
-				this.selectedIndex = new Array(this.labelList.length).fill(0)
+				this.selectedIndex = new Array(this.propsList.length).fill(0)
 				this.selectedGoodsAttrList.forEach((o)=>{
                     let i = labelNames.indexOf(o.name)
-                    this.selectedIndex[i] = this.labelList[i].values.indexOf(o.value) 
+                    this.selectedIndex[i] = this.propsList[i].values.indexOf(o.value) 
 				})
 			})    
 		},
@@ -538,18 +535,18 @@ import invalidProductVue from '../invalidProduct/invalidProduct.vue';
 				return price.toFixed(2)
 			},
 			attrFormat(attr) {
-				let str = ''
-				attr.forEach(o=>{
-					str = str + o.value + '，'
+				let res = ''
+				attr.forEach((o)=>{
+					res+=o.value+'，'
 				})
-				return str.slice(0,-1)
+				return res.slice(0, -1)
 			},
 			propsFormat(props) {
-				let str = ''
+				let res = ''
 				props.forEach((o)=>{
-					str +=  o.name + ' '
+					res += o.name+ '\u3000'
 				})
-				return str
+				return res
 			},
 		},
 		computed: {
@@ -586,16 +583,17 @@ import invalidProductVue from '../invalidProduct/invalidProduct.vue';
 					this.selectedIndex[i]=j
 					let attr = new Array()
 					let selectedGoodsAttrList = []
-					this.labelList.forEach((o, index)=>{
+					this.propsList.forEach((o, index)=>{
 						let res = {name: o.name, value: o.values[this.selectedIndex[index]]}
 						selectedGoodsAttrList.push(res)
 						attr.push(JSON.stringify(res))
 					})
 					this.selectedGoodsAttrList = selectedGoodsAttrList
 					let skuIndex = this.skuList.findIndex(o=>{
-					      	let intersection = o.selectedGoodsAttrList.filter((v) =>
-							attr.includes(JSON.stringify(v)))   
-						return intersection.length === attr.length})
+						let intersection = o.selectedGoodsAttrList.filter((v) =>
+						attr.includes(JSON.stringify(v))) //计算交集  
+						return intersection.length === attr.length
+					})
 					this.goodsDetail = this.skuList[skuIndex]
 					console.log('id', this.goodsDetail.id)
 				}else{
@@ -609,7 +607,7 @@ import invalidProductVue from '../invalidProduct/invalidProduct.vue';
 			},
 			// 计算商品sku笛卡尔积
 			calcDescartes(array) {
-				if (array.length < 2) return array[0] || [];
+				if (array.length < 2) return array[0].map((o)=>{return new Array(o)}) || [];
 				return array.reduce((total, currentValue) => {
 					let res = [];
 					total.forEach(t => {
@@ -626,7 +624,6 @@ import invalidProductVue from '../invalidProduct/invalidProduct.vue';
 			//验证商品sku是否失效
 			verify(){
 				let descartes = this.calcDescartes(this.skuArray)
-				console.log('descartes', descartes)
 				descartes.forEach((m)=>{
 					let attr = []
 					m.forEach((n)=>{attr.push(JSON.stringify(n))})

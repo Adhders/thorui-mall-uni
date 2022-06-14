@@ -46,7 +46,8 @@ const store = createStore({
 		goodsList: [],
 		goodsGroup: [],
 		addressList: [],
-		currentReview: []
+		currentReview: [],
+		searchResult: []
 	},
 	mutations: {
 		setReturnUrl(state, returnUrl) {
@@ -102,6 +103,9 @@ const store = createStore({
 		},
 		setOrderList(state, orderList){
 			state.orderList = orderList
+		},
+		setSearchResult(state, searchResult){
+            state.searchResult = searchResult
 		},
 		updateCurrentReview(state, review){
 			state.currentReview = review

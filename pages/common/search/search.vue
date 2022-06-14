@@ -3,20 +3,20 @@
 		<view class="tui-searchbox">
 			<view class="tui-search-input">
 				<icon type="search" :size='13' color='#333'></icon>
-				<input confirm-type="search" placeholder="大家都在搜：2019退役球星" :focus="true" auto-focus placeholder-class="tui-input-plholder"
+				<input confirm-type="search" placeholder="请输入关键词" :focus="true" auto-focus placeholder-class="tui-input-plholder"
 				 class="tui-input" v-model.trim="key" @input="inputKey"/>
 				<icon type="clear" :size='13' color='#bcbcbc' @tap="cleanKey" v-show="key"></icon>
 			</view>
-			<view class="tui-cancle" @tap="back">取消</view>
+			<view class="tui-cancle" @tap="onSearch">搜索</view>
 		</view>
 
-		<view class="tui-search-history" v-show="history.length>0 && !key">
+		<view class="tui-search-history" v-if="history.length>0">
 			<view class="tui-history-header">
 				<view class="tui-search-title">搜索历史</view>
 				<tui-icon name="delete" :size='14' color='#333' @tap="openActionSheet" class="tui-icon-delete"></tui-icon>
 			</view>
 			<view class="tui-history-content">
-				<view v-for="(item,index) in history" class="tui-history-item"  :key="index" @longpress="showIcon(index)">
+				<view v-for="(item,index) in history" class="tui-history-item"  :key="index" @longpress="showIcon(index)" @tap="onSelect(item)">
 					<tui-tag margin="0 24rpx 24rpx 0" type="gray" shape="circle">{{item}}</tui-tag>
 					<tui-icon name="close-fill" :size="32" class="tui-item-delete" unit="rpx" v-if="index===removeIndex"
 							  @tap="onDelete">
@@ -25,18 +25,18 @@
 			</view>
 		</view>
 		<view v-show="key">
-			<view class="tui-header">
-				<view class="tui-header-left tui-noboredr">搜索 “{{key}}”</view>
-			</view>
+			<!-- <view class="tui-header">
+				<view class="tui-header-left tui-noboredr">{{key}}</view>
+			</view> -->
 			<view class="tui-result-box">
 				<block v-for="(item,index) in searchList" :key="index">
-					<view class="tui-result-item" hover-class="tui-opcity" :hover-stay-time="150">
+					<view class="tui-result-item" hover-class="tui-opcity" :hover-stay-time="150" @tap="onDetail(item)">
 						<rich-text :nodes="item.showKey"></rich-text>
 					</view>
 				</block>
 			</view>
 		</view>
-
+<!-- 
 		<view class="tui-search-hot">
 			<view class="tui-hot-header">
 				<view class="tui-search-title">大家正在搜</view>
@@ -46,7 +46,7 @@
 					<tui-tag margin="0 24rpx 24rpx 0" type="gray" shape="circle">{{item}}</tui-tag>
 				</block>
 			</view>
-		</view>
+		</view> -->
 		<tui-actionsheet :show="showActionSheet" :tips="tips" @click="itemClick"  @cancel="closeActionSheet"></tui-actionsheet>
 	</view>
 
@@ -59,33 +59,25 @@
 			return {
 				removeIndex: '',
 				history: [],
-				hot: [
-					"德利赫特",
-					"托雷斯",
-					"早安D站",
-					"D站观点",
-					"德利赫特",
-					"美洲杯",
-					"华为手机",
-					"C罗",
-					"自热火锅",
-					"2019退役球星",
-					"女神大会"
-				],
+				hot: [],
 				key: "",
 				showActionSheet: false,
 				tips: "确认清空搜索历史吗？",
-				searchResult:["按照展示的列表输入关键词看效果","thorui","2019退役球星","搜索关键词高亮显示","模拟搜索结果集","开源不易，需要鼓励","人人为我，我为人人"],
-				searchList:[]
+				searchResult:[],
+				searchList:[],
+				productNames: [],
 			}
 		},
 		onLoad(){
 			this.history = uni.getStorageSync('hotKeys') || []
+			console.log('history', this.history)
+		},
+		computed: {
+			productList() {
+				return this.$store.state.goodsList
+			},
 		},
 		methods: {
-			back: function() {
-				uni.navigateBack();
-			},
 			onDelete(index){
 				this.history.splice(index, 1)
 				uni.setStorage({
@@ -93,6 +85,25 @@
 					data: this.history
 				})
 				this.removeIndex = ''
+			},
+			onSelect(key){
+                console.log('select', key)
+				this.key = key
+				this.onInput(this.key)
+			},
+			onDetail(v){
+				setTimeout(()=>{
+					if(!this.history.includes(this.key)){
+						this.history.push(this.key)
+						uni.setStorage({
+							key: 'hotKeys',
+							data: this.history
+						})
+					}
+				},500)
+				uni.navigateTo({
+					url: '/pages/index/productDetail/productDetail?spu_id=' + v.spu_id + '&sku_id=' + v.id
+				})
 			},
 			cleanKey: function() {
 				this.key = ''
@@ -116,23 +127,58 @@
 					})
 				}
 			},
-			inputKey: function(e) {
-				this.key = util.trim(e.detail.value);
-				if (!this.key) {
+			onInput(key){
+				if (!key) {
 					this.searchList = [];
 					return;
 				}
 				//根据关键词查找
 				let arr = []
-				//实际开发中，根据搜索返回结果集，此处只是做展示提示搜索哪些文字
+				this.searchResult= this.productList.filter((v)=>{
+					return v.title.includes(key)
+				})
 				this.searchResult.forEach((item) => {
 					arr.push({
-						key: item,
-						showKey: util.replaceAll(item, this.key, `<label style="color:#E41F19">${this.key}</label>`)
+						key: item.title,
+						spu_id: item.spu_id,
+						id: item.id,
+						showKey: util.replaceAll(item.title, key, `<label style="color:#E41F19">${key}</label>`)
 					})
 				})
 				this.searchList = arr
-			}
+				if(this.searchResult.length===0){
+					this.tui.toast('没有相关商品')
+				}
+			},
+			inputKey: function(e) {
+				console.log('input', e)
+				this.key = util.trim(e.detail.value);
+				this.onInput(this.key)
+			},
+			onSearch(){
+				if(this.key!==''){
+					setTimeout(()=>{
+						if(!this.history.includes(this.key)){
+							this.history.push(this.key)
+							uni.setStorage({
+								key: 'hotKeys',
+								data: this.history
+							})
+							this.key = ''
+						}
+					},500)
+					if(this.searchResult.length===0){
+						this.tui.toast('没有相关商品')
+					}else{
+						this.$store.commit('setSearchResult', this.searchResult)
+						uni.navigateTo({
+							url: '/pages/index/productList/productList?searchKey=' + this.key
+						})
+					}
+				}else{
+					this.tui.toast('请输入关键词')
+				}
+			},
 		}
 	}
 </script>

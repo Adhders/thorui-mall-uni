@@ -7,9 +7,11 @@
 				<view class="tui-searchbox tui-search-mr" :style="{ marginTop: inputTop + 'px' }" @tap="search">
 					<icon type="search" :size="13" color="#999"></icon>
 					<text class="tui-search-text" v-if="!searchKey">搜索商品</text>
-					<view class="tui-search-key" v-if="searchKey">
+					<view class="tui-search-key" v-else>
 						<view class="tui-key-text">{{ searchKey }}</view>
-						<tui-icon name="shut" :size="11" color="#fff"></tui-icon>
+						<view @tap.stop="onDelete">
+							<tui-icon name="shut" :size="11" color="#fff"></tui-icon>
+						</view>
 					</view>
 				</view>
 			</view>
@@ -53,55 +55,26 @@
 		<!--screen-->
 
 		<!--list-->
-		<view class="tui-product-list" :style="{ marginTop: px(dropScreenH + 18) }">
-			<view class="tui-product-container">
-				<block v-for="(item, index) in displayList" :key="index">
-					<!--商品列表-->
-					<view class="tui-pro-item" :class="[isList ? 'tui-flex-list' : '']" hover-class="tui-hover" :hover-start-time="150" @tap="detail(item)" v-if="(index + 1) % 2 != 0 || isList">
-						<image :src="item.defaultImageUrl" class="tui-pro-img" :class="[isList ? 'tui-proimg-list' : '']" mode="widthFix" />
-						<view class="tui-pro-content">
-							<view class="tui-pro-tit">{{item.title}}</view>
-							<view class="tui-sub-info">{{item.slogan}}</view>
-							<view class="tui-pro-price">
-								<text class="tui-size-24">￥</text>
-								<text class="tui-sale-price">{{ item.price.split('.')[0] }}</text>
-								<text class="tui-size-24" v-show="item.price.indexOf('.')!==-1">.{{item.price.split('.')[1]}}</text>
-								<text class="tui-factory-price">￥{{ item.originalPrice }}</text>
-							</view>
-							<view class="tui-cart">
-								<view class="tui-pro-pay">{{ item.salesNum }}人付款</view>
-								<tui-icon name="cart" :size="16" color="#e41f19" @tap.stop="addCart(item)"></tui-icon>
-							</view>
-						</view>
-					</view>
-					<!--商品列表-->
+		<view v-if="displayList.length>0" :style="{ marginTop: px(dropScreenH + 18), marginLeft: '10rpx', marginRight: '10rpx' }">
+			<tui-waterfall :listData="displayList" :type="2" :pageSize="10" v-if="!isList">
+				<template slot-scope="{ entity }" slot="left">
+					<tGoodsItem :entity="entity"></tGoodsItem>
+				</template>
+				<template slot-scope="{ entity }" slot="right">
+					<tGoodsItem :entity="entity"></tGoodsItem>	
+				</template>
+			</tui-waterfall>
+			<view class="tui-product-list" v-else>
+				<block v-for="(entity, index) in displayList" :key="index">
+					<tGoodsItem :entity="entity" :isList="true"></tGoodsItem>
 				</block>
-			</view>
-			<view class="tui-product-container" v-if="!isList">
-				<block v-for="(item, index) in displayList" :key="index">
-					<!--商品列表-->
-					<view class="tui-pro-item" :class="[isList ? 'tui-flex-list' : 'tui-double-list']"  @tap="detail(item)" hover-class="tui-hover" :hover-start-time="150"  v-if="(index + 1) % 2 == 0">
-						<image :src="item.defaultImageUrl" class="tui-pro-img" :class="[isList ? 'tui-proimg-list' : '']" mode="widthFix" />
-						<view class="tui-pro-content">
-							<view class="tui-pro-tit">{{item.title}}</view>
-							<view class="tui-sub-info">{{item.slogan}}</view>
-							<view class="tui-pro-price">
-								<text class="tui-size-24">￥</text>
-								<text class="tui-sale-price">{{ item.price.split('.')[0] }}</text>
-								<text class="tui-size-24"  v-show="item.price.indexOf('.')!==-1">.{{ item.price.split('.')[1]}}</text>
-								<text class="tui-factory-price">￥{{ item.originalPrice }}</text>
-							</view>
-							<view class="tui-cart">
-								<view class="tui-pro-pay">{{ item.salesNum }}人付款</view>
-								<tui-icon name="cart" :size="16" color="#e41f19" @tap.stop="addCart(item)"></tui-icon>
-							</view>
-						</view>
-					</view>
-					<!--商品列表-->
-				</block>
-			</view>
+			</view>   
 		</view>
-
+		<view v-else>
+			<tui-no-data 
+				imgUrl="https://system.chuangbiying.com/static/images/index/img_nodata.png">
+				没有符合条件的商品</tui-no-data>
+		</view>
 
 		<!--左抽屉弹层 筛选 -->
 		<tui-drawer mode="right" :visible="drawer"  @close="closeDrawer">
@@ -111,9 +84,9 @@
 						<text class="tui-title-bold">价格区间</text>
 					</view>
 					<view class="tui-drawer-content">
-						<input placeholder-class="tui-phcolor" class="tui-input" v-model="min" placeholder="最低价" maxlength="11" type="number" />
+						<input placeholder-class="tui-phcolor" class="tui-input" v-model="min" placeholder="最低价"  type="number" @change="onChangePrice" />
 						<tui-icon name="reduce" color="#333" :size="14"></tui-icon>
-						<input placeholder-class="tui-phcolor" class="tui-input" v-model="max" placeholder="最高价" maxlength="11" type="number" />
+						<input placeholder-class="tui-phcolor" class="tui-input" v-model="max" placeholder="最高价"  type="number" @change="onChangePrice" />
 					</view>
 					<block v-for="(item,i) in dataList" :key="i">
 						<tui-collapse :index="i" :current="item.current" :condition=selectedCondition[i] @click="change">
@@ -122,24 +95,37 @@
 									<text class="tui-title-bold">{{item.name}}</text>
 								</view>
 							</view>
-							<view slot="top">
-								<view class="tui-drawer-content tui-flex-attr tui-drawer-top">
-								  	<block v-for="(value, j) in item.values.slice(0,3)" :key="j">
-										<view class="tui-attr-item" :class="{'tui-btmItem-active': selectedIndex[i].includes(j)}" @tap=onSelect(i,j)>
-											<view class="tui-attr-ellipsis">{{value}}</view>
-										</view>
-									</block>  	
+							<block v-if="i<=2">
+								<view slot="top">
+									<view class="tui-drawer-content tui-flex-attr tui-drawer-top">
+										<block v-for="(value, j) in item.values.slice(0,3)" :key="j">
+											<view class="tui-attr-item" :class="{'tui-btmItem-active': selectedIndex[i].includes(j)}" @tap=onSelect(i,j)>
+												<view class="tui-attr-ellipsis">{{value}}</view>
+											</view>
+										</block>  	
+									</view>
 								</view>
-							</view>
-							<view slot="content">
-								<view class="tui-drawer-content tui-flex-attr">
-								  	<block v-for="(value, j) in item.values.slice(3)" :key="j">
-										<view class="tui-attr-item" :class="{'tui-btmItem-active': selectedIndex[i].includes(j+3)}" @tap=onSelect(i,j+3)>
-											<view class="tui-attr-ellipsis">{{value}}</view>
-										</view>
-									</block>  	
+								<view slot="content">
+									<view class="tui-drawer-content tui-flex-attr">
+										<block v-for="(value, j) in item.values.slice(3)" :key="j" >
+											<view class="tui-attr-item" :class="{'tui-btmItem-active': selectedIndex[i].includes(j+3)}" @tap=onSelect(i,j+3)>
+												<view class="tui-attr-ellipsis">{{value}}</view>
+											</view>
+										</block>  	
+									</view>
 								</view>
-							</view>
+							</block>
+							<block v-else> 
+								<view slot="content">
+									<view class="tui-drawer-content tui-flex-attr">
+										<block v-for="(value, j) in item.values" :key="j" >
+											<view class="tui-attr-item" :class="{'tui-btmItem-active': selectedIndex[i].includes(j)}" @tap=onSelect(i,j)>
+												<view class="tui-attr-ellipsis">{{value}}</view>
+											</view>
+										</block>  	
+									</view>
+								</view>
+							</block>
 						</tui-collapse>
 					</block>				
 					<view class="tui-safearea-bottom"></view>
@@ -147,7 +133,7 @@
 				<view class="tui-attr-btnbox">
 					<view class="tui-attr-safearea">
 						<view class="tui-drawer-btn tui-drawerbtn-black" hover-class="tui-white-hover" :hover-stay-time="150" @tap="reset">重置</view>
-						<view class="tui-drawer-btn tui-drawerbtn-primary" hover-class="tui-red-hover" :hover-stay-time="150" @tap="closeDrawer">确定(80万+件商品)</view>
+						<view class="tui-drawer-btn tui-drawerbtn-primary" hover-class="tui-red-hover" :hover-stay-time="150" @tap="closeDrawer">确定({{currentList.length}}件商品)</view>
 					</view>
 				</view>
 			</view>
@@ -162,11 +148,16 @@
 </template>
 
 <script>
+import tGoodsItem from '@/components/views/t-goods-item/t-goods-item'
 export default {
+	components: {
+		tGoodsItem
+	},
 	data() {
 		return {
 			min: '',
 			max: '',
+			entity: '',
 			searchKey: '', //搜索关键词
 			width: 200, //header宽度
 			height: 64, //header高度
@@ -196,27 +187,50 @@ export default {
 				}
 			],
 			displayList: [],
-			productList: [],
+			currentList: [],
 			selectedIndex: [],
 			selectedCondition: [],
-			dataList: [
-				{name: '全部分类', current: 0, values: ['男装', '女装', '运动服饰', '户外鞋服', '文化', '配件', '男鞋', '艺术']},
-				{name: '尺码', current: -1,  values: [23,24,25,26,27,28,30,31,32,33,34,35,36,37,38,39,40,41,42,43]},
-				{name: '品牌', current: -1,  values: ["花花公子","九匹狼","耐克","安踏"]}
-			],
+			dataList: [],
 			pageIndex: 1,
 			loadding: false,
 			pullUpOn: true
 		};
 	},
 	onLoad: function(options) {
-        let size = this.dataList.length
-		this.selectedIndex = this.dataList.map(function(){return []})
-		this.selectedCondition = new Array(size).fill('')
-		let goodsList = this.$store.state.goodsList
-		goodsList.forEach((sku)=>{this.productList.push(sku.data[0])})
-		console.log('productList', this.productList)
-		this.displayList = this.productList
+		console.log('options', options)
+		this.searchKey = options.groupName
+		if(this.searchKey){
+			this.currentList = this.productList.filter((o)=>{return o.selectedClassifyList.includes(this.searchKey)})
+		}
+		else if(options.searchKey){
+			this.searchKey = options.searchKey
+			this.currentList = this.$store.state.searchResult
+		}else{
+			this.currentList = this.productList
+		}
+		this.$nextTick(()=>{
+			let groupNames = []
+			this.goodsGroup.forEach((o)=>{groupNames.push(o.name)})
+			this.dataList.push({name: '全部分类', current: 0, values: groupNames})
+            let attrs = {}
+		    this.productList.forEach((o) => {
+				o.selectedGoodsAttrList.forEach(v=>{
+					if(attrs[v.name]){
+						attrs[v.name].add(v.value)
+					}else{
+						attrs[v.name] = new Set([v.value])
+					}
+				})
+			})
+			let propsList = Object.keys(attrs).map((i)=>{
+				return { 'name': i, 'values': Array.from(attrs[i])} //对象转数组   
+			}).sort((a,b)=>{return b.values.length - a.values.length}); //按照属性元素个数排序
+			propsList.forEach((props)=>{
+				this.dataList.push({name: props.name, current: -1, values: props.values})
+			})
+			this.selectedCondition = new Array(this.dataList.length).fill('')
+			this.selectedIndex = this.dataList.map(function(){return []})
+		})
 		let obj = {};
 		// #ifdef MP-WEIXIN
 		obj = wx.getMenuButtonBoundingClientRect();
@@ -233,12 +247,28 @@ export default {
 				this.height = obj.top ? obj.top + obj.height + 8 : res.statusBarHeight + 44;
 				this.inputTop = obj.top ? obj.top + (obj.height - 30) / 2 : res.statusBarHeight + 7;
 				this.arrowTop = obj.top ? obj.top + (obj.height - 32) / 2 : res.statusBarHeight + 6;
-				this.searchKey = options.searchKey || '';
 				//略小，避免误差带来的影响
 				this.dropScreenH = (this.height * 750) / res.windowWidth + 84;
 				this.drawerH = res.windowHeight - uni.upx2px(100) - this.height;
 			}
 		});
+	},
+	computed: {
+        productList() {
+			return this.$store.state.goodsList
+		},
+		goodsGroup() {
+			return this.$store.state.goodsGroup
+		}
+	},
+	watch:{
+		currentList(v){
+			if(v.length===0) {
+				this.tui.toast('暂无匹配商品，更改选项试试吧')
+			} 
+			this.displayList = v
+		}
+
 	},
 	methods: {
 		px(num) {
@@ -249,41 +279,56 @@ export default {
 			let item = this.dataList[index];
 			item.current = item.current == index ? -1 : index
 		},
-		detail(item) {
-			uni.navigateTo({
-				url: '/pages/index/productDetail/productDetail?spu_id=' + item.spu_id + '&sku_id=' + item.id
-			})
-		},
-		addCart(item){
-			let newGoods = {
-				id: item.id,
-				spu_id: item.spu_id,
-				price: item.price,
-				title: item.title,
-				slogan: item.slogan,
-				defaultImageUrl: item.defaultImageUrl,
-				propertyList: item.selectedGoodsAttrList,
-				buyNum: 1,
-			}
-			if(!this.tui.isLogin()) {
-				uni.navigateTo({url: '/pages/my/login/login'})
-			}else{
-				let url = '/updateCustomer/' + uni.getStorageSync("pid") +'/addCart'
-				this.tui.request(url, 'PUT', {'newGoods': newGoods}).then(res=>{
-						if(res.code==='0'){
-							this.tui.toast('成功添加到购物车')
-						}
-					}
-				)
-			}
-		},
 		reset() {
-			console.log('min', this.min, 'max', this.max)
 			let size = this.dataList.length
 			this.min = ''
 			this.max = ''
 			this.selectedIndex = this.dataList.map(function(){return []})
 			this.selectedCondition = new Array(size).fill('')
+		},
+		onDelete(){
+			this.searchKey = ''
+			this.isList = false
+            this.currentList = this.productList
+		},
+		onChangePrice(){
+			this.filter()
+		},
+		filter(){
+			let res = this.productList
+			if(this.min){
+				res = res.filter((o)=>{
+					return o.price>=this.min
+				})
+			}
+			if(this.max){
+				res = res.filter((o)=>{
+					return o.price<=this.max
+				})
+			}
+			let selectedGroups = this.selectedCondition[0]? this.selectedCondition[0].split('，') : []
+			if(selectedGroups.length>0){
+				res = res.filter((o)=>{
+					let intersection = o.selectedClassifyList.filter((v) =>
+					selectedGroups.includes(v)) //计算交集 
+					return intersection.length>0
+				})
+			}
+			let attrs = []
+			this.selectedCondition.slice(1).forEach((o)=>{
+				if(o){
+					attrs.push(...o.split('，'))
+				}
+			})
+			if(attrs.length>0){
+				res = res.filter((o)=>{
+					let elements = []
+					o.selectedGoodsAttrList.forEach((e)=>{elements.push(e.value)})
+					let intersection = elements.filter((v) => attrs.includes(v)) //计算交集 
+					return intersection.length>0
+				})
+			}
+			this.currentList = res   
 		},
 		onSelect(i,j){
 			let index = this.selectedIndex[i].indexOf(j)
@@ -297,8 +342,12 @@ export default {
 			this.selectedIndex[i].forEach((k)=>{
                 res = res + values[k] + '，'
 			})
-			res = res.substr(0, res.length - 1)
+			res = res.slice(0, res.length - 1)
 			this.selectedCondition[i]=res
+			this.$forceUpdate()
+			this.$nextTick(()=>{
+				this.filter()
+			})
 		},
 		showDropdownList: function() {
 			this.selectH = 246;
@@ -317,15 +366,14 @@ export default {
 					arr[i].selected = false;
 				}
 			}
-			
 			this.dropdownList = arr;
 			this.selectedName = index == 0 ? '综合' : index == 1 ? '价格升序' : '价格降序';
 			this.selectH = 0;
 			if(index===1){
-				this.displayList = this.productList.sort((a,b)=>{ return a.price-b.price })
+				this.displayList = this.currentList.sort((a,b)=>{ return a.price-b.price })
 			}
 			else if(index===2){
-				this.displayList = this.productList.sort((a,b)=>{ return b.price-a.price })
+				this.displayList = this.currentList.sort((a,b)=>{ return b.price-a.price })
 			}
 		},
 		screen: function(e) {
@@ -337,7 +385,7 @@ export default {
 				this.tabIndex = 1;
 				this.selectedName = "综合"
 				this.dropdownList.forEach((o)=>{o.select=false})
-				this.displayList = this.productList.sort((a,b)=>{ return b.salesNum-a.salesNum })
+				this.displayList = this.currentList.sort((a,b)=>{ return b.salesNum-a.salesNum })
 			} else if (index == 2) {
 				this.isList = !this.isList;
 			} else if (index == 3) {
@@ -345,7 +393,9 @@ export default {
 			}
 		},
 		closeDrawer: function() {
+			this.displayList=this.currentList
 			this.drawer = false;
+			this.$forceUpdate()
 		},
 		back: function() {
 			if (this.drawer) {
@@ -362,7 +412,7 @@ export default {
 	},
 	onReachBottom: function() {
 		if (!this.pullUpOn) return;
-		this.loadding = true;
+		// this.loadding = true;
 		// if (this.pageIndex == 4) {
 		// 	this.loadding = false;
 		// 	this.pullUpOn = false;
@@ -374,7 +424,7 @@ export default {
 		// 	}
 		// 	this.productList = this.productList.concat(loadData);
 		// 	this.pageIndex = this.pageIndex + 1;
-		// 	this.loadding = false;
+			this.loadding = false;
 		// }
 	}
 };
@@ -585,19 +635,6 @@ export default {
 	background: #e5e5e5;
 	color: #2e2e2e;
 }
-
-.tui-sub-info {
-	color: #888;
-	max-width: 90%;
-    padding-top: 5rpx;
-    font-size: 22rpx;
-	box-sizing: border-box;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
-}
-
-
 
 /*顶部下拉选择 属性*/
 
@@ -816,102 +853,7 @@ export default {
 /* 商品列表*/
 
 .tui-product-list {
-	display: flex;
 	margin: 0 10rpx;
-	justify-content: space-between;
-	flex-direction: row;
-	flex-wrap: wrap;
-	box-sizing: border-box;
 }
 
-.tui-product-container {
-	flex: 1;
-	margin-right: 15rpx;
-}
-
-.tui-product-container:last-child {
-	margin-right: 0;
-}
-
-.tui-pro-item {
-	width: 100%;
-	margin-bottom: 10rpx;
-	background: #fff;
-	box-sizing: border-box;
-	border-radius: 12rpx;
-	overflow: hidden;
-	transition: all 0.15s ease-in-out;
-}
-
-.tui-flex-list {
-	display: flex;
-}
-
-.tui-pro-img {
-	width: 100%;
-	display: block;
-}
-
-.tui-proimg-list {
-	width: 260rpx;
-	height: 260rpx !important;
-	flex-shrink: 0;
-	border-radius: 10rpx;
-}
-.tui-pro-content {
-	display: flex;
-	width: 100%;
-	flex-direction: column;
-	justify-content: space-between;
-	box-sizing: border-box;
-	padding: 20rpx;
-}
-
-.tui-pro-tit {
-	color: #2e2e2e;
-	font-size: 26rpx;
-	line-height: 32rpx;
-	word-break: break-all;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	display: -webkit-box;
-	-webkit-box-orient: vertical;
-	-webkit-line-clamp: 2;
-}
-
-.tui-size-24 {
-	font-size: 24rpx;
-	font-weight: 500;
-	color: #e41f19;
-}
-
-.tui-pro-price {
-	padding-top: 10rpx;
-	flex: auto;
-}
-
-.tui-sale-price {
-	font-size: 34rpx;
-	font-weight: 500;
-	color: #e41f19;
-}
-
-.tui-factory-price {
-	font-size: 24rpx;
-	color: #a0a0a0;
-	text-decoration: line-through;
-	padding-left: 12rpx;
-}
-.tui-cart {
-	display: flex;
-	margin-top: 10rpx;
-	justify-content: space-between;
-}
-
-.tui-pro-pay {
-	font-size: 24rpx;
-	color: #656565;
-}
-
-/* 商品列表*/
 </style>

@@ -10,57 +10,25 @@
         <text class="tui-youlike">试试其它宝贝</text>
         </tui-divider>
         <view class="tui-product-list">
-            <view class="tui-product-container">
-                <block v-for="(item,index) in productList" :key="index">
-                    <!--商品列表-->
-                    <view class="tui-pro-item" hover-class="hover" :hover-start-time="150" @tap="detail(item)" v-if="(index+1)%2!==0">
-                        <image :src="item.defaultImageUrl" class="tui-pro-img" mode="widthFix" />
-                        <view class="tui-pro-content">
-                            <view class="tui-pro-tit">{{item.title}}</view>
-							<view class="tui-sub-info">{{item.slogan}}</view>
-                            <view class="tui-pro-price">
-                                <text class="tui-size-24">￥</text>
-                                <text class="tui-sale-price">{{ item.price.split('.')[0] }}</text>
-                                <text class="tui-size-24" v-show="item.price.indexOf('.')!==-1">.{{ item.price.split('.')[1]}}</text>
-                                <text class="tui-factory-price">￥{{ item.originalPrice }}</text>
-                            </view>
-                            <view class="tui-cart">
-								<view class="tui-pro-pay">{{ item.salesNum }}人付款</view>
-								<tui-icon name="cart" :size="16" color="#e41f19" @tap.stop="addCart(item)"></tui-icon>
-							</view>
-                        </view>
-                    </view>
-                </block>
-            </view>
-            <view class="tui-product-container">
-                <block v-for="(item,index) in productList" :key="index">
-                    <!--商品列表-->
-                    <view class="tui-pro-item" hover-class="hover" :hover-start-time="150" @tap="detail(item)" v-if="(index+1)%2==0">
-                        <image :src="item.defaultImageUrl" class="tui-pro-img" mode="widthFix" />
-                        <view class="tui-pro-content">
-                            <view class="tui-pro-tit">{{item.title}}</view>
-							<view class="tui-sub-info">{{item.slogan}}</view>
-                            <view class="tui-pro-price">
-                                <text class="tui-size-24">￥</text>
-                                <text class="tui-sale-price">{{ item.price.split('.')[0] }}</text>
-                                <text class="tui-size-24"  v-show="item.price.indexOf('.')!==-1">.{{ item.price.split('.')[1]}}</text>
-                                <text class="tui-factory-price">￥{{ item.originalPrice }}</text>
-                            </view>
-                            <view class="tui-cart">
-								<view class="tui-pro-pay">{{ item.salesNum }}人付款</view>
-								<tui-icon name="cart" :size="16" color="#e41f19" @tap.stop="addCart(item)"></tui-icon>
-							</view>
-                        </view>
-                    </view>
-                </block>
-            </view>
+			<tui-waterfall :listData="productList" :type="2" :pageSize="10" >
+				<template slot-scope="{ entity }" slot="left">
+					<tGoodsItem :entity="entity"></tGoodsItem>
+				</template>
+				<template slot-scope="{ entity }" slot="right">
+					<tGoodsItem :entity="entity"></tGoodsItem>	
+				</template>
+			</tui-waterfall>
         </view>
 		<tui-nomore text="没有更多了"></tui-nomore>
 	</view>
 </template>
 
 <script>
+	import tGoodsItem from '@/components/views/t-goods-item/t-goods-item'
 	export default {
+		components: {
+			tGoodsItem
+		},
 		data() {
 			return {
 				productList: [],
@@ -69,24 +37,10 @@
 				pullUpOn: true,
 			}
 		},
-		filters: {
-			getPrice(price) {
-				price = price || 0;
-				return price.toFixed(2)
-			},
-			attrFormat(attr) {
-				let str = ''
-				attr.forEach(o=>{
-					str = str + o.value + '，'
-				})
-				return str.slice(0,-1)
-			},
-		},
 		onLoad(){
 			let goodsList = this.$store.state.goodsList
 			this.productList = goodsList.filter((sku)=>{ 
-				let index = this.cart.findIndex((o) => {return sku.id === o.id})
-				return sku.stock>0 && index ===-1
+				return sku.stock>0 
 			})
 		},
 		methods: {
@@ -178,98 +132,6 @@
 	}
 
 	.tui-product-list {
-		display: flex;
-		margin: 0px 18rpx;
-		justify-content: space-between;
-		flex-direction: row;
-		flex-wrap: wrap;
-		box-sizing: border-box;
-	}
-
-	.tui-product-container {
-		flex: 1;
-		margin-right: 2%;
-	}
-
-	.tui-product-container:last-child {
-		margin-right: 0;
-	}
-
-	.tui-pro-item {
-		width: 100%;
-		margin-bottom: 4%;
-		background: #fff;
-		box-sizing: border-box;
-		border-radius: 12rpx;
-		overflow: hidden;
-	}
-
-	.tui-pro-img {
-		width: 100%;
-		display: block;
-	}
-
-	.tui-pro-content {
-		display: flex;
-		flex-direction: column;
-		justify-content: space-between;
-		box-sizing: border-box;
-		padding: 20rpx;
-	}
-
-	.tui-pro-tit {
-		color: #2e2e2e;
-		font-size: 26rpx;
-		line-height: 32rpx;
-		word-break: break-all;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		display: -webkit-box;
-		-webkit-box-orient: vertical;
-		-webkit-line-clamp: 2;
-	}
-
-	.tui-size-24 {
-		font-size: 24rpx;
-		font-weight: 500;
-		color: #e41f19;
-	}
-
-	.tui-pro-price {
-		padding-top: 18rpx;
-	}
-
-	.tui-sale-price {
-		font-size: 34rpx;
-		font-weight: 500;
-		color: #e41f19;
-	}
-
-	.tui-factory-price {
-		font-size: 24rpx;
-		color: #a0a0a0;
-		text-decoration: line-through;
-		padding-left: 12rpx;
-	}
-	.tui-sub-info {
-		color: #888;
-		max-width: 90%;
-		padding-top: 5rpx;
-		font-size: 22rpx;
-		box-sizing: border-box;
-		white-space: nowrap;
-		overflow: hidden;
-		text-overflow: ellipsis;
-	}
-
-	.tui-cart {
-		display: flex;
-		margin-top: 10rpx;
-		justify-content: space-between;
-	}
-
-	.tui-pro-pay {
-		font-size: 24rpx;
-		color: #656565;
+		margin: 0px 10rpx;
 	}
 </style>

@@ -3,7 +3,7 @@
 		<view class="tui-searchbox">
 			<view class="tui-search-input" @tap="search">
 				<icon type="search" :size="13" color="#999"></icon>
-				<text class="tui-search-text">搜索Thorui商品</text>
+				<text class="tui-search-text">请输入关键词</text>
 			</view>
 		</view>
 
@@ -17,14 +17,14 @@
 		>
 			<view
 				:id="`left_${index}`"
-				v-for="(item, index) in tabbar"
+				v-for="(item, index) in goodsGroup"
 				:key="index"
 				class="tab-bar-item"
 				:class="[currentTab == index ? 'active' : '']"
 				:data-current="index"
 				@tap.stop="swichNav"
 			>
-				<text>{{ item }}</text>
+				<text>{{ item.name}}</text>
 			</view>
 		</scroll-view>
 		<scroll-view
@@ -37,28 +37,16 @@
 			:style="{ height: height + 'px', top: top + 'px' }"
 		>
 			<!--内容部分 start 自定义可删除-->
-			<block v-for="(item, index) in tabbar" :key="index">
+			<block v-for="(item, index) in goodsGroup" :key="index">
 				<t-linkage :distanceTop="distanceTop" :recalc="1" :scrollTop="scrollTop" :index="index" @linkage="linkage">
 					<view class="page-view" :id="`right_${index}`">
 						<view class="class-box">
 							<view class="class-item">
-								<view class="class-name">{{ item }}</view>
+								<view class="class-name">{{ item.name }}</view>
 								<view class="g-container">
-									<view class="g-box" @tap.stop="productList" data-key="高价回收">
-										<image src="https://system.chuangbiying.com/static/images/product/11.jpg" class="g-image" />
-										<view class="g-title">高价回收</view>
-									</view>
-									<view class="g-box" @tap.stop="productList" data-key="好物优选">
-										<image src="https://system.chuangbiying.com/static/images/product/22.jpg" class="g-image" />
-										<view class="g-title">好物优选</view>
-									</view>
-									<view class="g-box" @tap.stop="productList" data-key="iphone X">
-										<image src="https://system.chuangbiying.com/static/images/product/33.jpg" class="g-image" />
-										<view class="g-title">iphone X</view>
-									</view>
-									<view class="g-box" @tap.stop="productList" data-key="电动牙刷" v-if="index % 2 === 0">
-										<image src="https://system.chuangbiying.com/static/images/product/44.jpg" class="g-image" />
-										<view class="g-title">电动牙刷</view>
+									<view class="g-box" @tap.stop="detail(goods)" v-for="(goods, i) in item.goodsList" :key="i">
+										<image :src=goods.defaultImageUrl class="g-image" />
+										<view class="g-title">{{goods.title}}</view>
 									</view>
 								</view>
 							</view>
@@ -79,25 +67,6 @@ export default {
 	},
 	data() {
 		return {
-			tabbar: [
-				'推荐分类',
-				'进口超市',
-				'国际名牌',
-				'奢侈品',
-				'海囤全球',
-				'男装',
-				'女装',
-				'男鞋',
-				'女鞋',
-				'钟表珠宝',
-				'手机数码',
-				'电脑办公',
-				'家用电器',
-				'玩具乐器',
-				'运动户外',
-				'宠物生活',
-				'特产馆'
-			],
 			height: 0, //scroll-view高度
 			top: 0,
 			currentTab: 0, //预设当前项的值
@@ -110,6 +79,7 @@ export default {
 		};
 	},
 	onLoad: function(options) {
+		console.log('goodsGroup', this.goodsGroup)
 		setTimeout(() => {
 			uni.getSystemInfo({
 				success: res => {
@@ -123,6 +93,14 @@ export default {
 				}
 			});
 		}, 50);
+	},
+	computed: {
+		goodsList() {
+			return this.$store.state.goodsList
+		},
+		goodsGroup() {
+			return this.$store.state.goodsGroup
+		}
 	},
 	methods: {
 		// 点击标题切换当前页时改变样式
@@ -150,15 +128,14 @@ export default {
 				this.scrollView_leftId = `left_${this.currentTab}`;
 			}
 		},
-		productList(e) {
-			let key = e.currentTarget.dataset.key;
+		detail(item){
 			uni.navigateTo({
-				url: '/pages/template/mall/productList/productList?searchKey=' + key
-			});
+				url: '/pages/index/productDetail/productDetail?spu_id=' + item.spu_id + '&sku_id=' + item.id
+			})
 		},
 		search: function() {
 			uni.navigateTo({
-				url: '/pages/template/news/search/search'
+				url: '/pages/common/search/search'
 			});
 		},
 		scroll(e) {
@@ -240,6 +217,7 @@ page {
 	position: fixed;
 	left: 0;
 	z-index: 10;
+	background: #f6f6f6;
 }
 
 .tab-bar-item {
@@ -320,11 +298,19 @@ page {
 }
 
 .g-image {
-	width: 120rpx;
-	height: 120rpx;
+	width: 130rpx;
+	height: 130rpx;
+	border-radius: 10rpx;
 }
 
 .g-title {
 	font-size: 22rpx;
+	text-align: center;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    word-break: break-all;
+    -webkit-line-clamp: 2;
 }
 </style>

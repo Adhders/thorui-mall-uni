@@ -1,11 +1,7 @@
 <template>
 	<view class="container">
 		<!--header-->
-		<view class="tui-header" :style="{opacity:opacity}">
-			<!-- <view class="tui-category" hover-class="opcity" :hover-stay-time="150" @tap="classify">
-				<tui-icon name="manage-fill" color="#fff" :size="44" unit="rpx"></tui-icon>
-				<view class="tui-category-scale">分类</view>
-			</view> -->
+		<!-- <view class="tui-header" :style="{opacity:opacity}">
 			<view class="tui-rolling-search">
 				<tui-icon name="search-2" :size="32" unit="rpx"></tui-icon>
 				<swiper vertical autoplay circular interval="8000" class="tui-swiper">
@@ -14,9 +10,9 @@
 					</swiper-item>
 				</swiper>
 			</view>
-		</view>
+		</view> -->
 		<!--header-->
-		<view class="tui-header-banner">
+		<!-- <view class="tui-header-banner">
 			<view class="tui-hot-search">
 				<view>热搜</view>
 				<view class="tui-hot-tag" @tap="search">自热火锅</view>
@@ -27,7 +23,6 @@
 			<view class="tui-banner-bg">
 				<view class="tui-primary-bg tui-route-left"></view>
 				<view class="tui-primary-bg tui-route-right"></view>
-				<!--banner-->
 				<view class="tui-banner-box">
 					<swiper :indicator-dots="true" :autoplay="true" :interval="5000" :duration="150" class="tui-banner-swiper"
 					 :circular="true" indicator-color="rgba(255, 255, 255, 0.8)" indicator-active-color="#fff">
@@ -37,29 +32,18 @@
 					</swiper>
 				</view>
 			</view>
-		</view>
+		</view> -->
 
-		<view class="tui-product-category">
-			<view class="tui-category-item" v-for="(item, index) in category" :key="index" :data-key="item.name" @tap="more">
-				<image :src="'https://thorui.cn/images/mall/category/' + item.img" class="tui-category-img" mode="scaleToFill"></image>
+		<!-- <view class="tui-product-category">
+			<view class="tui-category-item" v-for="(item, index) in goodsGroup" :key="index" :data-key="item.name" @tap="more">
+				<image :src="item.imgUrl" class="tui-category-img" mode="scaleToFill"></image>
 				<view class="tui-category-name">{{ item.name }}</view>
 			</view>
 		</view>
 		<image src="https://thorui.cn/images/mall/activity/img_coupon_banner.png" class="tui-img__coupon" @tap="coupon"></image>
 		<view class="tui-product-box">
-			
-			<!--超值拼团-->
+
 			<view class="tui-block__box tui-mtop__20">
-				<view class="tui-group-name">
-					<view>
-						<text>超值拼团</text>
-						<text class="tui-sub__desc tui-color__pink">拼着买更便宜</text>
-					</view>
-					<view class="tui-more__box" @tap="group(1)">
-						<text>更多</text>
-						<tui-icon name="arrowright" :size="36" unit="rpx" color="#999"></tui-icon>
-					</view>
-				</view>
 				<scroll-view scroll-x>
 					<view class="tui-goods__list">
 						<view class="tui-goods__item" @tap="group(2)" v-for="(item, index) in 8" :key="index">
@@ -79,7 +63,6 @@
 				</scroll-view>
 			</view>
 
-			<!--排行榜-->
 			<view class="tui-block__box tui-mtop__20">
 				<view class="tui-group-name" @tap="more">
 					<view>
@@ -107,54 +90,21 @@
 					</view>
 				</view>
 			</view>
-		</view>
+		</view> -->
 
-		<view class="tui-product-box">
-			<view class="tui-title__img">
-				<image src="https://thorui.cn/images/mall/img_home_update_3x.png" mode="widthFix"></image>
-			</view>
-			<view class="tui-product-list">
-				<view class="tui-product-container">
-					<block v-for="(item, index) in goodsList" :key="index">
-						<!--商品列表-->
-						<view class="tui-pro-item" hover-class="hover" :hover-start-time="150" @tap="detail(item.spu_id)" v-if="(index + 1) % 2 != 0">
-							<image :src="item.defaultImageUrl" class="tui-pro-img" mode="widthFix" />
-							<view class="tui-pro-content">
-								<view class="tui-pro-tit">{{ item.title }}</view>
-								<view>
-									<view class="tui-pro-price">
-										<text class="tui-sale-price">￥{{ item.price.split('.')[0] }}</text>
-										<text class="tui-size-24" v-show="item.price.indexOf('.')!==-1">.{{ item.price.split('.')[1]}}</text>
-										<text class="tui-factory-price">￥{{ item.originalPrice }}</text>
-									</view>
-									<view class="tui-pro-pay">{{ item.salesNum }}人付款</view>
-								</view>
-							</view>
-						</view>
-						<!--商品列表-->
-						<!-- <template is="productItem" data="{{item,index:index}}" /> -->
-					</block>
-				</view>
-				<view class="tui-product-container">
-					<block v-for="(item, index) in goodsList" :key="index">
-						<!--商品列表-->
-						<view class="tui-pro-item" hover-class="hover" :hover-start-time="150" @tap="detail(item.spu_id)" v-if="(index + 1) % 2 == 0">
-							<image :src="item.defaultImageUrl" class="tui-pro-img" mode="widthFix" />
-							<view class="tui-pro-content">
-								<view class="tui-pro-tit">{{ item.title }}</view>
-								<view class="tui-pro-price">
-									<text class="tui-sale-price">￥{{ item.price.split('.')[0] }}</text>
-									<text class="tui-size-24" v-show="item.price.indexOf('.')!==-1">.{{ item.price.split('.')[1]}}</text>
-									<text class="tui-factory-price">￥{{ item.originalPrice }}</text>
-								</view>
-								<view class="tui-pro-pay">{{ item.salesNum }}人付款</view>
-							</view>
-						</view>
-						<!--商品列表-->
-					</block>
-				</view>
-			</view>
-		</view>
+		 <block v-for="(item,index) in itemList" :key="index">
+            <CarouselView :item=item v-if="item.cmptName==='CarouselView'"></CarouselView>
+            <AnnounceView :item=item v-if="item.cmptName==='AnnounceView'"></AnnounceView>
+            <ButtonView  :item=item v-if="item.cmptName==='ButtonView'"></ButtonView>
+            <TitleView  :item=item v-if="item.cmptName==='TitleView'"></TitleView>
+            <VideoView :item=item v-if="item.cmptName==='VideoView'"></VideoView>
+            <PictureView :item=item v-if="item.cmptName==='PictureView'" @goto="openPage"></PictureView>
+            <TypingView :item=item  v-if="item.cmptName==='TypingView'"></TypingView>
+            <SearchView :item=item v-if="item.cmptName==='SearchView'"></SearchView>
+            <NavigateView  :item=item v-if="item.cmptName==='NavigateView'"></NavigateView>
+            <FreeVesselView  :item=item v-if="item.cmptName==='FreeVesselView'"></FreeVesselView>
+            <CrossView :item=item v-if="item.cmptName==='CrossView'"></CrossView>
+        </block>
 
 		<!--加载loadding-->
 		<tui-loadmore v-if="loadding" :index="3" type="red"></tui-loadmore>
@@ -169,47 +119,6 @@
 			return {
 				hotSearch: [],
 				banner: ['1.jpg', '2.jpg', '3.jpg', '4.jpg', '5.jpg'],
-				category: [{
-						img: '1.png',
-						name: '短袖T恤'
-					},
-					{
-						img: '2.png',
-						name: '足球'
-					},
-					{
-						img: '3.png',
-						name: '运动鞋'
-					},
-					{
-						img: '4.png',
-						name: '中老年'
-					},
-					{
-						img: '5.png',
-						name: '甜美风'
-					},
-					{
-						img: '6.png',
-						name: '鱼尾裙'
-					},
-					{
-						img: '7.png',
-						name: '相机配件'
-					},
-					{
-						img: '8.png',
-						name: '护肤套装'
-					},
-					{
-						img: '9.png',
-						name: '单肩包'
-					},
-					{
-						img: '10.png',
-						name: '卫衣'
-					}
-				],
 				goodsGroup: [],
 				newProduct: [{
 						name: '时尚舒适公主裙高街修身长裙',
@@ -260,6 +169,7 @@
 						isLabel: true
 					}
 				],
+				itemList: [],
 				goodsList: [],
 				pageIndex: 1,
 				loadding: false,
@@ -281,22 +191,41 @@
 			this.appid = this.$store.state.appid
 			let url = '/getStoreGoods/' + this.appid
 			this.tui.request(url).then(res=>{
-				console.log('res', res)
 				if (res.code==='0'){
+					res.goodsList.forEach((o)=>{
+						o.integerPrice = parseInt(o.price)
+						o.decimalPrice = o.price.split('.')[1]
+					})
 					this.goodsList = res.goodsList
+					console.log('goodsList', this.goodsList)
 					this.$store.commit('setGoodsList', this.goodsList)
 				}
 			})
-			 url = '/queryGoodsGroup/' + this.user + '/' + this.store_id
-            this.$axios.get(url).then(
+		    url = '/getStoreGoodsGroup/' + this.appid
+            this.tui.request(url).then(
                 res => {
-                    if(res.data.code==='0'){
-						console.log('goodsGroup', res.data)
-						// this.$store.state.commit('setGoodsGroup', this.goodsGroup)
+                    if(res.code==='0'){
+						res.goodsGroup.forEach((o)=>{
+							o.children.forEach((group)=>{
+								this.goodsGroup.push(group)
+							})
+						})
+						this.$store.commit('setGoodsGroup', this.goodsGroup)
                     }
                 }
             ).catch(err => { console.log('err', err) })
 			this.hotSearch = uni.getStorageSync('hotKeys') || []
+			url = '/getStoreDetail/' + this.appid
+			this.tui.request(url).then(res => {
+                console.log('res', res)
+				this.itemList = res.pages[0].arrList
+            }).catch(err => {
+                console.log('err', err) 
+            }) 
+			
+			// const pageIndex = this.$store.state.currentPage.pageIndex
+			// const groupIndex = this.$store.state.currentPage.itemGroupIndex
+			// this.itemList=this.$store.state.detail[pageIndex].children[groupIndex].arrList
 		},
 		methods: {
 			detail(spu_id) {
@@ -315,9 +244,10 @@
 			more: function(e) {
 				let key = e.currentTarget.dataset.key || '';
 				uni.navigateTo({
-					url: '/pages/index/goodsList/goodsList?searchKey=' + key
+					url: '/pages/index/productList/productList?groupName=' + key
 				});
 			},
+
 			search: function() {
 				uni.navigateTo({
 					url: '/pages/common/search/search'
@@ -374,7 +304,7 @@
 
 <style>
 	page {
-		background-color: #f7f7f7;
+		background-color: #FFF;
 	}
 	.container {
 		padding-bottom: 100rpx;
