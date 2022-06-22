@@ -32,7 +32,7 @@
 												<text class="tui-sale-price">{{ item.price.split('.')[0] }}</text>
 												<text class="tui-size-24"  v-show="item.price.indexOf('.')!==-1">.{{ item.price.split('.')[1]}}</text>
 											</view>
-											<tui-numberbox :value="item.buyNum" :height="36" :width="64" :min="1" :index="index" @change="changeNum"></tui-numberbox>
+											<tui-numberbox class="tui-numberbox" :value="item.buyNum" :height="36" :width="64" :min="1" :index="index" @change="changeNum"></tui-numberbox>
 										</view>
 									</view>
 								</view>
@@ -69,7 +69,7 @@
 									<view class="tui-price-box tui-flex-center">
 										<view class="tui-goods-invalid">宝贝已不能购买</view>
 										<view class="tui-btn-alike">
-											<tui-button type="danger" shape="circle" width="120rpx" height="48rpx" :size="24">找相似</tui-button>
+											<tui-button type="danger" shape="circle" width="120rpx" height="48rpx" :size="24" @tap="onSearch(item.title)">找相似</tui-button>
 										</view>
 									</view>
 								</view>
@@ -87,16 +87,14 @@
 				<view class="tui-product-list">
 					<tui-waterfall :listData="productList" :type="2" :pageSize="10">
 						<template slot-scope="{ entity }" slot="left">
-							<tGoodsItem :entity="entity"></tGoodsItem>
+							<tGoodsItem :entity="entity" @add="addCart"></tGoodsItem>
 						</template>
 						<template slot-scope="{ entity }" slot="right">
-							<tGoodsItem :entity="entity"></tGoodsItem>	
+							<tGoodsItem :entity="entity" @add="addCart"></tGoodsItem>	
 						</template>
 					</tui-waterfall>
 				</view>
-				<tui-nomore text="没有更多了"></tui-nomore>
 			</block>
-
 			<!--tabbar-->
 			<view class="tui-tabbar" v-if="dataList.length>0">
 				<view class="tui-checkAll">
@@ -119,7 +117,7 @@
 			<!--加载loadding-->
 			<tui-loadmore v-if="loadding" :index="3" type="red"></tui-loadmore>
 			<tui-actionsheet :show="showActionSheet" :tips="tips" :item-list="itemList" :mask-closable="maskClosable" :color="color"
-			:is-cancel="isCancel" @click="itemClick" @cancel="closeActionSheet"></tui-actionsheet>
+			:is-cancel="isCancel" @click="actionClick" @cancel="closeActionSheet"></tui-actionsheet>
 		</block>
 	</view>
 </template>
@@ -196,10 +194,13 @@
 				return price.toFixed(2)
 			},
 			attrFormat(attr) {
-				return attr.join('，')
+				let res = ''
+				attr.forEach((o)=>{
+					res+=o.value+'，'
+				})
+				return res.slice(0, -1)
 			},
 		},
-	
 		onShow(){
 			if(!this.tui.isLogin()) {
 				uni.redirectTo({url: '/pages/my/login/login?from=cart'})
@@ -207,17 +208,19 @@
 				let goodsList = this.$store.state.goodsList
 				let url = '/getCartInfo/' + this.$store.state.appid + '/' + uni.getStorageSync("pid")
 				this.tui.request(url,'GET', undefined, true).then((res)=>{
-					this.cart = res.cart
-					let total = 0
-					this.dataList.map((item) => {
-						total += item.buyNum;
-					})
-					this.total = total
-					this.productList = goodsList.filter((sku)=>{ 
-						let index = this.cart.findIndex((o) => {return sku.id === o.id})
-						return sku.stock>0 && index ===-1
-					})
-					this.loadding = false
+					if(res.code==='0'){
+						this.cart = res.cart
+						let total = 0
+						this.dataList.map((item) => {
+							total += item.buyNum;
+						})
+						this.total = total
+						this.productList = goodsList.filter((sku)=>{ 
+							let index = this.cart.findIndex((o) => {return sku.id === o.id})
+							return sku.stock>0 && index ===-1
+						})
+						this.loadding = false
+					}
 				})
 			}
 		},
@@ -276,33 +279,19 @@
 					url: '/pages/order/submitOrder/submitOrder?goods=' + JSON.stringify(goods)
 				})
 			},
-			addCart(item){
-				let newGoods = {
-					id: item.id,
-					spu_id: item.spu_id,
-					price: item.price,
-					title: item.title,
-					slogan: item.slogan,
-					defaultImageUrl: item.defaultImageUrl,
-					propertyList: item.selectedGoodsAttrList,
-					buyNum: 1,
-					valid: true,
+			addCart(newGoods){
+				this.total += 1
+				let index = this.cart.findIndex((o)=>{return o.id===newGoods.id})
+				if(index !==-1){
+					this.cart[index].buyNum +=1
+				}else{
+					this.cart.push(newGoods)
 				}
-				let url = '/updateCustomer/' + uni.getStorageSync("pid") +'/addCart'
-				this.tui.request(url, 'PUT', {'newGoods': newGoods}).then(res=>{
-					if(res.code==='0'){
-						this.total += 1
-						let index = this.cart.findIndex((o)=>{return o.id===newGoods.id})
-						if(index !==-1){
-							this.cart[index].buyNum +=1
-						}else{
-							this.cart.push(newGoods)
-						}
-						
-					}
-				}
-				)
-				
+			},
+			onSearch(similarKey){
+				uni.navigateTo({
+					url: '/pages/index/productList/productList?similarKey='+ similarKey
+				})
 			},
 			updateCart(){
 				let url = '/updateCustomer/' + uni.getStorageSync("pid") +'/updateCart'
@@ -329,7 +318,7 @@
 				})
 				this.updateCart()
 			},
-			itemClick: function(e) {
+			actionClick: function(e) {
 				if(e.type===2){
 					this.dataList.map((item) => {
 						if (item.selected) {
@@ -337,6 +326,9 @@
 							this.cart.splice(_index, 1)
 						}
 					})
+					if(this.dataList.length===0){
+						this.isEdit = false
+					}
 					this.updateCart()
 				}
 				this.closeActionSheet();
@@ -442,7 +434,10 @@
 	}
 </script>
 
-<style>
+<style> 
+    .tui-numberbox input{
+		height: auto !important;
+	}
 	.container {
 		padding-bottom: 120rpx;
 	}
@@ -517,9 +512,11 @@
 	}
 
 	.tui-goods-info {
-		width: 100%;
+		width: 425rpx;
 		padding: 10rpx;
-        position: relative;
+        display: flex;
+		flex-direction: column;
+		justify-content: space-between;
 	}
 
 	.tui-goods-title {
@@ -546,14 +543,11 @@
 		padding: 0 16rpx;
 		box-sizing: border-box;
 	}
-
+	
 
 	.tui-price-box {
-		width: 100%;
 		display: flex;
-		position: absolute;
-    	bottom: 10rpx;
-		align-items: flex-end;
+		align-items: align-center;
 		justify-content: space-between;
 	}
 
@@ -591,9 +585,25 @@
 		padding-top: 5rpx;
 		font-size: 22rpx;
 	}
+	.tui-size-24 {
+		font-size: 24rpx;
+		font-weight: 500;
+		color: #e41f19;
+	}
+
+	.tui-pro-price {
+		padding-top: 10rpx;
+		flex: auto;
+	}
+
+	.tui-sale-price {
+		font-size: 34rpx;
+		font-weight: 500;
+		color: #e41f19;
+	}
+
 	.tui-sub-info {
 		color: #888;
-		max-width: 90%;
 		padding-top: 5rpx;
 		font-size: 22rpx;
 		box-sizing: border-box;
@@ -681,7 +691,6 @@
 	}
 
 	.tui-product-list {
-		display: flex;
 		margin: 0 10rpx;
 	}
 </style>

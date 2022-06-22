@@ -2,8 +2,10 @@
 	"pages": [{
 			"path": "pages/tabbar/index/index",
 			"style": {
-				"navigationBarTitleText": "ThorUI商城",
+				"navigationBarTitleText": "",
 				"enablePullDownRefresh": true,
+				"onReachBottomDistance": 50,
+				"navigationStyle": "custom",
 				"app-plus": {
 					"bounce": "vertical"
 				}
@@ -568,10 +570,7 @@
 	"globalStyle": {
 		"navigationBarBackgroundColor": "#FFFFFF",
 		"navigationBarTextStyle": "black",
-		"navigationBarTitleText": "ThorUI商城",
-		"backgroundColor": "#fafafa",
-		"backgroundColorTop": "#fafafa",
-		"backgroundColorBottom": "#fafafa"
+		"navigationBarTitleText": ""
 	},
 	"tabBar": {
 		"color": "#666666",

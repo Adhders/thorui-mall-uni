@@ -222,6 +222,6 @@
 
 	.tui-waterfall__list {
 		flex: 1;
-		max-width: 375rpx;
+		max-width: 360rpx;
 	}
 </style>

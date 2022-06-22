@@ -4,13 +4,12 @@
         marginTop: item.style.topMargin*2 + 'rpx',
         marginBottom: item.style.bottomMargin*2+ 'rpx',
     }">
-        <tui-searchbar @search="onSearch" :cancel="false"
+        <tui-searchbar :cancel="false" @focus="onfocus"
              :backgroundColor=item.style.theme
              padding="10rpx 30rpx"
              :height="item.style.height*2 + 'rpx'"
              :color=item.style.textColor
              :inputBgColor=item.style.backgroundColor
-             :focus="item.style.textAlign==='left'"
              :radius="item.style.borderRadius*2 + 'px'"
              :value=item.content>
         </tui-searchbar>
@@ -21,10 +20,9 @@
     export default {
         props: ['item'],
         methods: {
-            onSearch(e){
-                console.log('serarch', e)
+            onfocus(e){
                 uni.navigateTo({
-					url: '/pages/index/productList/productList'
+					url: '/pages/common/search/search?key=' + e.value
 				});
             }
         }

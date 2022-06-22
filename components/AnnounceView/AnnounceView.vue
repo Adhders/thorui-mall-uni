@@ -1,21 +1,13 @@
 <template>
-	<view :class="{notice: item.style.type!=='icon'}">
-		<u-notice-bar
-		 :no-list-hidden=false
-		 padding="10rpx 0"
-		 font-size="24"
-         :autoplay="item.style.status==='auto'"
-		 :speed="item.style.velocity==='3000'?350 : item.style.velocity==='5000'? 160 : 50"
-         :duration="item.style.velocity==='3000'? 400 : item.style.velocity==='5000'? 2000: 6000"
-		 :mode=item.style.orientation
-		 :type=item.style.theme
-		 :list=item.newsList
-		 :color="item.style.theme==='custom'? item.style.color : '' "
-		 :bg-color="item.style.theme==='custom'? item.style.backgroundColor : '' "
-		 :moreIcon=item.style.moreIcon
-         :volumeIcon="item.style.type==='icon'"
-         @getMore="getMore"
-		></u-notice-bar>
+	<view :class="{notice: item.style.type!=='icon'}" @click="onClick">
+		<tui-notice-bar :is-left="item.style.type!=='none'" height="50" scrollable :content="item.content.news" :color="item.style.color" :speed="item.style.speed*100" 
+			:size="item.style.fontSize*2" :backgroundColor="item.style.backgroundColor">
+			<template v-slot:left>
+				<view class="tui-padding">
+					<tui-icon name="news-fill" :size="48" unit="rpx" :color="item.style.iconColor"></tui-icon>
+				</view>
+			</template>
+		</tui-notice-bar>
 	</view>
 </template>
 
@@ -23,8 +15,9 @@
 	export default {
 		props: ['item'],
         methods: {
-		    getMore(v){
-            }
+		    onClick(v){
+				this.$emit('goto', this.item.content.chooseLink)
+        	}
         }
 	}
 </script>

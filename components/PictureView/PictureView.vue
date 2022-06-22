@@ -7,58 +7,58 @@
             marginTop: item.style.topMargin*2 + 'rpx'}">
          <view v-if="item.style.layout==='shu'">
             <view class="picture" v-for="(img,index) in item.content.imgList" :key="index"
-                :class="{border: item.style.type==='3',shadow: item.style.type==='2'}"
+                :class="{border: item.style.type=='3',shadow: item.style.type=='2'}"
                 :style="{
                     marginBottom: item.style.space*2 + 'rpx',
                     borderRadius: item.style.borderRadius*2 + 'rpx',
                     overflow: 'hidden' }">
-                <image :src="img.src" class="img" mode="widthFix" :style="{borderRadius: item.style.type!=='1'? 0 : item.style.borderRadius*2 + 'rpx'}"/>
+                <image :src="img.src" class="img" mode="widthFix" @tap="onClick(img)"
+                     :style="{borderRadius: item.style.type!='1'? 0 : item.style.borderRadius*2 + 'rpx'}"/>
                 <view class="title" v-show="item.style.showTitle!=='0'"
                     :style="{color: item.style.color, textAlign: item.style.textAlign}">
-                    <view>{{img.title}}</view>
+                    {{img.title}}
                 </view>
             </view>
         </view>
         <view v-if="item.style.layout==='waterfall'" class="waterfall">
             <tui-waterfall :listData="item.content.imgList" :params="item.style" :type="2" :pageSize="10">
 				<template slot-scope="{ entity, params}" slot="left"> 
-                    <div class="picture" :class="{border: params.type==='3',shadow: params.type==='2'}"
+                    <view class="picture" :class="{border: params.type=='3',shadow: params.type=='2'}"
                          :style="{ borderRadius: params.borderRadius + 'rpx'}">
-                        <image class='img' :src="entity.src" mode="widthFix"
-                            :style="{borderRadius: params.type!=='1'? 0 : params.borderRadius + 'rpx'}"/>
-                        <div class="title-box" v-show="params.showTitle!=='0'"
+                        <image class='img' :src="entity.src" mode="widthFix" @tap="onClick(entity)"
+                            :style="{borderRadius: params.type!='1'? 0 : params.borderRadius + 'rpx'}"/>
+                        <view class="title" v-show="params.showTitle!=='0'"
                             :style="{color: params.color, textAlign: params.textAlign}">
-                            <div>{{entity.title}}</div>
-                        </div>
-                    </div>
+                            {{entity.title}}
+                        </view>
+                    </view>
 				</template>
 				<template slot-scope="{ entity, params }" slot="right">
-                     <div class="picture" :class="{border: params.type==='3',shadow: params.type==='2'}"
+                     <view class="picture" :class="{border: params.type=='3',shadow: params.type=='2'}"
                          :style="{ borderRadius: params.borderRadius + 'rpx'}">
-                        <image class='img' :src="entity.src" mode="widthFix"
-                            :style="{borderRadius: params.type!=='1'? 0 : params.borderRadius + 'rpx'}"/>
-                        <div class="title-box" v-show="params.showTitle!=='0'"
+                        <image class='img' :src="entity.src" mode="widthFix" @tap="onClick(entity)"
+                            :style="{borderRadius: params.type!='1'? 0 : params.borderRadius + 'rpx'}"/>
+                        <view class="title" v-show="params.showTitle!=='0'"
                             :style="{color: params.color, textAlign: params.textAlign}">
-                            <div>{{entity.title}}</div>
-                        </div>
-                    </div>
+                            {{entity.title}}
+                        </view>
+                    </view>
 				</template>
 			</tui-waterfall>
         </view>
         <view v-if="item.style.layout==='huadong'" >
            <scroll-view class="scroll-view_H" scroll-x="true" @scroll="scroll">
-                <view class="scroll-view-item_H" v-for="(img, index) in item.content.imgList" :key="index">
+                <view class="scroll-view-item_H picture" v-for="(img, index) in item.content.imgList" :key="index" :class="{border: item.style.type=='3',shadow: item.style.type=='2'}">
                     <view :style="{
-                        overflow: 'hidden',
                         width: item.style.width*2 + 'rpx',
-                        flex: '0 0 auto',
-                        borderRadius: item.style.borderRadius + 'rpx',
+                        borderRadius: item.style.borderRadius*(item.style.width/150) + 'rpx',
                         marginRight: item.style.space + 'rpx'}">
-                        <image class='img' :src='img.src' mode="widthFix" :style="{borderRadius: item.style.type!=='1'? 0 : item.style.borderRadius + 'rpx'}"/>
+                        <image class='img' :src='img.src' mode="widthFix" @tap="onClick(img)"
+                            :style="{borderRadius: item.style.type!='1'? 0 : item.style.borderRadius*(item.style.width/150) + 'rpx'}"/>
                     </view>
                     <view class="title" v-show="item.style.showTitle!=='0'"
-                        :style="{color: item.style.color, textAlign: item.style.textAlign}">
-                        <view>{{img.title}}</view>
+                        :style="{width: item.style.width*2 + 'rpx', color: item.style.color, textAlign: item.style.textAlign}">
+                        {{img.title}}
                     </view>
                 </view>
            </scroll-view>
@@ -71,75 +71,49 @@
         props: ['item'],
         data() {
 			return {
-				scrollTop: 0,
-				old: {
-					scrollTop: 0
-				},
-                list: []
             }
 		},
         methods: {
-            scroll: function(e) {
-				this.old.scrollTop = e.detail.scrollTop
-			},
+            onClick(v){
+				this.$emit('goto', v.chooseLink)
+        	}
         },
     }
 </script>
 
 <style scoped lang="scss">
-    .img{
-        width: 100%;
-    }
-    .title{
-        width: 100%;
-        font-weight: 700;
-        font-size: 24rpx;
-        word-wrap: break-word;
-        white-space:normal;
-        padding: 10rpx 10rpx;
-    }
     .scroll-view_H {
 		white-space: nowrap;
 		width: 100%;
 	}
-	.scroll-view-item {
-		height: 300rpx;
-		line-height: 300rpx;
-		text-align: center;
-		font-size: 36rpx;
-	}
 	.scroll-view-item_H {
 		display: inline-block;
-		/*line-height: 300rpx;*/
 		text-align: center;
-		font-size: 36rpx;
+         .title{
+            overflow: hidden;
+            text-overflow: ellipsis;
+            box-sizing: border-box;
+            white-space: nowrap !important;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
 	}
     .waterfall{
         margin: 0 10rpx !important;
         .picture{
-            margin-bottom: 20rpx;
-        }
-    }
-    .rollingBox{
-        display:flex;
-        overflow:hidden;
-        .picture{  
-            flex: 0 0 auto;
-            margin-bottom: 20rpx;
+            margin-bottom: 10rpx;
         }
     }
     .picture{
         overflow: hidden;
-        margin-block: 10rpx;
-        .title-box{
-            font-size: 28rpx;
-            text-align: left;
+         .img{
+            width: 100%;
+        }
+        .title{
+            font-size: 26rpx;
             word-wrap: break-word;
             white-space:normal;
-            word-break:break-all;
-            padding: 10rpx 0;
-            margin: 0 10rpx;
-            overflow: hidden;
+            padding: 10rpx 10rpx;
         }
         &.shadow{box-shadow: 0 4rpx 24rpx 0 rgba(0, 0, 0, 0.1)}
         &.border{border: 2rpx solid #e0e0e0}

@@ -25,9 +25,6 @@
 			</view>
 		</view>
 		<view v-show="key">
-			<!-- <view class="tui-header">
-				<view class="tui-header-left tui-noboredr">{{key}}</view>
-			</view> -->
 			<view class="tui-result-box">
 				<block v-for="(item,index) in searchList" :key="index">
 					<view class="tui-result-item" hover-class="tui-opcity" :hover-stay-time="150" @tap="onDetail(item)">
@@ -36,17 +33,6 @@
 				</block>
 			</view>
 		</view>
-<!-- 
-		<view class="tui-search-hot">
-			<view class="tui-hot-header">
-				<view class="tui-search-title">大家正在搜</view>
-			</view>
-			<view class="tui-hot-content">
-				<block v-for="(item,index) in hot" :key="index">
-					<tui-tag margin="0 24rpx 24rpx 0" type="gray" shape="circle">{{item}}</tui-tag>
-				</block>
-			</view>
-		</view> -->
 		<tui-actionsheet :show="showActionSheet" :tips="tips" @click="itemClick"  @cancel="closeActionSheet"></tui-actionsheet>
 	</view>
 
@@ -68,8 +54,9 @@
 				productNames: [],
 			}
 		},
-		onLoad(){
+		onLoad(option){
 			this.history = uni.getStorageSync('hotKeys') || []
+			this.key = option.key
 			console.log('history', this.history)
 		},
 		computed: {
@@ -87,7 +74,6 @@
 				this.removeIndex = ''
 			},
 			onSelect(key){
-                console.log('select', key)
 				this.key = key
 				this.onInput(this.key)
 			},
@@ -156,7 +142,7 @@
 				this.onInput(this.key)
 			},
 			onSearch(){
-				if(this.key!==''){
+				if(this.key){
 					setTimeout(()=>{
 						if(!this.history.includes(this.key)){
 							this.history.push(this.key)

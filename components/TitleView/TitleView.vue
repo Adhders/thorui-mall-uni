@@ -4,14 +4,19 @@
         marginBottom: item.style.bottomMargin*2+ 'rpx',
     }">
         <tui-list-view>
-            <tui-list-cell :arrow="item.style.entryStyle!=='text'" padding="8rpx 0"
+            <tui-list-cell padding="8rpx 0"
              :backgroundColor=item.style.backgroundColor
              :size=item.style.fontSize*2
              :color=item.style.color @click="onClick">
                 <view class="tui-item-box" >
-					<tui-icon name="shop-fill" :size="23" color="#ed3f14"></tui-icon>
-					<view class="tui-list-cell_name" :style="{bold: item.style.isBold}">{{item.content}}</view>
-					<view class="tui-right" :style="{color: item.style.iconColor}">{{item.style.entryContent}}</view>
+					<view class="line" :style="{background: item.style.color, height: item.style.fontSize*2+'rpx'}"
+                        v-if="item.style.showLine"></view>
+					<view class="tui-list-cell_name" :style="{bold: item.style.isBold}">{{item.content.title}}</view>
+					<view class="tui-right" v-if="item.style.entryStyle!=='arrow'" :style="{color: item.style.iconColor}">
+                        {{item.style.entryContent}}
+                    </view>
+                    <tui-icon name="arrowright" v-if="item.style.entryStyle!=='text'" :size="18" :color="item.style.iconColor">
+                    </tui-icon>
 				</view>
             </tui-list-cell>
         </tui-list-view>
@@ -22,22 +27,23 @@
     export default {
         props: ['item'],
         methods: {
-            onClick(e){
-                console.log('e')
-            }
+            onClick(){
+				this.$emit('goto', this.item.content.chooseLink)
+        	}
         }
     }
 </script>
 
 <style lang="scss" scoped>
     .tui-item-box {
-		width: 100%;
+        margin-right: 10rpx;
+        line-height: 44rpx;
 		display: flex;
 		align-items: center;
 	}
 
 	.tui-list-cell_name {
-		padding-left: 20rpx;
+		margin-left: 10rpx;
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -45,8 +51,15 @@
 
 	.tui-right {
 		margin-left: auto;
-		margin-right: 34rpx;
-		font-size: 26rpx;
+		font-size: 24rpx;
 		color: #999;
 	}
+    .line{
+        display: inline-block;
+        position: relative;
+        width: 8rpx;
+        opacity: 1;
+        margin-left: 10rpx;
+        border-radius: 20rpx;
+    }
 </style>

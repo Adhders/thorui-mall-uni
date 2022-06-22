@@ -1,18 +1,26 @@
 <template>
-	<view class="tui-pro-item" :class="[isList ? 'tui-flex-list' : '']"  hover-class="tui-hover" :hover-start-time="150" @tap="detail(entity)">
+	<view class="tui-pro-item" :class="[isList ? 'tui-flex-list' : '', {border: params.type==='3',shadow: params.type==='2'}]" 
+	     :style="{ borderRadius: params.borderRadius*2 + 'rpx'}" hover-class="tui-hover" :hover-start-time="150" @tap="detail(entity)">
 		<image :src="entity.defaultImageUrl" class="tui-pro-img" mode="widthFix" :class="[isList ? 'tui-proimg-list' : '']" />
+		<view class="image-tag" v-show="params.showTags">
+			<image  class="img" style="width: 53px; height: 15px" mode="widthFix" src="https://system.chuangbiying.com/static/images/mini/listTpl_goods.png"/>
+		</view>
 		<view class="tui-pro-content">
 			<view class="tui-pro-tit">{{entity.title}}</view>
 			<view class="tui-sub-info">{{entity.slogan}}</view>
-			<view class="tui-pro-price">
-				<text class="tui-size-24">￥</text>
-				<text class="tui-sale-price">{{entity.integerPrice}}</text>
-				<text class="tui-size-24" v-if="entity.decimalPrice">.{{entity.decimalPrice}}</text>
-				<text class="tui-factory-price">￥{{ entity.originalPrice }}</text>
+			<view class="label-box" v-if="params.showTags">
+				<image  class="img" style="width: 24px" src="https://system.chuangbiying.com/static/images/mini/listTpl_member.png"/>
+				<image  class="img" style="width: 37px" src="https://system.chuangbiying.com/static/images/mini/listTpl_limit.png"/>
 			</view>
-			<view class="tui-cart">
-				<view class="tui-pro-pay">{{ entity.salesNum }}人付款</view>
-				<tui-icon name="cart" :size="16" color="#e41f19" @tap.stop="addCart(entity)"></tui-icon>
+			<view class="tui-pro-pay" v-show="params.showSales">{{ entity.salesNum }}人付款</view>
+			<view class="icon-box">
+				<view class="tui-pro-price">
+					<text class="tui-size-24">￥</text>
+					<text class="tui-sale-price">{{entity.integerPrice}}</text>
+					<text class="tui-size-24" v-if="entity.decimalPrice">.{{entity.decimalPrice}}</text>
+					<text class="tui-factory-price" v-if="params.showPrice && entity.originalPrice">￥{{ entity.originalPrice }}</text>
+				</view>
+				<tui-icon name="cart" :size="16" color="#e41f19" @tap.stop="addCart(entity)" v-show="params.showCart"></tui-icon>
 			</view>
 		</view>
 	</view>		
@@ -27,6 +35,20 @@ export default {
 			default() {
 				return {};
 			}
+		},
+		params: {
+			type: Object,
+			default(){
+				return {
+					type: '',
+					borderRadius: 5,
+					showTags: false,
+					showSales: true,
+					showCart: true,
+					showPrice: true,
+				}
+			}
+
 		},
 		isList: {
 			type: Boolean,
@@ -45,24 +67,25 @@ export default {
 		addCart(item){
 			let newGoods = {
 				id: item.id,
+				valid: true,
 				spu_id: item.spu_id,
 				price: item.price,
 				title: item.title,
 				slogan: item.slogan,
 				defaultImageUrl: item.defaultImageUrl,
 				propertyList: item.selectedGoodsAttrList,
-				buyNum: 1,
+				buyNum: 1
 			}
 			if(!this.tui.isLogin()) {
 				uni.navigateTo({url: '/pages/my/login/login'})
 			}else{
 				let url = '/updateCustomer/' + uni.getStorageSync("pid") +'/addCart'
 				this.tui.request(url, 'PUT', {'newGoods': newGoods}).then(res=>{
-						if(res.code==='0'){
-							this.tui.toast('成功添加到购物车')
-						}
+					if(res.code==='0'){
+						this.$emit('add', newGoods)
+						this.tui.toast('成功添加到购物车')
 					}
-				)
+				})
 			}
 		},
 	}
@@ -71,13 +94,27 @@ export default {
 
 <style scoped lang="less">
 .tui-pro-item {
+	position: relative;
 	width: 100%;
 	margin-bottom: 10rpx;
 	background: #fff;
 	box-sizing: border-box;
-	border-radius: 12rpx;
 	overflow: hidden;
 	transition: all 0.15s ease-in-out;
+	&.shadow{box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.1)}
+    &.border{border: 2rpx solid #e0e0e0}
+	.image-tag{
+		position: absolute;
+		top: 0;
+		left: 0;
+	}
+	.label-box{
+		display: flex;
+		.img{
+			height: 28rpx;
+			margin-right: 10rpx;
+		}
+	}
 }
 .tui-proimg-list {
 	width: 240rpx !important;
@@ -106,8 +143,7 @@ export default {
 }
 .tui-sub-info {
 	color: #888;
-	max-width: 90%;
-    padding-top: 5rpx;
+    padding: 5rpx 0;
     font-size: 22rpx;
 	box-sizing: border-box;
 	white-space: nowrap;
@@ -149,11 +185,13 @@ export default {
 	text-decoration: line-through;
 	padding-left: 12rpx;
 }
-.tui-cart {
+ .icon-box{
 	display: flex;
-	margin-top: 10rpx;
+	align-items: center;
 	justify-content: space-between;
-}
+	width: 100%;
+	height: 60rpx;
+ }
 
 .tui-pro-pay {
 	font-size: 24rpx;

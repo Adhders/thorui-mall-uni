@@ -3,112 +3,69 @@
         marginBottom: item.style.bottomMargin*2 + 'rpx',
         marginTop: item.style.topMargin*2 + 'rpx'}">
         <view class="displayBox type1" v-if="item.style.layout==='1'">
-            <view class="merchandise-item" v-for="(product,index) in goodsList" :key="index"
-                :class="{border: item.style.type==='3',shadow: item.style.type==='2'}"
+            <view class="merchandise-item" v-for="(product,index) in item.content.goodsList" :key="index"
+                :class="{border: item.style.type=='3',shadow: item.style.type=='2'}"
                 :style="{borderRadius: item.style.borderRadius*2 + 'px'}">
-                 <image mode="widthFix" :style="{
+                 <image class='img' mode="widthFix" :style="{
                     height: (item.style.scale==='0')? '300rpx' : '600rpx',
-                    borderRadius: item.style.type!=='1' ? 0 : item.style.borderRadius*2 + 'rpx' }"
-                    :src=product.defaultImageUrl>
+                    borderRadius: item.style.type!='1' ? 0 : item.style.borderRadius*2 + 'rpx' }"
+                    :src=product.defaultImageUrl  @tap.stop="detail(product)" />
                 <view class="image-tag" v-show="item.style.showTags">
-                    <image style="width: 53px; height: 15px" src="https://cdn2.weimob.com/saas/@assets/saas-fe-retail-web-stc/retail/images/store/listTpl_goods.png">
+                    <image  class="img" style="width: 53px; height: 15px" src="https://system.chuangbiying.com/static/images/mini/listTpl_goods.png"/>
                 </view>
                 <view class="price-panel">
                     <view class="title"><span>{{product.title}}</span></view>
+                    <view class="tui-sub-info">{{product.slogan}}</view>
                     <view class="label-box" v-show="item.style.showTags">
-                        <img style="width: 24px" src="https://cdn2.weimob.com/saas/@assets/saas-fe-retail-web-stc/retail/images/store/listTpl_member.png">
-                        <img style="width: 37px" src="https://system.chuangbiying.com/assets/store/listTpl_limit.png">
+                        <image  class="img" style="width: 24px" src="https://system.chuangbiying.com/static/images/mini/listTpl_member.png"/>
+                        <image  class="img" style="width: 37px" src="https://system.chuangbiying.com/static/images/mini/listTpl_limit.png"/>
                     </view>
                     <view class="icon-box">
                         <view class="price">
-                            <view class="price-unit">¥</view>
-                            <view class="price-val">{{(product.integerPrice)}}</view>
-                            <view class="dot-val" v-if="product.decimalPrice">.{{product.decimalPrice}}</view>
-                            <del class="del-val" v-show="item.style.showPrice">¥{{product.originalPrice}}</del>
+                            <text class="price-unit">¥</text>
+                            <text class="price-val">{{product.integerPrice}}</text>
+                            <text class="dot-val" v-if="product.decimalPrice">.{{product.decimalPrice}}</text>
+                            <text class="del-val" v-if="item.style.showPrice">¥{{product.originalPrice}}</text>
                         </view>
-                        <view class="saled-out" v-show="item.style.showSales">已售{{numFormat(product.salesNum)}}件</view>
+                        <view class="saled-out" v-if="item.style.showSales">已售{{numFormat(product.salesNum)}}件</view>
                         <tui-icon name="cart" :size="16" color="#e41f19" @tap.stop="addCart(product)" v-show="item.style.showCart"></tui-icon>
                     </view>
                 </view>
             </view>
         </view>
         <view class="type2" v-if="item.style.layout==='2'">
-            <tui-waterfall :listData="item.content.goodsList" :params="item.style" :type="2" :pageSize="10">
-				<template slot-scope="{ entity, params}" slot="left"> 
-                    <view class="merchandise-item" :class="{ border: params.type==='3',shadow: params.type==='2'}"
-                        :style="{ borderRadius: params.borderRadius*2 + 'rpx'}">
-                        <image :src=product.defaultImageUrl mode="widthFix" :style="{width: '344rpx', borderRadius: params.type!=='1'? 0 : params.borderRadius*2 + 'rpx'}">
-                        <view class="image-tag" v-show="params.showTags">
-                            <iamge style="width: 53px; height: 15px" mode="widthFix" src="https://cdn2.weimob.com/saas/@assets/saas-fe-retail-web-stc/retail/images/store/listTpl_goods.png">
-                        </view>
-                        <view class="price-panel">
-                            <view class="title"><span>{{entity.title}}</span></view>
-                            <view class="label-box" v-show="params.showTags">
-                                <img style="width: 24px" src="https://cdn2.weimob.com/saas/@assets/saas-fe-retail-web-stc/retail/images/store/listTpl_member.png">
-                                <img style="width: 37px" src="https://system.chuangbiying.com/assets/store/listTpl_limit.png">
-                            </view>
-                            <view class="saled-out" v-show="params.showSales">已售{{numFormat(entity.salesNum)}}件</view>
-                            <view class="icon-box">
-                                <view class="price">
-                                    <view class="price-unit">¥</view>
-                                    <view class="price-val">{{(entity.integerPrice)}}</view>
-                                    <view class="dot-val" v-if="entity.decimalPrice">.{{entity.decimalPrice}}</view>
-                                    <del class="del-val" v-show="params.showPrice">¥{{entity.originalPrice}}</del>
-                                </view>
-                                <tui-icon name="cart" :size="16" color="#e41f19" @tap.stop="addCart(entity)" v-show="params.showCart"></tui-icon>
-                            </view>
-                        </view>
-                    </view>
+            <tui-waterfall :listData="item.content.goodsList" :params="item.style" :type="2">
+				<template slot-scope="{ entity, params }" slot="left"> 
+                    <tGoodsItem :entity="entity" :params="params"></tGoodsItem>
 				</template>
 				<template slot-scope="{ entity, params }" slot="right">
-                    <view class="merchandise-item" :class="{ border: params.type==='3',shadow: params.type==='2'}"
-                        :style="{ borderRadius: params.borderRadius*2 + 'rpx'}">
-                        <image :src=product.defaultImageUrl mode="widthFix" :style="{width: '344rpx', borderRadius: params.type!=='1'? 0 : params.borderRadius*2 + 'rpx'}">
-                        <view class="image-tag" v-show="params.showTags">
-                            <iamge style="width: 53px; height: 15px" mode="widthFix" src="https://cdn2.weimob.com/saas/@assets/saas-fe-retail-web-stc/retail/images/store/listTpl_goods.png">
-                        </view>
-                        <view class="price-panel">
-                            <view class="title"><span>{{entity.title}}</span></view>
-                            <view class="label-box" v-show="params.showTags">
-                                <img style="width: 24px" src="https://cdn2.weimob.com/saas/@assets/saas-fe-retail-web-stc/retail/images/store/listTpl_member.png">
-                                <img style="width: 37px" src="https://system.chuangbiying.com/assets/store/listTpl_limit.png">
-                            </view>
-                            <view class="saled-out" v-show="params.showSales">已售{{numFormat(entity.salesNum)}}件</view>
-                            <view class="icon-box">
-                                <view class="price">
-                                    <view class="price-unit">¥</view>
-                                    <view class="price-val">{{(entity.integerPrice)}}</view>
-                                    <view class="dot-val" v-if="entity.decimalPrice">.{{entity.decimalPrice}}</view>
-                                    <del class="del-val" v-show="params.showPrice">¥{{entity.originalPrice}}</del>
-                                </view>
-                                <tui-icon name="cart" :size="16" color="#e41f19" @tap.stop="addCart(entity)" v-show="params.showCart"></tui-icon>
-                            </view>
-                        </view>
-                    </view>
+                    <tGoodsItem :entity="entity" :params="params"></tGoodsItem>
 				</template>
 			</tui-waterfall>
         </view>
         <view class="displayBox type4" v-if="item.style.layout==='4'">
-            <view class="merchandise-item" v-for="(product,index) in goodsList" :key="index"
-                :class="{border: item.style.type==='3',shadow: item.style.type==='2'}"
+            <view class="merchandise-item" v-for="(product,index) in item.content.goodsList" :key="index"
+                :class="{border: item.style.type=='3',shadow: item.style.type=='2'}"
                 :style="{borderRadius: item.style.borderRadius*2 + 'rpx'}">
-                <img style="width: 260rpx; height: 260rpx;" :src=product.defaultImageUrl :style="{borderRadius: item.style.type!=='1'? 0 : item.style.borderRadius*2 + 'rpx'}">
+                <image class='img' style="minWidth: 240rpx; width: 240rpx; height: 240rpx" :src=product.defaultImageUrl mode="widthFix" 
+                :style="{borderRadius: item.style.type!='1'? 0 : item.style.borderRadius*2 + 'rpx'}"  @tap.stop="detail(product)" />
                 <view class="image-tag" v-show="item.style.showTags">
-                    <img style="width: 53px; height: 15px" src="https://cdn2.weimob.com/saas/@assets/saas-fe-retail-web-stc/retail/images/store/listTpl_goods.png">
+                    <img class="img" style="width: 53px; height: 15px" src="https://system.chuangbiying.com/static/images/mini/listTpl_goods.png">
                 </view>
                 <view class="price-panel type4">
-                    <view class="title"><span>{{product.title}}</span></view>
+                    <view class="title"><text>{{product.title}}</text></view>
+                    <view class="tui-sub-info">{{product.slogan}}</view>
                     <view class="label-box" v-show="item.style.showTags">
-                        <img style="width: 24px" src="https://cdn2.weimob.com/saas/@assets/saas-fe-retail-web-stc/retail/images/store/listTpl_member.png">
-                        <img style="width: 37px" src="https://system.chuangbiying.com/assets/store/listTpl_limit.png">
+                        <image  class="img" style="width: 24px" src="https://system.chuangbiying.com/static/images/mini/listTpl_member.png"/>
+                        <image  class="img" style="width: 37px" src="https://system.chuangbiying.com/static/images/mini/listTpl_limit.png"/>
                     </view>
                     <view class="saled-out" v-show="item.style.showSales">已售{{numFormat(product.salesNum)}}件</view>
                     <view class="icon-box">
                         <view class="price">
-                            <view class="price-unit">¥</view>
-                            <view class="price-val">{{(product.integerPrice)}}</view>
-                            <view class="dot-val" v-if="product.decimalPrice">.{{product.decimalPrice}}</view>
-                            <del class="del-val" v-show="item.style.showPrice">¥{{product.originalPrice}}</del>
+                            <text class="price-unit">¥</text>
+                            <text class="price-val">{{product.integerPrice}}</text>
+                            <text class="dot-val" v-if="product.decimalPrice">.{{product.decimalPrice}}</text>
+                            <text class="del-val" v-if="item.style.showPrice">¥{{product.originalPrice}}</text>
                         </view>
                         <tui-icon name="cart" :size="16" color="#e41f19" @tap.stop="addCart(product)" v-show="item.style.showCart"></tui-icon>
                     </view>
@@ -116,43 +73,82 @@
             </view>
         </view>
         <view class="displayBox type5" v-if="item.style.layout==='5'">
-            <view class="merchandise-item" v-for="(product,index) in goodsList" :key="index"
-                :class="{border: item.style.type==='3',shadow: item.style.type==='2'}"
-                :style="{borderRadius: item.style.borderRadius + 'px'}">
-                <img :src="product.defaultImageUrl" :style="{ width: '130px', height: '130px',borderRadius: item.style.type!=='1'? 0 : item.style.borderRadius + 'px'}">
-                <view class="image-tag" v-show="item.style.showTags">
-                    <img style="width: 53px; height: 15px" src="https://cdn2.weimob.com/saas/@assets/saas-fe-retail-web-stc/retail/images/store/listTpl_goods.png">
-                </view>
-                <view class="price-panel">
-                    <view class="title"><span>{{product.title}}</span></view>
-                    <view class="icon-box">
-                        <view class="price">
-                            <view class="price-unit">¥</view>
-                            <view class="price-val">{{(product.integerPrice)}}</view>
-                            <view class="dot-val" v-if="product.decimalPrice">.{{product.decimalPrice}}</view>
-                            <del class="del-val" v-show="item.style.showPrice">¥{{product.originalPrice}}</del>
+            <scroll-view class="scroll-view_H" scroll-x="true" @scroll="scroll">
+                 <view class="scroll-view-item_H merchandise-item" v-for="(product,index) in item.content.goodsList" :key="index"
+                    :class="{border: item.style.type=='3',shadow: item.style.type=='2'}"
+                    :style="{borderRadius: item.style.borderRadius + 'px'}">
+                    <image class="img" :src="product.defaultImageUrl" mode="widthFix"  @tap.stop="detail(product)"
+                        :style="{ width: '260rpx',borderRadius: item.style.type!='1'? 0 : item.style.borderRadius*2 + 'rpx'}"/>
+                    <view class="image-tag" v-show="item.style.showTags">
+                        <img class='img' style="width: 53px; height: 15px" src="https://system.chuangbiying.com/static/images/mini/listTpl_goods.png">
+                    </view>
+                    <view class="price-panel">
+                        <view class="title"><span>{{product.title}}</span></view>
+                        <view class="icon-box">
+                            <view class="price">
+                                <text class="price-unit">¥</text>
+                                <text class="price-val">{{product.integerPrice}}</text>
+                                <text class="dot-val" v-if="product.decimalPrice">.{{product.decimalPrice}}</text>
+                                <text class="del-val" v-if="item.style.showPrice">¥{{product.originalPrice}}</text>
+                            </view>
+                            <tui-icon name="cart" :size="16" color="#e41f19" @tap.stop="addCart(product)" v-show="item.style.showCart"></tui-icon>
                         </view>
-                        <tui-icon name="cart" :size="16" color="#e41f19" @tap.stop="addCart(product)" v-show="item.style.showCart"></tui-icon>
                     </view>
                 </view>
-            </view>
+           </scroll-view>
         </view>
     </view>
 </template>
 
 <script>
+    import tGoodsItem from '@/components/views/t-goods-item/t-goods-item'
     export default {
+        components: {
+            tGoodsItem
+        },
         props: ['item'],
         data(){
-            return{
-                col: 2,
-                goodsList: []
+            return {
+                entity: '',
             }
+        },
+        mounted(){
+            console.log('goodsList', this.item.content.goodsList)
         },
         methods: {
             numFormat(v){
                 return v>=10000? parseInt(v/10000) + '万+': v
-            }
+            },
+            detail(item) {
+                console.log('detail', item)
+			    uni.navigateTo({
+                    url: '/pages/index/productDetail/productDetail?spu_id=' + item.spu_id + '&sku_id=' + item.id
+                })
+            },
+            addCart(item){
+                let newGoods = {
+                    id: item.id,
+                    valid: true,
+                    spu_id: item.spu_id,
+                    price: item.price,
+                    title: item.title,
+                    slogan: item.slogan,
+                    defaultImageUrl: item.defaultImageUrl,
+                    propertyList: item.selectedGoodsAttrList,
+                    buyNum: 1
+                }
+                if(!this.tui.isLogin()) {
+                    uni.navigateTo({url: '/pages/my/login/login'})
+                }else{
+                    let url = '/updateCustomer/' + uni.getStorageSync("pid") +'/addCart'
+                    this.tui.request(url, 'PUT', {'newGoods': newGoods}).then(res=>{
+                        if(res.code==='0'){
+                            this.$emit('add', newGoods)
+                            this.tui.toast('成功添加到购物车')
+                        }
+                    })
+                }
+            },
         }
     }
 </script>
@@ -162,7 +158,7 @@
         padding: 0;
     }
     .el-button--primary{
-        width: 85px;
+        width: 170rpx;
         background-color: #ef1033;
         border-color: #ef1033;;
     }
@@ -171,20 +167,18 @@
         text-align: center;
         justify-content: space-between;
         flex-wrap: wrap;
-        padding: 0 10px;
+        padding: 0 10rpx;
     }
     .merchandise-item{
         width: 100%;
         flex-shrink: 0;
         overflow: hidden;
         position: relative;
-        margin-bottom: 10px;
-        &.shadow{box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1)}
-        &.border{border: 1px solid #e0e0e0}
-        img{
+        margin-bottom: 10rpx;
+        &.shadow{box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.1)}
+        &.border{border: 2rpx solid #e0e0e0}
+        .img{
             width: 100%;
-            vertical-align: middle;
-            object-fit: cover;
         }
         .image-tag{
             position: absolute;
@@ -192,12 +186,12 @@
             left: 0;
         }
         .price-panel {
-            margin: 0 6px;
+            margin: 0 20rpx;
             position: relative;
             .title {
                 text-align: left;
-                margin: 6px 0;
-                font-size: 14px;
+                margin: 12rpx 0;
+                font-size: 26rpx;
                 overflow: hidden;
                 word-wrap: break-word;
                 white-space:normal;
@@ -207,12 +201,23 @@
                 -webkit-line-clamp: 2;
                 -webkit-box-orient: vertical;
             }
+            .tui-sub-info {
+                color: #888;
+                text-align: left;
+                margin-bottom: 10rpx;
+                margin-top: -6rpx;
+                font-size: 22rpx;
+                box-sizing: border-box;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
             .label-box{
                 display: flex;
-                img{
+                .img{
                     object-fit: contain;
-                    height: 14px;
-                    margin-right: 5px;
+                    height: 28rpx;
+                    margin-right: 10rpx;
                 }
             }
             .icon-box{
@@ -220,34 +225,33 @@
                 align-items: center;
                 justify-content: space-between;
                 width: 100%;
+                height: 60rpx;
                 .price {
                     display: flex;
-                    height: 40px;
                     align-items: baseline;
                     color: #ef1033;
-                    font-weight: bold;
                     .price-unit, .dot-val{
-                        font-size: 12px;
+                        font-size: 24rpx;
                     }
                     .del-val{
-                        font-size: 12px;
-                        margin-left: 7px;
-                        color: #9e9e9e;
-                        font-weight: 400;
+                        font-size: 24rpx;
+                        color: #a0a0a0;
+                        text-decoration: line-through;
+                        padding-left: 12rpx;
                     }
                     .price-val{
-                        font-size: 16px;
+                        font-size: 32rpx;
                     }
                 }
                 .cart{
                     color: #ef1033;
-                    font-size: 18px;
+                    font-size: 36rpx;
                 }
             }
         }
         .saled-out{
-            font-size: 12px;
-            margin-top: 10px;
+            font-size: 24rpx;
+            margin-top: 20rpx;
             color: #9f9f9f;
             flex: auto;
             text-align: left;
@@ -255,29 +259,26 @@
     }
     .type1 {
         .saled-out {
-            margin: 0 10px 0 0;
+            margin: 0 20rpx 0 0;
             text-align: right;
         }
     }
     .type2{
-        padding: 0 10px;
-        // .title{
-        //     min-height: 32px;
-        // }
+        padding: 0 10rpx;
     }
     .type4{
         .merchandise-item{
             display: flex;
+            .tui-sub-info {
+                max-width: 420rpx;
+            }
             .price-panel{
-                margin: 0 10px;
+                margin: 0 20rpx;
                 flex: 1;
                 .icon-box{
                     position: absolute;
-                    bottom: -5px;
+                    bottom: 0rpx;
                 }
-            }
-            .title{
-                -webkit-line-clamp: 1;
             }
         }
     }
@@ -285,18 +286,28 @@
         overflow: hidden;
         flex-wrap: nowrap;
         margin-right: 0;
+        .scroll-view_H {
+            white-space: nowrap;
+            width: 100%;
+        }
+        .scroll-view-item_H {
+            display: inline-block;
+            /*line-height: 300rpx;*/
+            text-align: center;
+            font-size: 36rpx;
+        }
         .merchandise-item {
-            width: 130px;
-            margin-right: 10px;
+            width: 260rpx;
+            margin-right: 10rpx;
             .price-panel{
-                height: 60px;
+                height: 110rpx;
                 .icon-box{
                     position: absolute;
-                    bottom: -5px;
+                    bottom: 0rpx;
                 }
                 .title{
                     // min-height: 28px;
-                    font-size: 12px;
+                    font-size: 24rpx;
                 }
             }
         }

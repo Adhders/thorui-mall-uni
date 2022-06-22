@@ -1,6 +1,6 @@
 <template>
 	<view>
-		<view class="container tui-skeleton">
+		<view class="container">
 
 			<!--header-->
 			<view class="tui-header-box" :style="{ height: height + 'px', background: 'rgba(255,255,255,' + opcity + ')' }">
@@ -23,24 +23,23 @@
 				 @change="bannerChange">
 					<swiper-item class="swiper-video" v-if="goodsDetail.videoUrl">
 						<view @tap="play(goodsDetail.videoUrl)">
-							<view style="position: relative;">
-								<video id="myVideo" ref="myVideoRef" :style="{ height: scrollH + 'px' }"
-									@timeupdate="timeupdate" @ended.stop="endedFun()" autoplay :controls="false"
-									:src="goodsDetail.videoUrl" :show-center-play-btn="false" :muted="ismute">
-								</video>
-								<view class="video-img" @tap.stop="videoPlay()" v-if="startVideo">
-									<image src="/static/images/index/play.svg" mode=""></image>
-								</view>
+							<video id="myVideo" :style="{ height: scrollH + 'px' }"
+								@timeupdate="timeupdate" @ended.stop="endedFun()" autoplay :controls="false"
+								:src="goodsDetail.videoUrl" :show-center-play-btn="false" :muted="ismute">
+							</video>
+							<view class="video-img" @tap.stop="videoPlay()" v-if="startVideo">
+								<image src="https://system.chuangbiying.com/assets/play.svg" mode=""></image>
 							</view>
 						</view>
-						<tui-slider class="tui-video-slider" :height="2" :blockWidth="0" :blockHeight="0"  radius="0"  backgroundColor="#ccc" activeColor="#e41f19" :value="currentTime" :max="duration" :width="scrollH"></tui-slider>
+						<tui-slider class="tui-video-slider" :height="2" :blockWidth="0" :blockHeight="0"  radius="0"  backgroundColor="#ccc" 
+							activeColor="#e41f19" :value="currentTime" :max="duration" :width="scrollH"></tui-slider>
 					</swiper-item>
 					<swiper-item class="swiper-img" v-for="(item,index) in goodsDetail.goodsImageUrls" :key="index">
 						<image  class="tui-slide-image" :style="{ height: scrollH + 'px' }"  mode="aspectFill" :src="item"></image>
 					</swiper-item>
 				</swiper>
 
-				<view class="tui-video-voice" v-if="goodsDetail.videoUrl && bannerIndex === 0"  @click="onChange">
+				<view class="tui-video-voice" v-if="goodsDetail.videoUrl && bannerIndex === 0"  @tap.stop="onChange">
 					<tui-tag padding="6rpx 18rpx" type="translucent" shape="circle" :scaleMultiple="0.82" originRight>
 						<image :src="voiceControl" mode=""></image>
 					</tui-tag>
@@ -71,7 +70,7 @@
 					<view class="tui-pro-titbox">
 						<view class="tui-pro-title">
 							<text>{{goodsDetail.title}}</text>
-							<tui-tag padding="6rpx" size="32rpx" style="display: -webkit-inline-flex" type="green"  :scaleMultiple="0.8" v-if="goodsDetail.selectedTag">
+							<tui-tag padding="6rpx" size="28rpx" style="display: -webkit-inline-flex; line-height: 32rpx;" type="green"  :scaleMultiple="0.8" v-if="goodsDetail.selectedTag">
 								{{goodsDetail.selectedTag.name}}</tui-tag>
 						</view>
 						<view class="tui-share-position" @tap="showSharePopup">
@@ -342,7 +341,7 @@ import invalidProductVue from '../invalidProduct/invalidProduct.vue';
 			return {
 				initial: true,
 				ismute: true,
-				voiceControl: "/static/images/index/mute.svg",
+				voiceControl: "https://system.chuangbiying.com/assets/mute.svg",
 				detail: '',
 			    reviews: 0,
 				skuArray: [], 
@@ -565,7 +564,7 @@ import invalidProductVue from '../invalidProduct/invalidProduct.vue';
 			},
 			onChange(){
 				this.ismute = !this.ismute
-				this.voiceControl = this.ismute? '/static/images/index/mute.svg' : '/static/images/index/volume.svg'
+				this.voiceControl = this.ismute? 'https://system.chuangbiying.com/assets/mute.svg' : 'https://system.chuangbiying.com/assets/volume.svg'
 			},
 			videoPlay() {
 				this.startVideo = false
@@ -595,7 +594,6 @@ import invalidProductVue from '../invalidProduct/invalidProduct.vue';
 						return intersection.length === attr.length
 					})
 					this.goodsDetail = this.skuList[skuIndex]
-					console.log('id', this.goodsDetail.id)
 				}else{
 					this.tui.toast('该规格已售罄')
 				}
@@ -977,33 +975,33 @@ import invalidProductVue from '../invalidProduct/invalidProduct.vue';
 		}
 
 	}
-	.tui-video__box {
-		width: 166rpx;
-		height: 60rpx;
-		position: absolute;
-		left: 50%;
-		bottom: 50rpx;
-		transform: translateX(-50%);
-		z-index: 2;
-	}
+	// .tui-video__box {
+	// 	width: 166rpx;
+	// 	height: 60rpx;
+	// 	position: absolute;
+	// 	left: 50%;
+	// 	bottom: 50rpx;
+	// 	transform: translateX(-50%);
+	// 	z-index: 2;
+	// }
 
-	.tui-video__box image {
-		width: 166rpx;
-		height: 60rpx;
-	}
+	// .tui-video__box image {
+	// 	width: 166rpx;
+	// 	height: 60rpx;
+	// }
 
-	.tui-video__box view {
-		width: 100%;
-		height: 100%;
-		font-size: 24rpx;
-		position: absolute;
-		left: 0;
-		top: 0;
-		display: flex;
-		align-items: center;
-		padding-left: 66rpx;
-		box-sizing: border-box;
-	}
+	// .tui-video__box view {
+	// 	width: 100%;
+	// 	height: 100%;
+	// 	font-size: 24rpx;
+	// 	position: absolute;
+	// 	left: 0;
+	// 	top: 0;
+	// 	display: flex;
+	// 	align-items: center;
+	// 	padding-left: 66rpx;
+	// 	box-sizing: border-box;
+	// }
 	.tui-video-slider{
 		position: absolute;
 		bottom: -4px;

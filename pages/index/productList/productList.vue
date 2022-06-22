@@ -198,13 +198,21 @@ export default {
 	},
 	onLoad: function(options) {
 		console.log('options', options)
-		this.searchKey = options.groupName
-		if(this.searchKey){
+		if(options.groupName){
+			this.searchKey = options.groupName
 			this.currentList = this.productList.filter((o)=>{return o.selectedClassifyList.includes(this.searchKey)})
-		}
-		else if(options.searchKey){
+		}else if(options.groupList){
+			let groupList = JSON.parse(options.groupList)
+            this.currentList = this.productList.filter((o)=>{
+				return o.selectedClassifyList.filter((v)=>{ return groupList.indexOf(v) > -1 }).length>0
+			})
+		}else if(options.searchKey){
 			this.searchKey = options.searchKey
 			this.currentList = this.$store.state.searchResult
+		}else if(options.similarKey){
+			this.currentList = this.productList.filter((o)=>{
+				return this.similar(o.title, options.similarKey, 2)
+			})
 		}else{
 			this.currentList = this.productList
 		}
@@ -234,9 +242,6 @@ export default {
 		let obj = {};
 		// #ifdef MP-WEIXIN
 		obj = wx.getMenuButtonBoundingClientRect();
-		// #endif
-		// #ifdef MP-BAIDU
-		obj = swan.getMenuButtonBoundingClientRect();
 		// #endif
 		// #ifdef MP-ALIPAY
 		my.hideAddToDesktopMenu();
@@ -355,6 +360,37 @@ export default {
 		},
 		hideDropdownList: function() {
 			this.selectH = 0;
+		},
+		// 返回字符串a与b,是否拥有n个以上相同字段
+		similar(a, b, n){
+			var c=a.length>b.length?b:a;
+			if(b==c) b=a; a=c; //少做些循环
+			if(!n) n=1;
+			var res = new Array();
+			for(var i=0; i<a.length; i++)
+			{
+				for(var j=i+n; j<=a.length; j++)
+				{
+					var s = a.substring(i, j);
+					if(b.indexOf(s)==-1)
+					{
+						if(s.length>n)
+						{
+							res[res.length] = a.substring(i, j-1);
+							i = j-2;
+						}
+						break;
+					}
+					else
+					{
+						if(j==a.length)
+						{
+							res[res.length]=s;
+						}
+					}
+				}
+			}
+			return res.join(''); 
 		},
 		dropdownItem: function(e) {
 			let index = Number(e.currentTarget.dataset.index);

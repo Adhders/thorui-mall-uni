@@ -6,21 +6,17 @@
         backgroundColor: item.style.backgroundColor}">
         <view class="displayBox">
             <view class="nav-item" v-for="(img,index) in item.tablist1" :key="index">
-                <view class="nav-img" :style="{
-                    'background-image': `url(${img.src})`,
-                    'width': item.style.imgSize*2 + 'rpx',
-                    'height': item.style.imgSize*2 + 'rpx'}">
-                </view>
+                <image mode="aspectFill" :src="img.src"  @click="onClick(img)" :style="{
+                    width: item.style.imgSize*2 + 'rpx',
+                    height: item.style.imgSize*2 + 'rpx' }"/>
                 <view class="nav-title">{{img.title}}</view>
             </view>
         </view>
         <view class="displayBox row">
             <view class="nav-item" v-for="(img,index) in item.tablist2" :key="index">
-                <view class="nav-img" :style="{
-                    'background-image': `url(${img.src})`,
-                    'width': item.style.imgSize*2 + 'rpx',
-                    'height': item.style.imgSize*2 + 'rpx'}">
-                </view>
+                <image mode="aspectFill" :src="img.src" @click="onClick(img)" :style="{
+                    width: item.style.imgSize*2 + 'rpx',
+                    height: item.style.imgSize*2 + 'rpx' }"/>      
                 <view class="nav-title">{{img.title}}</view>
             </view>
         </view>
@@ -29,7 +25,12 @@
 
 <script>
     export default {
-        props: ['item']
+        props: ['item'],
+        methods:{
+            onClick(v){
+				this.$emit('goto', v.chooseLink)
+        	}
+        }
     }
 </script>
 
@@ -45,13 +46,6 @@
         display: flex;
         align-items: center;
         flex-flow: column;
-        .nav-img{
-            margin-bottom: 14rpx;
-            box-sizing: content-box;
-            background-size: cover;
-            background-position: 50%;
-            background-repeat: no-repeat;
-        }
         .nav-title{
             letter-spacing: 0;
             width: 120rpx;
