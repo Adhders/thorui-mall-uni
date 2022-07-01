@@ -79,7 +79,11 @@ export default {
 		};
 	},
 	onLoad: function(options) {
-		console.log('goodsGroup', this.goodsGroup)
+		if(options.groupName){
+			let cur = this.goodsGroup.findIndex((o)=>{return o.name===options.groupName})
+			this.currentTab = cur;
+			this.checkCor();
+		}
 		setTimeout(() => {
 			uni.getSystemInfo({
 				success: res => {
@@ -95,9 +99,6 @@ export default {
 		}, 50);
 	},
 	computed: {
-		goodsList() {
-			return this.$store.state.goodsList
-		},
 		goodsGroup() {
 			return this.$store.state.goodsGroup
 		}
@@ -228,7 +229,7 @@ page {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	font-size: 26rpx;
+	font-size: 28rpx;
 	color: #444;
 	font-weight: 400;
 }
@@ -236,7 +237,7 @@ page {
 .active {
 	position: relative;
 	color: #000;
-	font-size: 30rpx;
+	font-size: 32rpx;
 	font-weight: 600;
 	background: #fcfcfc;
 }
@@ -265,7 +266,7 @@ page {
 	padding-top: 20rpx;
 	padding-right: 20rpx;
 	box-sizing: border-box;
-	padding-bottom: env(safe-area-inset-bottom);
+	/* padding-bottom: env(safe-area-inset-bottom); */
 }
 
 .class-item {
@@ -278,7 +279,7 @@ page {
 }
 
 .class-name {
-	font-size: 26rpx;
+	font-size: 28rpx;
 	font-weight: bold;
 }
 
@@ -304,7 +305,7 @@ page {
 }
 
 .g-title {
-	font-size: 22rpx;
+	font-size: 24rpx;
 	text-align: center;
     text-overflow: ellipsis;
     overflow: hidden;

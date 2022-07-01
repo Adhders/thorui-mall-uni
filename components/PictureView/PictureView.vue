@@ -115,7 +115,7 @@
             white-space:normal;
             padding: 10rpx 10rpx;
         }
-        &.shadow{box-shadow: 0 4rpx 24rpx 0 rgba(0, 0, 0, 0.1)}
+        &.shadow{box-shadow: 0 4rpx 24rpx 0 rgba(100, 100, 100, 0.1)}
         &.border{border: 2rpx solid #e0e0e0}
     }
 </style>

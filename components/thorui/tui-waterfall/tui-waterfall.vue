@@ -98,7 +98,6 @@
 		},
 		mounted() {
 			this.init = false;
-			console.log('params', this.params)
 			this.columnChange();
 		},
 		methods: {

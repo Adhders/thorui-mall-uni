@@ -10,7 +10,7 @@
 			<view class="tui-swipeout-button-right-group" v-if="actions.length > 0" @touchend.stop="loop">
 				<view class="tui-swipeout-button-right-item" v-for="(item, index) in actions" :key="index"
 					:style="{ backgroundColor: item.background || '#f7f7f7', color: item.color, width: item.width + 'px' }"
-					:data-index="index" @tap="handlerButton">
+					:data-index="index" @tap.stop="handlerButton">
 					<image :src="item.icon" v-if="item.icon"
 						:style="{ width: px(item.imgWidth), height: px(item.imgHeight) }"></image>
 					<text :style="{ fontSize: px(item.fontsize) }">{{ item.name }}</text>

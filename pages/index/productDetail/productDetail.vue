@@ -70,8 +70,9 @@
 					<view class="tui-pro-titbox">
 						<view class="tui-pro-title">
 							<text>{{goodsDetail.title}}</text>
-							<tui-tag padding="6rpx" size="28rpx" style="display: -webkit-inline-flex; line-height: 32rpx;" type="green"  :scaleMultiple="0.8" v-if="goodsDetail.selectedTag">
-								{{goodsDetail.selectedTag.name}}</tui-tag>
+							<tui-tag type="green" padding="10rpx" scaleMultiple="0.8" size="28rpx"  style="display: -webkit-inline-flex; line-height: 32rpx;" v-if="goodsDetail.selectedTag.length>0">
+								{{goodsDetail.selectedTag[0]['name']}}
+							</tui-tag>	
 						</view>
 						<view class="tui-share-position" @tap="showSharePopup">
 							<tui-tag type="gray" shape="circleLeft" padding="12rpx 16rpx">
@@ -101,7 +102,7 @@
 				</view> -->
 
 				<view class="tui-basic-info tui-mtop tui-radius-all">
-					<view class="tui-list-cell" @tap="showPopup('choice')">
+					<view class="tui-list-cell" @tap="showPopup('cart')">
 						<view class="tui-bold tui-cell-title">已选</view>
 						<view class="tui-selected-box">{{selectedGoodsAttrList | attrFormat}}，</view>
 						<view class="tui-buyNum">{{buyNum}}{{goodsDetail.sellUnit}}</view>
@@ -178,7 +179,7 @@
 				</view>
 				<view class="tui-operation-right tui-right-flex tui-col-7 tui-btnbox-4">
 					<view class="tui-flex-1">
-						<tui-button height="68rpx" :size="26" type="danger" shape="circle" @tap="showPopup('choice')">加入购物车</tui-button>
+						<tui-button height="68rpx" :size="26" type="danger" shape="circle" @tap="showPopup('cart')">加入购物车</tui-button>
 					</view>
 					<view class="tui-flex-1">
 						<tui-button height="68rpx" :size="26" type="warning" shape="circle" @click="submit">立即购买</tui-button>
@@ -250,45 +251,10 @@
 						</view>
 					</view>
 				</view>
-				<view class="tui-popup-box" v-if="mode==='choice'">
-					<view class="tui-product-box tui-padding">
-						<image :src="goodsDetail.defaultImageUrl" class="tui-popup-img"  mode="aspectFill"></image>
-						<view class="tui-price-box">
-							<view class="tui-popup-price">
-								<view class="tui-amount tui-bold">￥{{goodsDetail.price}}</view>
-								<view class="tui-number">已选择: {{selectedGoodsAttrList | attrFormat}}</view>
-							</view>
-							<tui-numberbox :max="99" :min="1" :value="buyNum" @change="change"></tui-numberbox>
-						</view>
-					</view>
-					<scroll-view scroll-y class="tui-popup-scroll">
-						<view class="tui-scrollview-box">
-							<view v-for="(item, i) in propsList" :key=i>
-								<view class="tui-bold tui-attr-title">{{item.name}}</view>
-								<view class="tui-attr-box">
-									<view class="tui-attr-item"
-										v-for="(value, j) in item.values" :key=j
-										 @tap="onSelect(i,j)"
-										:class="{ 'tui-attr-active': selectedIndex[i]===j, 'invalid': isInvalid(i,j)}">
-										 {{value}}
-									</view>
-								</view>
-							</view>
-						</view>
-					</scroll-view>
-					<view class="tui-operation tui-operation-right tui-right-flex tui-popup-btn">
-						<view class="tui-flex-1">
-							<tui-button height="72rpx" :size="28" type="danger" shape="circle" @tap="addCart">加入购物车</tui-button>
-						</view>
-						<view class="tui-flex-1">
-							<tui-button height="72rpx" :size="28" type="warning" shape="circle" @click="submit">立即购买</tui-button>
-						</view>
-					</view>
-					<view class="tui-right">
-						<tui-icon name="close-fill" color="#999" :size="20"  @click="hidePopup"></tui-icon>
-					</view>
-				</view>
 			</tui-bottom-popup>
+
+            <!-- 添加购物车 -->
+			<popup-box ref="popup" @select="onSelectGoods"></popup-box>
 			<!--底部选择层-->
 
 			<!--底部分享弹层-->
@@ -331,11 +297,12 @@
 <script>
 	import thorui from '@/components/common/tui-clipboard/tui-clipboard.js'
 	import poster from '@/components/common/tui-poster/tui-poster.js'
+	import popupBox from '@/components/views/addCart/addCart'
 	import uParse from '@/components/uni/uParse/src/wxParse'
-import invalidProductVue from '../invalidProduct/invalidProduct.vue';
 	export default {
 		components:{
-			uParse
+			uParse,
+			popupBox
 		},
 		data() {
 			return {
@@ -349,8 +316,8 @@ import invalidProductVue from '../invalidProduct/invalidProduct.vue';
 				invalidSkuList: [],
 				invalidSkuIndexList: [],
 				selectedIndex: [],
-				height: 64, //header高度
-				top: 26, //标题图标距离顶部距离
+				height: getApp().globalData.navBarHeight, //header高度
+				top: getApp().globalData.menuTop, //标题图标距离顶部距离
 				scrollH: 0, //滚动总高度
 				opcity: 0,
 				mode: 'service',
@@ -434,80 +401,20 @@ import invalidProductVue from '../invalidProduct/invalidProduct.vue';
 				uni.getSystemInfo({
 					success: res => {
 						this.width = obj.left || res.windowWidth;
-						this.height = obj.top ? obj.top + obj.height + 8 : res.statusBarHeight + 44;
-						this.top = obj.top ? obj.top + (obj.height - 32) / 2 : res.statusBarHeight + 6;
 						this.scrollH = res.windowWidth;
 					}
 				});
 			}, 0);
             this.spu_id = parseInt(options.spu_id)
-			this.skuList = this.goodsList.filter((o)=>{return o.spu_id === this.spu_id})
-			if(this.skuList.length===0){
-				uni.redirectTo({url: '/pages/index/invalidProduct/invalidProduct'})
-			}
+			const sku_id = parseInt(options.sku_id)
+			this.$refs.popup.initial(this.spu_id, sku_id)
 			let url = '/getGoodsReview/' + this.spu_id
 			this.tui.request(url).then(res=>{
 				if (res.code==='0'){
 				    this.reviews = res.reviewList.length
 					this.$store.commit('setReviewList', res.reviewList)
 				}
-			})
-			const sku_id = parseInt(options.sku_id)
-			if (sku_id){
-                let index = this.skuList.findIndex((o)=>{return o.id === sku_id})
-				if(index === -1){
-					uni.redirectTo({url: '/pages/index/invalidProduct/invalidProduct'})
-				}else{
-					this.goodsDetail = this.skuList[index]
-				}
-			}else{
-				this.goodsDetail = this.skuList[0]
-			}
-			let attrs = {}
-			this.goodsDetail.selectedGoodsAttrList.forEach(v=>{
-				if(!attrs[v.name]){
-					attrs[v.name] = v.value
-				}
-			})
-			this.selectedGoodsAttrList=Object.keys(attrs).map((i)=>{
-				return { 'name': i, 'value': attrs[i] }
-			}); //对象转数组   
-
-			this.$nextTick(()=>{
-				let attrs = {}
-				this.skuList.forEach((o) => {
-					o.selectedGoodsAttrList.forEach(v=>{
-						if(attrs[v.name]){
-							attrs[v.name].add(v.value)
-						}else{
-							attrs[v.name] = new Set([v.value])
-						}
-					})
-				})
-				this.propsList = Object.keys(attrs).map((i)=>{
-					return { 'name': i, 'values': Array.from(attrs[i])}
-				}); //对象转数组
-				this.propsList.forEach((o)=>{
-					let skuValues = o.values.map((v)=>{return { 'name': o.name, 'value': v }})
-					this.skuArray.push(skuValues)
-				})
-				this.verify() // 获取失效sku列表invalidList
-
-			    this.invalidSkuList.forEach((o)=>{ // 获取失效sku列表invalidList 的索引
-					let indexList = []
-					o.forEach((v)=>{
-						let prop = JSON.parse(v)
-						indexList.push(Array.from(attrs[prop.name]).indexOf(prop.value)) 
-					})
-					this.invalidSkuIndexList.push(JSON.stringify(indexList))
-				})
-				let labelNames = Object.keys(attrs)
-				this.selectedIndex = new Array(this.propsList.length).fill(0)
-				this.selectedGoodsAttrList.forEach((o)=>{
-                    let i = labelNames.indexOf(o.name)
-                    this.selectedIndex[i] = this.propsList[i].values.indexOf(o.value) 
-				})
-			})    
+			})		   
 		},
 		onShow(){
 			// 视频全屏播放返回后的处理
@@ -557,6 +464,14 @@ import invalidProductVue from '../invalidProduct/invalidProduct.vue';
 			}
 		},
 		methods: {
+			onSelectGoods(goodsDetail, selectedGoodsAttrList){
+				console.log('update', goodsDetail, selectedGoodsAttrList)
+				this.goodsDetail = goodsDetail
+				this.selectedGoodsAttrList = selectedGoodsAttrList
+			},
+			submit(){
+				this.$refs.popup.submit()
+			},
 			endedFun() {
 				this.startVideo = true
 				this.playing = false
@@ -576,64 +491,6 @@ import invalidProductVue from '../invalidProduct/invalidProduct.vue';
 			timeupdate(e){
 				this.duration = parseInt(e.detail.duration)
 				this.currentTime = parseInt(e.detail.currentTime)
-			},
-			onSelect(i,j){
-                if(!this.isInvalid(i,j)){
-					this.selectedIndex[i]=j
-					let attr = new Array()
-					let selectedGoodsAttrList = []
-					this.propsList.forEach((o, index)=>{
-						let res = {name: o.name, value: o.values[this.selectedIndex[index]]}
-						selectedGoodsAttrList.push(res)
-						attr.push(JSON.stringify(res))
-					})
-					this.selectedGoodsAttrList = selectedGoodsAttrList
-					let skuIndex = this.skuList.findIndex(o=>{
-						let intersection = o.selectedGoodsAttrList.filter((v) =>
-						attr.includes(JSON.stringify(v))) //计算交集  
-						return intersection.length === attr.length
-					})
-					this.goodsDetail = this.skuList[skuIndex]
-				}else{
-					this.tui.toast('该规格已售罄')
-				}
-			},
-            isInvalid(i,j){
-				let selectedIndex = JSON.parse(JSON.stringify(this.selectedIndex))
-				selectedIndex[i]=j
-				return this.invalidSkuIndexList.includes(JSON.stringify(selectedIndex))
-			},
-			// 计算商品sku笛卡尔积
-			calcDescartes(array) {
-				if (array.length < 2) return array[0].map((o)=>{return new Array(o)}) || [];
-				return array.reduce((total, currentValue) => {
-					let res = [];
-					total.forEach(t => {
-						currentValue.forEach(cv => {
-							if (t instanceof Array) // 或者使用 Array.isArray(t)
-							res.push([...t, cv]);
-							else
-							res.push([t, cv]);
-						})
-					})
-					return res;
-				})
-			},
-			//验证商品sku是否失效
-			verify(){
-				let descartes = this.calcDescartes(this.skuArray)
-				descartes.forEach((m)=>{
-					let attr = []
-					m.forEach((n)=>{attr.push(JSON.stringify(n))})
-					let skuIndex = this.skuList.findIndex(o=>{
-					let intersection = o.selectedGoodsAttrList.filter((v) =>
-					 	attr.includes(JSON.stringify(v)))   
-					return intersection.length === attr.length})
-					if(skuIndex===-1){
-						this.invalidSkuList.push(attr)
-					}
-				})
-				 console.log('invalidSkuList', this.invalidSkuList)
 			},
 			bannerChange: function(e) { 
 				this.bannerIndex = e.detail.current;
@@ -699,8 +556,12 @@ import invalidProductVue from '../invalidProduct/invalidProduct.vue';
 				this.menuShow = false;
 			},
 			showPopup: function(v) {
-				this.mode = v
-				this.popupShow = true;
+				if(v==='cart'){
+					this.$refs.popup.popupShow = true
+				}else{
+					this.mode = v
+					this.popupShow = true;
+				}
 			},
 			hidePopup: function() {
 				this.popupShow = false;
@@ -744,46 +605,6 @@ import invalidProductVue from '../invalidProduct/invalidProduct.vue';
 					}
 				}
 			},
-			addCart() {
-                let newGoods = {
-					id: this.goodsDetail.id,
-					spu_id: this.spu_id,
-					price: this.goodsDetail.price,
-					title: this.goodsDetail.title,
-					slogan: this.goodsDetail.slogan,
-					defaultImageUrl: this.goodsDetail.defaultImageUrl,
-					propertyList: this.selectedGoodsAttrList,
-					buyNum: this.buyNum,
-				}
-				if(!this.tui.isLogin()) {
-					uni.navigateTo({url: '/pages/my/login/login'})
-				}else{
-					let url = '/updateCustomer/' + uni.getStorageSync("pid") +'/addCart'
-					this.tui.request(url, 'PUT', {'newGoods': newGoods}).then(res=>{
-							if(res.code==='0'){
-								this.tui.toast('成功添加到购物车')
-							}
-						}
-					)
-
-				}
-				this.popupShow = false;
-			},
-			submit() {
-				this.popupShow = false;
-				let goods = [{
-					id: this.goodsDetail.id,
-					spu_id: this.spu_id,
-					price: this.goodsDetail.price,
-					title: this.goodsDetail.title,
-					slogan: this.goodsDetail.slogan,
-					defaultImageUrl: this.goodsDetail.defaultImageUrl,
-					propertyList: this.selectedGoodsAttrList,
-					buyNum: this.buyNum,
-				}]
-				let url = '/pages/order/submitOrder/submitOrder?goods=' + JSON.stringify(goods)
-				this.tui.href(url, true);
-			},
 			coupon() {
 				this.tui.href( '/pages/index/coupon/coupon', true)
 			},
@@ -800,7 +621,7 @@ import invalidProductVue from '../invalidProduct/invalidProduct.vue';
 				// #endif
 			},
 			shop() {
-				uni.switchTab({
+				uni.navigateTo({
 					url: '/pages/tabbar/index/index'
 				});
 			},
@@ -975,33 +796,7 @@ import invalidProductVue from '../invalidProduct/invalidProduct.vue';
 		}
 
 	}
-	// .tui-video__box {
-	// 	width: 166rpx;
-	// 	height: 60rpx;
-	// 	position: absolute;
-	// 	left: 50%;
-	// 	bottom: 50rpx;
-	// 	transform: translateX(-50%);
-	// 	z-index: 2;
-	// }
-
-	// .tui-video__box image {
-	// 	width: 166rpx;
-	// 	height: 60rpx;
-	// }
-
-	// .tui-video__box view {
-	// 	width: 100%;
-	// 	height: 100%;
-	// 	font-size: 24rpx;
-	// 	position: absolute;
-	// 	left: 0;
-	// 	top: 0;
-	// 	display: flex;
-	// 	align-items: center;
-	// 	padding-left: 66rpx;
-	// 	box-sizing: border-box;
-	// }
+	
 	.tui-video-slider{
 		position: absolute;
 		bottom: -4px;
@@ -1508,12 +1303,6 @@ import invalidProductVue from '../invalidProduct/invalidProduct.vue';
 
 	/*底部选择弹层*/
 
-	.tui-popup-class {
-		border-top-left-radius: 24rpx;
-		border-top-right-radius: 24rpx;
-		padding-bottom: env(safe-area-inset-bottom);
-	}
-
 	.tui-popup-box {
 		position: relative;
 		padding: 30rpx 0 100rpx 0;
@@ -1557,120 +1346,22 @@ import invalidProductVue from '../invalidProduct/invalidProduct.vue';
 				margin-right: 40rpx;
 			}
 		}
+		.tui-popup-btn {
+			width: 100%;
+			position: absolute;
+			left: 0;
+			bottom: 0;
+		}
 	}
-	.tui-popup-btn {
-		width: 100%;
-		position: absolute;
-		left: 0;
-		bottom: 0;
-	}
-	.tui-price-box{
-		flex-direction: column;
-		margin-left: 20rpx;
-		display: flex;
-		justify-content: space-between;
-	}
-	.tui-popup-price {
-		padding-bottom: 8rpx;
-	}
-	.tui-product-box {
-		display: flex;
-		font-size: 24rpx;
-		padding-bottom: 30rpx;
-	}
-	.tui-popup-img {
-		height: 200rpx;
-		width: 200rpx;
-		border-radius: 24rpx;
-		display: block;
-	}
-
-	.tui-popup-price {
-		padding-bottom: 8rpx;
-	}
-
-	.tui-amount {
-		color: #ff201f;
-		font-size: 36rpx;
-	}
-	.tui-number {
-		font-size: 24rpx;
-		line-height: 24rpx;
-		padding-top: 12rpx;
-		color: #999;
-	}
-
 	.tui-popup-scroll {
 		max-height: 600rpx;
 		font-size: 26rpx;
-	}
+		.tui-scrollview-box {
+			padding: 0 30rpx 60rpx 30rpx;
+			box-sizing: border-box;
+		}
 
-	.tui-scrollview-box {
-		padding: 0 30rpx 60rpx 30rpx;
-		box-sizing: border-box;
 	}
-
-	.tui-attr-title {
-		padding: 10rpx 0;
-		color: #333;
-	}
-
-	.tui-attr-box {
-		font-size: 0;
-		padding: 20rpx 0;
-	}
-
-	.tui-attr-item {
-		max-width: 100%;
-		min-width: 200rpx;
-		height: 64rpx;
-		display: -webkit-inline-flex;
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		background: #f7f7f7;
-		padding: 0 26rpx;
-		box-sizing: border-box;
-		border-radius: 32rpx;
-		margin-right: 20rpx;
-		margin-bottom: 20rpx;
-		font-size: 26rpx;
-	}
-
-	.tui-attr-active {
-		background: #fcedea;
-		color: #e41f19;
-		font-weight: bold;
-		position: relative;
-	}
-
-	.tui-attr-active::after {
-		content: '';
-		position: absolute;
-		border: 1rpx solid #e41f19;
-		width: 100%;
-		height: 100%;
-		border-radius: 40rpx;
-		left: 0;
-		top: 0;
-	}
-	.invalid {
-		color: #888;
-    	opacity: 0.5;
-		background: #f7f7f7;
-	}
-	.tui-attr-active.invalid::after{
-		display: none;
-	}
-
-	.tui-number-box {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		padding: 20rpx 0 30rpx 0;
-		box-sizing: border-box;
-	}
-
 	/*底部选择弹层*/
 
 	/*分享弹层*/

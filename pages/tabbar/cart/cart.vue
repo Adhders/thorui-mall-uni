@@ -24,7 +24,7 @@
 										</view>
 										<view class="tui-goods-extraInfo">
 											<view class="tui-sub-info">{{item.slogan}}</view>
-											<view>{{item.propertyList | attrFormat}}</view>
+											<view class="tui-sub-info">{{item.propertyList | attrFormat}}</view>
 										</view>
 										<view class="tui-price-box">
 											<view>
@@ -184,10 +184,9 @@
 				tips: "",
 				itemList: [],
 				color: "#9a9a9a",
-				isCancel: true
+				isCancel: true,
 			}
 		},
-
 		filters: {
 			getPrice(price) {
 				price = price || 0;
@@ -205,17 +204,19 @@
 			if(!this.tui.isLogin()) {
 				uni.redirectTo({url: '/pages/my/login/login?from=cart'})
 			}else{
-				let goodsList = this.$store.state.goodsList
 				let url = '/getCartInfo/' + this.$store.state.appid + '/' + uni.getStorageSync("pid")
 				this.tui.request(url,'GET', undefined, true).then((res)=>{
 					if(res.code==='0'){
+						res.cart.forEach((o)=>{
+							o.selected = false
+						})
 						this.cart = res.cart
 						let total = 0
 						this.dataList.map((item) => {
 							total += item.buyNum;
 						})
 						this.total = total
-						this.productList = goodsList.filter((sku)=>{ 
+						this.productList = this.goodsList.filter((sku)=>{ 
 							let index = this.cart.findIndex((o) => {return sku.id === o.id})
 							return sku.stock>0 && index ===-1
 						})
@@ -230,6 +231,9 @@
 			},
 			invalidList() {
 				return this.cart.filter((o)=>{return !o.valid})
+			},
+			goodsList() {
+				return this.$store.state.goodsList
 			}
 		},
 		methods: {
@@ -252,17 +256,25 @@
 				this.totalPrice = totalPrice
 			},
 			changeNum: function(e) {
-				this.dataList[e.index].buyNum = e.value
+				let goods = this.dataList[e.index]
+				goods.buyNum = e.value
+				let index = this.cart.findIndex((o)=>{return o.id===goods.id})
+				this.cart[index].buyNum = e.value
 				setTimeout(() => {
+					this.updateCart()
 					this.calcHandle()
-				}, 0)
+				}, 0)  
 			},
-			handlerButton: function(e) {
+			handlerButton(e) {
 				let index = e.index;
 				let item = e.item;
-				if(index===2 || index ===1&&!item.valid){
+				if(index===2 || index===1&&!item.valid){
 					let _index = this.cart.findIndex((o)=>{return o.id === item.id})
 					this.cart.splice(_index, 1)
+					this.updateCart()
+				}
+				if(index===1 || index===0&&!item.valid){
+					this.onSearch(item.title)
 				}
 			},
 			editGoods() {
@@ -280,6 +292,7 @@
 				})
 			},
 			addCart(newGoods){
+				console.log('addCart', newGoods)
 				this.total += 1
 				let index = this.cart.findIndex((o)=>{return o.id===newGoods.id})
 				if(index !==-1){
@@ -295,7 +308,7 @@
 			},
 			updateCart(){
 				let url = '/updateCustomer/' + uni.getStorageSync("pid") +'/updateCart'
-				this.tui.request(url, 'PUT', {'cart': this.cart}).then()
+				this.tui.request(url, 'PUT', {'cart': this.cart}).then((res)=>{console.log('res', res)})
 			},
 			buyChange(e) {
 				this.cartIds = e.detail.value;
@@ -435,9 +448,6 @@
 </script>
 
 <style> 
-    .tui-numberbox input{
-		height: auto !important;
-	}
 	.container {
 		padding-bottom: 120rpx;
 	}
@@ -527,7 +537,7 @@
 		display: -webkit-box;
 		-webkit-box-orient: vertical;
 		-webkit-line-clamp: 2;
-		font-size: 24rpx;
+		font-size: 28rpx;
 		line-height: 30rpx;
 		color: #333;
 	}
@@ -582,8 +592,8 @@
     
 	.tui-goods-extraInfo {
 		color: #888;
-		padding-top: 5rpx;
 		font-size: 22rpx;
+		flex: auto;
 	}
 	.tui-size-24 {
 		font-size: 24rpx;
@@ -604,7 +614,6 @@
 
 	.tui-sub-info {
 		color: #888;
-		padding-top: 5rpx;
 		font-size: 22rpx;
 		box-sizing: border-box;
 		white-space: nowrap;
@@ -658,7 +667,7 @@
 		padding: 0 30rpx;
 		box-sizing: border-box;
 		font-size: 24rpx;
-		z-index: 9999;
+		z-index: 10;
 	}
 
 	.tui-tabbar::before {

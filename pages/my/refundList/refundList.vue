@@ -121,7 +121,7 @@
 				您还没有相关的订单</tui-no-data>
 			<tui-modal :show="isDelete" @click="onRemove"  title="确定删除售后单？" content="删除之后此售后单将无法恢复，请慎重考虑？"></tui-modal>	
 		</view>
-		<tui-divider width="60%" gradual>没有更多了</tui-divider>
+		<!-- <tui-divider width="60%" gradual>没有更多了</tui-divider> -->
 	</view>
 </template>
 
@@ -140,28 +140,8 @@ export default {
       		displayList: [],
 		};
 	},
-    onLoad(option){
-		let url = '/getRefundOrders/' + uni.getStorageSync("pid")
-		this.tui.request(url,'GET', undefined, true).then((res)=>{
-			this.loadding = false
-			this.$store.commit('setRefundList', res.refundList)
-			if(option.order){
-				this.currentTab = 0
-				let order =  this.$store.state.targetOrder
-				order.index = this.refundList.findIndex((o)=>{	return o.orderNum === order.orderNum})
-				this.orderList.push(order)
-			}else{
-				url = '/getOrders/' + uni.getStorageSync("pid") + '/refundList'
-				this.tui.request(url,'GET', undefined, true).then((res)=>{
-					res.orderList.forEach(order=>{
-						order.index = this.refundList.findIndex((o)=>{	return o.orderNum === order.orderNum}) 
-					})
-					this.orderList = res.orderList
-				})
-			}
-			console.log('options', this.currentTab)
-			this.switchTab(this.currentTab)
-		})
+    onLoad(options){
+		this.loadData(options)
 	},
 	onShow(){
 		this.orderList.forEach(order=>{
@@ -190,6 +170,32 @@ export default {
 		}
 	},
 	methods: {
+		loadData(e, fresh){
+			let url = '/getRefundOrders/' + uni.getStorageSync("pid")
+			this.tui.request(url,'GET', undefined, true).then((res)=>{
+				this.loadding = false
+				this.$store.commit('setRefundList', res.refundList)
+				if(e.order){
+					let refundOrder = JSON.parse(decodeURIComponent(e.order))
+					this.currentTab = 0
+					refundOrder.index = this.refundList.findIndex((o)=>{	return o.orderNum === refundOrder.orderNum})
+					this.orderList.push(refundOrder)
+				}else{
+					url = '/getOrders/' + uni.getStorageSync("pid") + '/refundList' //获取可以申请退款的订单(默认两周内的订单)
+					this.tui.request(url,'GET', undefined, true).then((res)=>{
+						res.orderList.forEach(order=>{
+							order.index = this.refundList.findIndex((o)=>{	return o.orderNum === order.orderNum}) 
+						})
+						this.orderList = res.orderList
+					})
+				}
+				this.switchTab(this.currentTab)
+				if(fresh){
+					wx.hideNavigationBarLoading() //完成停止加载
+					wx.stopPullDownRefresh() //停止下拉刷新
+				}
+			})
+		},
 		change(e) {
 			this.currentTab = e.index
 			this.switchTab(this.currentTab)
@@ -242,16 +248,18 @@ export default {
 		},
 		refundDetail(index){
 			let order = this.refundList[index]
-			this.$store.commit('setTargetOrder', order)
-		  	this.tui.href('/pages/my/refundDetail/refundDetail')
+		  	this.tui.href('/pages/my/refundDetail/refundDetail?order=' + encodeURIComponent(JSON.stringify(order)))
 		},
 		detail(order) {
 			if(order.refundNum){
-				this.$store.commit('setTargetOrder', order)
-		  		this.tui.href('/pages/my/refundDetail/refundDetail')
+		  		this.tui.href('/pages/my/refundDetail/refundDetail?order=' + encodeURIComponent(JSON.stringify(order)))
 			}
 		}
-	}
+	},
+	onPullDownRefresh() {
+		wx.showNavigationBarLoading() //在标题栏中显示加载
+		this.loadData({}, true)
+	},
 };
 </script>
 
@@ -309,33 +317,34 @@ export default {
 
 .tui-goods-center {
 	flex: 1;
-	padding: 20rpx 8rpx;
+	max-width: 460rpx;
+	padding: 8rpx;
 	box-sizing: border-box;
 }
 
 .tui-goods-name {
-	max-width: 310rpx;
+	width: 90%;
 	word-break: break-all;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	display: -webkit-box;
 	-webkit-box-orient: vertical;
 	-webkit-line-clamp: 2;
-	font-size: 26rpx;
+	font-size: 28rpx;
 	line-height: 32rpx;
 }
 
 .tui-goods-attr {
+	width: 90%;
 	font-size: 22rpx;
 	color: #888888;
 	line-height: 32rpx;
-	padding-top: 20rpx;
+	padding-top: 5rpx;
 	word-break: break-all;
+	box-sizing: border-box;
+	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
-	display: -webkit-box;
-	-webkit-box-orient: vertical;
-	-webkit-line-clamp: 2;
 }
 
 .tui-price-right {
@@ -343,7 +352,7 @@ export default {
 	font-size: 24rpx;
 	color: #888888;
 	line-height: 30rpx;
-	padding-top: 20rpx;
+	padding-top: 8rpx;
 }
 
 .tui-goods-price {

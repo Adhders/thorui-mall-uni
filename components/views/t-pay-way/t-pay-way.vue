@@ -122,7 +122,7 @@
 					success: function () {
 						url = '/updateOrder/' + _this.orderNum + '/' + 'payment'
 						order.status = '待评价'
-						_this.$store.state.orderList.unshift(order)
+						// _this.$store.state.orderList.unshift(order)
 						_this.tui.request(url, 'PUT', {status: "待评价"}).then(
 							() => {
 								_this.success = true
@@ -135,7 +135,7 @@
 						url = '/updateOrder/' + _this.orderNum + '/' + 'paymentInfo'
 						_this.tui.request(url, 'PUT', {paymentInfo : result}).then(
 							()=>{
-								_this.$store.state.orderList.unshift(order)
+								// _this.$store.state.orderList.unshift(order)
 						})
 					},
 				})

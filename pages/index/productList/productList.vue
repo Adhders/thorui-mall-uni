@@ -197,18 +197,14 @@ export default {
 		};
 	},
 	onLoad: function(options) {
-		console.log('options', options)
-		if(options.groupName){
-			this.searchKey = options.groupName
-			this.currentList = this.productList.filter((o)=>{return o.selectedClassifyList.includes(this.searchKey)})
+		if(options.searchKey){
+			this.searchKey = options.searchKey
+			this.currentList = this.$store.state.searchResult
 		}else if(options.groupList){
 			let groupList = JSON.parse(options.groupList)
             this.currentList = this.productList.filter((o)=>{
 				return o.selectedClassifyList.filter((v)=>{ return groupList.indexOf(v) > -1 }).length>0
 			})
-		}else if(options.searchKey){
-			this.searchKey = options.searchKey
-			this.currentList = this.$store.state.searchResult
 		}else if(options.similarKey){
 			this.currentList = this.productList.filter((o)=>{
 				return this.similar(o.title, options.similarKey, 2)
@@ -885,11 +881,4 @@ export default {
 	background: #e41f19;
 	color: #fff;
 }
-
-/* 商品列表*/
-
-.tui-product-list {
-	margin: 0 10rpx;
-}
-
 </style>

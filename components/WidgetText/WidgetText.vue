@@ -21,7 +21,13 @@
 
 <script>
     export default {
-        props: ['item']
+        props: ['item'],
+        methods: {
+            onClick(v){
+                console.log('click',this.item.content)
+				this.$emit('goto', this.item.content.chooseLink)
+        	}
+        }
     }
 </script>
 

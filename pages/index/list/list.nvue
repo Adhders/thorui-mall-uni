@@ -1,0 +1,435 @@
+<template>
+	<view>
+		<NavBar :page="page" @back="onBack"></NavBar>
+		<view class="tui-tabs" :style="{marginTop: height + 'px'}">
+			<scroll-view id="tab-bar" scroll-with-animation class="tui-scroll-h" :scroll-x="true" :show-scrollbar="false"
+			:scroll-into-view="scrollInto">
+				<view v-for="(tab, index) in tabBars" :key="index" class="tui-tab-item" :data-current="index" @click="tabClick">
+					<!-- #ifndef APP-PLUS -->
+					<view class="tui-tab-item-title" :class="{ 'tui-tab-item-title-active': tabIndex == index }">{{ tab.name }}</view>
+					<!-- #endif -->
+				</view>
+			</scroll-view>
+			<view class="tui-line-h"></view>
+			<swiper :current="tabIndex" class="tui-swiper-box" :duration="300" @change="tabChange">
+				<swiper-item class="tui-swiper-item" v-for="(tab, index1) in newsList" :key="index1">	
+					<!-- #ifndef APP-NVUE -->
+				 	<scroll-view class="tui-scroll-v" refresher-enabled :refresher-triggered="tab.refreshing" refresher-background="#fafafa"
+					:refresher-threshold="100" scroll-y  @scrolltolower="loadMore(index1)" @refresherrefresh="onrefresh">
+						<!--小程序ios端 不设高度会导致无法滚动-->
+						<view style="min-height:101%; margin:10rpx">
+							<tui-waterfall :listData="tab.data" :type="2" :pageSize="10">
+								<template slot-scope="{ entity }" slot="left">
+									<tGoodsItem :entity="entity" @add="addGoods" mode="list"></tGoodsItem>
+								</template>
+								<template slot-scope="{ entity }" slot="right">
+									<tGoodsItem :entity="entity" @add="addGoods" mode="list"></tGoodsItem>	
+								</template>
+							</tui-waterfall>
+							<view class="tui-loading-more" v-if="tab.isLoading || tab.pageIndex > 3">
+								<text class="tui-loadmore-line" v-if="tab.pageIndex > 3"></text>
+								<text class="tui-loading-more-text">{{ tab.loadingText }}</text>
+							</view>
+						</view>
+					</scroll-view>
+					<!-- #endif -->
+				</swiper-item>
+			</swiper>
+		</view>
+		<popup-box ref="popup" :goods="goods"></popup-box>
+	</view>
+</template>
+<script>
+	import tGoodsItem from '@/components/views/t-goods-item/t-goods-item'
+	import popupBox from '@/components/views/addCart/addCart'
+
+	// 缓存最多页数
+	const MAX_CACHE_PAGEINDEX = 3;
+	// 缓存页签数量
+	const MAX_CACHE_PAGE = 3;
+	export default {
+		components: {
+			tGoodsItem,
+			popupBox
+		},
+		data() {
+			return {
+				height: getApp().globalData.navBarHeight,
+				page: {title: '', style: {isBack: true, color: "#000", backgroundColor: "#FFFFFF", groupBox: 1, searchBoxStyle: true}},
+				isIos: false,
+				goods: null,
+				newsList: [],
+				cacheTab: [],
+				tabIndex: 0,
+				tabBars: [],
+				scrollInto: '',
+				showTips: false,
+				navigateFlag: false,
+				pulling: false,
+				refreshIcon: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFEAAABRBAMAAABYoVcFAAAAKlBMVEUAAACXl5eZmZmfn5+YmJiXl5eampqZmZmYmJiYmJiZmZmYmJiZmZmZmZl02B9kAAAADXRSTlMAQKAQ0GAsUN+wz5CA21ow0AAAAM5JREFUSMftzLEJAkEQheFR4WzjGji4wC5E0A7E0OgaEIwF4RqwJEEODKcX1114yQ/uhsLtY6Lh57NZ7Dz1heXd27Kwcb+WlQv3Vy1rWcta1rKW/1Q2R8PWt8FYdhPLi79ZLt33KB/hibJzH1E+PaAqRfqAcuMBVSlyMmy1C6hKka0CoCpBAlUJEmgsQQJVCRKoSpBAU0mSaCpJEk0lSSMaS5JG9FuK/IkeQkmSaEjikSSaRpJoHEmiIvOoyCwqMo+KzKMi8+hoZTtte5vDPrSGI5zJ/Z1kAAAAAElFTkSuQmCC'
+			};
+		},
+		onLoad(options) {
+			if(options.groupName){
+				let index = this.goodsGroup.findIndex((o)=>{return o.name===options.groupName})
+				this.tabIndex = index
+				console.log('index', index)
+			}
+			this.tabBars = this.goodsGroup
+			setTimeout(() => {
+				this.newsList = this.randomfn();
+				console.log('newsList', this.newsList)
+				uni.getSystemInfo({
+					success: res => {
+						this.isIos = 'ios' == res.platform.toLocaleLowerCase();
+					}
+				});
+			}, 200);
+		},
+        computed: {
+			goodsGroup(){
+				return this.$store.state.goodsGroup
+			}
+        },
+		methods: {
+			onBack(e){
+				switch(e){
+					case 'home':
+						uni.navigateTo({url: '/pages/tabbar/index/index'})
+						break;
+					case 'arrowleft':
+					    uni.navigateBack({ delta:1 })
+						break;
+				}
+			},
+			addGoods(goods){
+			 	this.goods = goods
+			 	this.$refs.popup.popupShow = true
+			},
+			randomfn() {
+				let ary = [];
+				for (let i = 0, length = this.tabBars.length; i < length; i++) {
+					let aryItem = {
+						loadingText: '正在加载...',
+						refreshing: false,
+						refreshText: '',
+						data: [],
+						isLoading: false,
+						pageIndex: 1
+					};
+					if (i === this.tabIndex) {
+						aryItem.pageIndex = 2;
+						aryItem.data = aryItem.data.concat(this.tabBars[i].goodsList);
+					}
+					ary.push(aryItem);
+				}
+				return ary;
+			},
+			getList(index, refresh) {
+				let activeTab = this.newsList[index];
+				let list = this.tabBars[index].goodsList || [];
+				if (refresh) {
+					activeTab.data = [];
+					activeTab.loadingText = '正在加载...';
+					activeTab.pageIndex = 2;
+					activeTab.data = list || [];
+				} else {
+					activeTab.data = activeTab.data.concat(list);
+					activeTab.pageIndex++;
+					activeTab.isLoading = false;
+					//根据实际修改判断条件
+					if (activeTab.pageIndex > 3) {
+						activeTab.loadingText = '没有更多了';
+					}
+				}
+			},
+			loadMore(e) {
+				let index = this.tabIndex
+				let activeTab = this.newsList[index];
+				if (activeTab.pageIndex < 4 && !activeTab.isLoading) {
+					// activeTab.isLoading = true;
+					setTimeout(() => {
+						// this.getList(index);
+					}, 300);
+				}
+			},
+			tabClick(e) {
+				let index = e.target.dataset.current || e.currentTarget.dataset.current;
+				this.switchTab(index);
+			},
+			tabChange(e) {
+				if (e.detail.source == 'touch') {
+					let index = e.target.current || e.detail.current;
+					this.switchTab(index);
+				}
+			},
+			switchTab(index) {
+				console.log('switch', index, this.newsList)
+				if (this.tabIndex === index) return;
+				if (this.newsList[index].data.length === 0) {
+					this.getList(index);
+				}
+				// 缓存 tabId
+				if (this.newsList[this.tabIndex].pageIndex > MAX_CACHE_PAGEINDEX) {
+					let isExist = this.cacheTab.indexOf(this.tabIndex);
+					if (isExist < 0) {
+						this.cacheTab.push(this.tabIndex);
+						//console.log("cache index:: " + this.tabIndex);
+					}
+				}
+
+				this.tabIndex = index;
+				let scrollIndex = index - 1 < 0 ? 0 : index - 1;
+				this.scrollInto = this.tabBars[scrollIndex].id;
+
+				// 释放 tabId
+				if (this.cacheTab.length > MAX_CACHE_PAGE) {
+					let cacheIndex = this.cacheTab[0];
+					this.clearTabData(cacheIndex);
+					this.cacheTab.splice(0, 1);
+					//console.log("remove cache index:: " + cacheIndex);
+				}
+			},
+			clearTabData(e) {
+				this.newsList[e].data.length = 0;
+				this.newsList[e].loadingText = '加载更多...';
+			},
+			onrefresh(e) {
+				let index = this.tabIndex;
+				var tab = this.newsList[index];
+				// #ifndef APP-PLUS
+				if (tab.refreshing) {
+					return;
+				}
+				// #endif
+
+				tab.refreshing = true;
+				tab.refreshText = '正在刷新...';
+
+				setTimeout(() => {
+					this.getList(index, true);
+					this.pulling = true;
+					tab.refreshing = false;
+					tab.refreshFlag = false;
+					tab.refreshText = '刷新成功';
+					// #ifndef H5
+					uni.showToast({
+						title: '刷新成功',
+						icon: 'none'
+					});
+					// #endif
+					setTimeout(() => {
+						// TODO fix ios和Android 动画时间相反问题
+						this.pulling = false;
+					}, 500);
+				}, 1000);
+			},
+			onpullingdown(e) {
+				var tab = this.newsList[this.tabIndex];
+				if (tab.refreshing || this.pulling) {
+					return;
+				}
+				if (Math.abs(e.pullingDistance) > Math.abs(e.viewHeight)) {
+					tab.refreshFlag = true;
+					tab.refreshText = '释放立即刷新';
+				} else {
+					tab.refreshFlag = false;
+					tab.refreshText = '下拉可以刷新';
+				}
+			}
+		}
+	};
+</script>
+
+<style>
+	/* #ifndef APP-PLUS */
+	page {
+		width: 100%;
+		min-height: 100%;
+		display: flex;
+	}
+
+	/* #endif */
+
+	.tui-tabs {
+		flex: 1;
+		flex-direction: column;
+		overflow: hidden;
+		background-color: #ffffff;
+		/* #ifdef MP-ALIPAY || MP-BAIDU */
+		height: 100vh;
+		/* #endif */
+	}
+
+	.tui-scroll-h {
+		width: 750rpx;
+		height: 80rpx;
+		background-color: #ffffff;
+		flex-direction: row;
+		/* #ifndef APP-PLUS */
+		white-space: nowrap;
+		/* #endif */
+		/* #ifdef H5 */
+		position: fixed;
+		top: 44px;
+		left: 0;
+		z-index: 999;
+		/* #endif */
+	}
+
+	.tui-line-h {
+		/* #ifdef APP-PLUS */
+		height: 1rpx;
+		background-color: #cccccc;
+		/* #endif */
+		position: relative;
+	}
+
+	/* #ifndef APP-PLUS*/
+	.tui-line-h::after {
+		content: '';
+		position: absolute;
+		border-bottom: 1rpx solid #cccccc;
+		-webkit-transform: scaleY(0.5);
+		transform: scaleY(0.5);
+		bottom: 0;
+		right: 0;
+		left: 0;
+	}
+
+	/* #endif */
+
+	.tui-tab-item {
+		/* #ifndef APP-PLUS */
+		display: inline-block;
+		/* #endif */
+		flex-wrap: nowrap;
+		padding-left: 34rpx;
+		padding-right: 34rpx;
+	}
+
+	.tui-tab-item-title {
+		color: #555;
+		font-size: 30rpx;
+		height: 80rpx;
+		line-height: 80rpx;
+		flex-wrap: nowrap;
+		/* #ifndef APP-PLUS */
+		white-space: nowrap;
+		/* #endif */
+	}
+
+	.tui-tab-item-title-active {
+		color: #EB0909;
+		font-weight: bold;
+		border-bottom-width: 6rpx;
+		border-style: solid;
+		border-color: #EB0909;
+		text-align: center;
+	}
+
+	.tui-swiper-box {
+		flex: 1 !important;
+		/* #ifdef H5 */
+		margin-top: 80rpx;
+		/* #endif */
+	}
+
+	.tui-swiper-item {
+		flex: 1 !important;
+		flex-direction: row;
+	}
+
+	.tui-scroll-v {
+		flex: 1;
+		/* #ifndef MP-ALIPAY */
+		flex-direction: column;
+		/* #endif */
+		width: 750rpx;
+	}
+
+	.tui-update-tips {
+		position: absolute;
+		left: 0;
+		top: 41px;
+		right: 0;
+		padding-top: 5px;
+		padding-bottom: 5px;
+		background-color: #fddd9b;
+		align-items: center;
+		justify-content: center;
+		text-align: center;
+	}
+
+	.tui-update-tips-text {
+		font-size: 14px;
+		color: #ffffff;
+	}
+
+	.tui-refresh {
+		width: 750rpx;
+		height: 64px;
+		justify-content: center;
+	}
+
+	.tui-refresh-view {
+		flex-direction: row;
+		flex-wrap: nowrap;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.tui-refresh-icon {
+		width: 20px;
+		height: 20px;
+		transition-duration: 0.25s;
+		transition-property: transform;
+		transform: rotate(0deg);
+		transform-origin: 10px 10px;
+	}
+
+	.tui-refresh-icon-active {
+		transform: rotate(180deg);
+	}
+
+	.tui-loading-icon {
+		width: 20px;
+		height: 20px;
+		margin-right: 5px;
+		color: #999999;
+	}
+
+	.tui-loading-text {
+		margin-left: 2px;
+		font-size: 14px;
+		color: #999999;
+	}
+
+	.tui-loading-more {
+		align-items: center;
+		justify-content: center;
+		padding-top: 15px;
+		padding-bottom: 15px;
+		text-align: center;
+		position: relative;
+	}
+
+	.tui-loadmore-line {
+		border-bottom-width: 1rpx;
+		border-bottom-style: solid;
+		border-bottom-color: #e5e5e5;
+		width: 320rpx;
+		position: absolute;
+		z-index: -1;
+	}
+
+	.tui-loading-more-text {
+		padding-left: 8rpx;
+		padding-right: 8rpx;
+		font-size: 28rpx;
+		line-height: 28rpx;
+		background-color: #fafafa;
+		text-align: center;
+		color: #999;
+	}
+</style>

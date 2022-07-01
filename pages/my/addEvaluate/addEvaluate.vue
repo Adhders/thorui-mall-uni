@@ -49,7 +49,7 @@
 				formData: {},
 				bucket_image: 'chuangbiying-review',
 				action: 'http://up-cn-east-2.qiniup.com',
-				goodsImage: 'https://system.chuangbiying.com/static/images/product/1.jpg',
+				goodsImage: '',
 				postData: {
 					msg: '',
 					specs: '',
@@ -63,9 +63,8 @@
 			}
 		},
 		onLoad(options){
-
 			//将系统宽度px转换为rpx
-			let systemWidth = this.$store.state.width/(uni.upx2px(100)/100)
+			let systemWidth = getApp().globalData.windowWidth/(uni.upx2px(100)/100)
 			// 100为页面两边的距离加上图片间隔
 			this.width = (systemWidth-100)/3
 			this.height = this.width
@@ -80,14 +79,15 @@
                 }
             )
 			this.mode = options.mode
-			const order = this.$store.state.targetOrder
+			const order = JSON.parse(decodeURIComponent(options.order))
 			this.index = order.index? order.index: 0 //对订单中第几个商品进行评价
+			const goods = order.goodsList[this.index]
+			this.goodsImage = goods.defaultImageUrl
 			this.orderNum = order.orderNum
 			this.postData.reviewState = JSON.parse(JSON.stringify(order.reviewState))
 			this.postData.reviewState[this.index].count +=1
 			if (this.mode==='first'){
-				let goods = order.goodsList[this.index]
-				this.spu_id = goods.id
+				this.spu_id = goods.spu_id
 				this.postData.specs = this.getProperty(goods.propertyList)
 				this.postData.name = this.userInfo.nickName
 				this.postData.avatar = this.userInfo.avatarUrl
@@ -137,7 +137,7 @@
 							orderList[index].reviewState = res.reviewState
 							let findIndex = this.postData.reviewState.findIndex(o=>{return o.count===0})
 							if(findIndex===-1){
-								orderList[index].status='交易完成'
+								orderList[index].status='交易成功'
 							}
 						}else{
 							orderList[index].reviewState = this.postData.reviewState
@@ -163,8 +163,9 @@
 	}
 
 	.tui-goods__img {
-		width: 104rpx;
-		height: 104rpx;
+		width: 150rpx;
+		height: 150rpx;
+		border-radius: 8rpx;
 	}
 
 	.tui-rate__box {

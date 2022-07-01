@@ -27,7 +27,8 @@
 			this.childrens = [];
 		},
 		methods: {
-			onClick() {
+			onClick(e) {
+				this.$emit('click', e)
 				if (this.childrens && this.childrens.length > 0) {
 					for (let child of this.childrens) {
 						child.labelClick()

@@ -18,7 +18,7 @@
         </block>
         <tui-divider :size="28" :bold="true" color="#333" width="50%" v-if="isShow">已评价</tui-divider>
         <block v-for="(goods,index) in order.goodsList" :key="index">
-            <tui-list-cell padding="0" @click="detail" v-if="order.reviewState[index].count>=2">
+            <tui-list-cell padding="0" @click="detail(goods)" v-if="order.reviewState[index].count>=2">
                 <view class="tui-goods-item">
                     <image :src="goods.defaultImageUrl" class="tui-goods-img"></image>
                     <view class="tui-goods-center">
@@ -44,8 +44,8 @@
                 }
             }
         },
-        onLoad(){
-            this.order = this.$store.state.targetOrder
+        onLoad(options){
+            this.order = JSON.parse(decodeURIComponent(options.order))
         },
         computed: {
             isShow(){
@@ -62,9 +62,11 @@
 			},
         },
         methods: {
-            detail(){
-
-            },
+            detail(goods) {    
+				this.tui.href(
+					'/pages/index/productDetail/productDetail?spu_id=' + goods.spu_id + '&sku_id=' + goods.id
+				)
+			},
             addEvaluate(goods, index){
                 this.order.index = index
                 const mode = this.order.reviewState[index].count? 'additional' : 'first'
@@ -97,11 +99,13 @@
 		height: 180rpx;
 		display: block;
 		flex-shrink: 0;
+        border-radius: 8rpx;
 	}
 
 	.tui-goods-center {
 		flex: 1;
-		padding: 20rpx 8rpx;
+		padding: 8rpx;
+        max-width: 460rpx;
 		box-sizing: border-box;
 	}
 
@@ -112,7 +116,7 @@
 		display: -webkit-box;
 		-webkit-box-orient: vertical;
 		-webkit-line-clamp: 2;
-		font-size: 26rpx;
+		font-size: 28rpx;
 		line-height: 32rpx;
 	}
 
@@ -121,12 +125,11 @@
 		color: #888888;
 		line-height: 32rpx;
 		padding-top: 20rpx;
-		word-break: break-all;
+		width: 90%;
+		box-sizing: border-box;
+		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
-		display: -webkit-box;
-		-webkit-box-orient: vertical;
-		-webkit-line-clamp: 2;
 	}
     .tui-evalute-btn {
         float: right

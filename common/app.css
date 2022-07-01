@@ -6,12 +6,12 @@ page {
 	font-family: -apple-system-font, Helvetica Neue, Helvetica, sans-serif;
 }
 
-::-webkit-scrollbar {
+/* ::-webkit-scrollbar {
 	width: 0 !important;
 	height: 0 !important;
 	color: transparent !important;
 	display: none;
-}
+} */
 
 button::after {
 	border: none;
@@ -25,11 +25,9 @@ button::after {
 
 .tui-phcolor {
 	color: #ccc;
-	font-size: 32rpx;
+	font-size: 28rpx;
 	overflow: visible;
 }
-
-
 
 .tui-opcity {
 	opacity: 0.5;
@@ -45,7 +43,9 @@ button::after {
 	text-overflow: ellipsis;
 }
 
-
+.tui-numberbox input{
+	height: auto !important;
+}
 
 /*按钮样式*/
 

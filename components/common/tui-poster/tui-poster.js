@@ -101,8 +101,10 @@ const poster = {
 		let w2 = uni.upx2px(76 * scaleRatio) + w1 + (poster.getTextWidth(`.${priceArr[1]}`, context) || 32)
 		context.fillText(`￥${originalPrice}`, w2, uni.upx2px(680 * scaleRatio))
 		context.moveTo(w2, uni.upx2px(672 * scaleRatio))
-		context.lineTo((w2 + 50 * scaleRatio), uni.upx2px(672 * scaleRatio))
-		context.setStrokeStyle('#999999')
+		if(originalPrice){
+			context.lineTo((w2 + 12* scaleRatio + 10*(originalPrice.indexOf('.')!==-1? originalPrice.length-1: originalPrice.length) * scaleRatio), uni.upx2px(672 * scaleRatio))
+			context.setStrokeStyle('#999999')
+		}
 		context.stroke(); //对当前路径进行描边
 		// 识别小程序二维码 
 		let x = winWidth - uni.upx2px(46 + 130) * scaleRatio;

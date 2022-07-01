@@ -9,7 +9,7 @@
             top: item.style.top*2+ 'rpx',
             color: item.style.color,
             background: item.style.background}">
-            <view class='image' v-if=item.content.src :style="{opacity: item.style.transparency/100}">
+            <view class='image' v-if=item.content.src :style="{opacity: item.style.transparency/100}" @click="onClick">
                 <image class="img" mode="aspectFill" :src=item.content.src alt=''/>
             </view>
             <view class="content" :class="{
@@ -27,9 +27,9 @@
     export default{
         props: ['item'],
         methods: {
-            onload(){
-                console.log('button',item)
-            }
+            onClick(v){
+				this.$emit('goto', this.item.content.chooseLink)
+        	}
         }
     }
 </script>

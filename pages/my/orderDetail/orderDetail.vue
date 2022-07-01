@@ -213,8 +213,8 @@
 				},
 			}
 		},
-		onLoad(option){
-			this.order = this.$store.state.targetOrder
+		onLoad(options){
+			this.order =  JSON.parse(decodeURIComponent(options.order))
 			this.status = this.getStatus(this.order.status)
 			this.address = this.order.address
 		},
@@ -286,6 +286,26 @@
 			remind() {
                 this.tui.toast('待开发')
 			},
+			pay(order) {
+				let _this = this
+				let url = url
+				let result = order.paymentInfo
+				wx.requestPayment({
+					appid: result.appid,
+					nonceStr: result.nonceStr,
+					package: result.package,
+					timeStamp: result.timeStamp,
+					signType: result.signType,
+					paySign: result.paySign,
+					success: function () {
+						url = '/updateOrder/' + order.orderNum + '/' + 'payment'
+						_this.tui.request(url, 'PUT', {status : "待评价"}).then(()=>{})
+						_this.tui.href("/pages/order/success/success")},
+					fail: function (err) {
+						console.log('err', err)
+					},
+				})
+			},
 			cancelOrder(order) {
 				let url = '/closeOrder_miniProg/' + order.orderNum
 				this.tui.request(url).then(
@@ -307,17 +327,23 @@
 				})
 			},
 			refund(order){
-        		this.$store.commit('setTargetOrder', order)
-				this.tui.href('/pages/my/refundList/refundList?order=' + order.orderNum)
-			},
-			btnPay() {
-				this.show = true
+				this.tui.href('/pages/my/refundList/refundList?order=' + encodeURIComponent(JSON.stringify(order)))
 			},
 			popupClose() {
 				this.show = false
 			},
-			refund(){
-				this.tui.href("/pages/my/refund/refund")
+			onReceipt(item){  
+				this.selectedOrder = item
+				this.selectedImg = item.goodsList[0].defaultImageUrl
+				this.isShow=true
+			},
+			addEvaluate(order, mode){
+				let url = (order.goodsList.length>1)? '/pages/my/evaluateList/evaluateList?':
+					('/pages/my/addEvaluate/addEvaluate?mode=' + mode + '&')
+				url = url + 'order=' + encodeURIComponent(JSON.stringify(order))
+				uni.navigateTo({
+					url: url
+				})
 			}
 		}
 	}
@@ -469,32 +495,34 @@
 
 	.tui-goods-center {
 		flex: 1;
+		max-width: 450rpx;
 		padding: 8rpx;
 		box-sizing: border-box;
 	}
 
 	.tui-goods-name {
-		max-width: 90%;
+		width: 90%;
 		word-break: break-all;
 		overflow: hidden;
 		text-overflow: ellipsis;
 		display: -webkit-box;
 		-webkit-box-orient: vertical;
 		-webkit-line-clamp: 2;
-		font-size: 24rpx;
+		font-size: 28rpx;
 		line-height: 32rpx;
 	}
 
 	.tui-goods-attr {
+		width: 90%;
 		font-size: 22rpx;
 		color: #888888;
 		padding-top: 5rpx;
 		word-break: break-all;
 		overflow: hidden;
 		text-overflow: ellipsis;
-		display: -webkit-box;
-		-webkit-box-orient: vertical;
-		-webkit-line-clamp: 2;
+		box-sizing: border-box;
+		white-space: nowrap;
+		overflow: hidden;
 	}
 
 	.tui-price-right {

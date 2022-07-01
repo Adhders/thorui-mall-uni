@@ -210,6 +210,10 @@
 				</view>
 			</view>
 		</view>
+		<tui-tabbar :current="current" :tabBar="tabBar.list" 
+			:color="tabBar.color" :selectedColor="tabBar.selectedColor" :backgroundColor="tabBar.backgroundColor"
+			@click="tabbarSwitch">
+		</tui-tabbar>
 	</view>
 </template>
 
@@ -221,63 +225,22 @@
 			return {
 				appid: '',
 				pid: '',
-				top: 0, //标题图标距离顶部距离
+				top: getApp().globalData.menuTop,
+                height: getApp().globalData.navBarHeight,
 				opacity: 0,
 				scrollTop: 0.5,
-				pullUpOn: true
+				pullUpOn: true,
+				current: 2
 			};
 		},
 		onLoad: function() {
-			let obj = {};
-			// #ifdef MP-WEIXIN
-			obj = wx.getMenuButtonBoundingClientRect();
-			// #endif
-			// #ifdef MP-BAIDU
-			obj = swan.getMenuButtonBoundingClientRect();
-			// #endif
-			// #ifdef MP-ALIPAY
-			my.hideAddToDesktopMenu();
-			// #endif
-			uni.getSystemInfo({
-				success: res => {
-					this.width = obj.left || res.windowWidth;
-					this.height = obj.top ? obj.top + obj.height + 8 : res.statusBarHeight + 44;
-					this.top = obj.top ? obj.top + (obj.height - 32) / 2 : res.statusBarHeight + 6;
-					this.scrollH = res.windowWidth * 0.6;
-				}
-			});
 			this.appid = this.$store.state.appid
 			this.secret = this.$store.state.secret
-			let pid = uni.getStorageSync("pid")
-			if(pid){
-				let url = '/queryUserInfo/' + pid
-				this.tui.request(url).then((res)=>{
-
-					if(res.code==='0'){
-						let decoded = jwt.jwt_decode(res.token);
-						uni.setStorage({
-							key: 'token',
-							data: res.token,
-						})
-						uni.setStorage({
-							key: 'pid',
-							data: decoded.pid,
-						})
-						uni.setStorage({
-							key: 'userInfo',
-							data: decoded.userInfo,
-						})
-						this.$store.commit('login', true)
-						this.$store.commit('setOrderState', res.orderState)
-						this.$store.commit('setUserInfo', decoded.userInfo)
-						this.$store.commit('setReviewLikes', res.reviewLikes)
-					}
-				}).catch(err=>{
-					console.log('err', err)
-				})
-			}else{
-				this.tui.href('/pages/my/login/login')
-			}
+			this.loadData()
+		
+		},
+		onShow(){
+			this.current = this.tabBar.list.length-1
 		},
 		filters: {
 			formatNumber(v){
@@ -293,9 +256,59 @@
 			},
 			orderState(){
 				return this.$store.state.orderState
+			},
+			tabBar(){
+				return this.$store.state.tabBar
+			},
+			pages(){
+				return this.$store.state.pages
 			}
 		},
 		methods: {
+			loadData(fresh){
+				let pid = uni.getStorageSync("pid")
+				if(pid){
+					let url = '/queryUserInfo/' + pid
+					this.tui.request(url).then((res)=>{
+						console.log('res', res)
+						if(fresh){ //下拉刷出新
+							wx.hideNavigationBarLoading() //完成停止加载
+							wx.stopPullDownRefresh() //停止下拉刷新
+						}
+						if(res.code==='0'){
+							let decoded = jwt.jwt_decode(res.token);
+							uni.setStorage({
+								key: 'token',
+								data: res.token,
+							})
+							uni.setStorage({
+								key: 'pid',
+								data: decoded.pid,
+							})
+							uni.setStorage({
+								key: 'userInfo',
+								data: decoded.userInfo,
+							})
+							this.$store.commit('login', true)
+							this.$store.commit('setOrderState', res.orderState)
+							this.$store.commit('setUserInfo', decoded.userInfo)
+							this.$store.commit('setReviewLikes', res.reviewLikes)
+						}
+						else{
+							this.userInfo.nickName='重新登录'
+							this.userInfo.phone=''
+							this.$store.commit('login', false)
+							uni.removeStorageSync('pid')
+							uni.removeStorageSync('token')
+							this.tui.href('/pages/my/login/login')
+						}
+						
+
+					})
+				}else{
+					this.tui.href('/pages/my/login/login')
+				}
+			},
 			getPhoneNumber: function(e) {
 				const data = {code: e.code}
 				const pid = uni.getStorageSync("pid")
@@ -347,6 +360,73 @@
 					this.tui.toast('功能尚未完善~');
 				}
 			},
+			redirect(e){
+				console.log('goto', e)
+				let page = ''
+				if(e.pageName===''){
+					return
+				}
+				switch(e.tabName){
+					case '功能页面':
+						let title = e.selectedLink.title
+						if (title==='首页'){
+							uni.navigateTo({url: '/pages/tabbar/index/index'})
+						}else if(title==='分类页'){
+							uni.navigateTo({url: '/pages/tabbar/classify/classify'})
+						}else if(title==='搜索页'){
+							uni.navigateTo({url: '/pages/common/search/search'})
+						}else if(title==='全部商品'){
+							uni.navigateTo({url: '/pages/index/productList/productList'})
+						}else if(title==='用户中心'){
+							uni.navigateTo({url: '/pages/tabbar/my/my'})
+						}else if(title==='购物车'){
+							uni.navigateTo({url: '/pages/tabbar/cart/cart'})
+						}else if(title==='全部订单'){
+							uni.navigateTo({url: '/pages/my/myOrder/myOrder'})
+						}else if(title==='售后订单'){
+							uni.navigateTo({url: '/pages/my/refundList/refundList'})
+						}else if(title==='地址列表'){
+							uni.navigateTo({url: '/pages/my/address/address'})
+						}else if(title==='微客服'){	
+						}	
+						break;
+					case '装修页面':
+						let pageID = e.selectedLink.id
+                        page = this.pages.find((o)=>{return o.id===pageID})
+						this.page = page
+					case '商品分组':
+						let parent = e.selectedLink.parent
+						if(parent){
+							let groupName = e.selectedLink.name
+							uni.navigateTo({url: '/pages/index/productList/productList?groupName=' + groupName})
+						}else{
+							let groupList = []
+							e.selectedLink.children.forEach((o)=>{
+								groupList.push(o.name)
+							})
+							uni.navigateTo({url: '/pages/index/productList/productList?groupList=' + JSON.stringify(groupList)})
+						}
+						break;
+					case '商品详情':
+						let spu_id = e.selectedLink.spu_id
+						let id = e.selectedLink.id
+						uni.navigateTo({
+							url: '/pages/index/productDetail/productDetail?spu_id=' + spu_id + '&sku_id=' + id
+						})
+						break;    
+					case '自定义链接':
+						let customForm = e.customForm
+						break;
+				}
+			},
+			tabbarSwitch(e){
+				this.current = e.index
+				this.redirect(e.chooseLink)
+			}
+		},
+		onPullDownRefresh() {
+			 this.loadData(true)
+		
 		},
 	};
 </script>

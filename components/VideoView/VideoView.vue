@@ -6,9 +6,9 @@
             marginTop: item.style.topMargin*2 + 'rpx',
             height: item.style.scale==0? width + 'px': item.style.height*2 + 'rpx'
         }">
-        <view @tap="preview(src)" class="container" :style="{borderRadius: item.style.borderRadius + 'px'}">
+        <view @tap="preview(video.src)" class="container" :style="{borderRadius: item.style.borderRadius + 'px'}">
             <video id="videoView" class="video"  @timeupdate="timeupdate" @ended.stop="onEnd()" :controls="false"
-                :show-center-play-btn="false" :src="src" :muted="ismute" :autoplay="item.style.autoplay">
+                :show-center-play-btn="false" :src="video.src" :muted="ismute" :autoplay="item.style.autoplay">
             </video>
             <view class="icon-play" @tap.stop="onPlay" v-if="startVideo">
                 <image class='img' src="https://system.chuangbiying.com/assets/play.svg" mode=""></image>
@@ -16,9 +16,9 @@
             <tui-slider class="tui-video-slider" :height="2"  :blockHeight="0" :blockWidth="0"
                backgroundColor="#ccc" activeColor="#fff" :value="currentTime" :max="duration" :width="width">
             </tui-slider>
-            <view class="goto-center" v-if="item.style.guide==0" @tap.stop="onDetail">
+            <view class="goto-center" v-if="item.style.guide==0" @tap.stop="onDetail(video)">
                 <text class="lead-btn" style="color:#fff">
-                    {{(item.content.buttonText==='')?'详情':item.content.buttonText}}
+                    {{(item.content.buttonText==='')? '详情' : item.content.buttonText}}
                 </text>
                 <tui-icon name="arrowright" :size="16" color="#fff"></tui-icon>
             </view>
@@ -35,7 +35,7 @@
         props: ['item'],
         data(){
             return {
-                src: '',
+                video: '',
                 width: 750,
                 ismute: true,
                 duration: '',
@@ -47,7 +47,7 @@
             }
         },
         mounted(){
-            this.src = this.item.content.videoList[0].src
+            this.video = this.item.content.videoList[0]
             this.width = uni.upx2px(750-this.item.style.pageMargin*4)
             setTimeout(() => {
                 if(this.item.style.autoplay){
@@ -80,8 +80,8 @@
                 this.videoplayObj.pause()
                 this.startVideo = true  
             },
-            onDetail(){
-                this.tui.toast('detail')
+            onDetail(v){
+				this.$emit('goto', v.chooseLink)
             },
         }
     }

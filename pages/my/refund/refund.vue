@@ -146,11 +146,10 @@ export default {
 	},
 	onLoad(option){
 		this.ruleForm.refundType = option.refundType
-		console.log('option', option, this.ruleForm.refundType)
 		this.order = this.$store.state.targetOrder
     	this.ruleForm.refund_fee = this.order.netCost
 		//将系统宽度px转换为rpx
-		let systemWidth = this.$store.state.width/(uni.upx2px(100)/100)
+		let systemWidth = getApp().globalData.windowWidth/(uni.upx2px(100)/100)
 		// 100为页面两边的距离加上图片间隔
 		this.width = (systemWidth-100)/3
 		var url =  '/upload/token/' + this.bucket_image
@@ -250,7 +249,6 @@ export default {
 			//进行表单检查
 			let formData = e.detail.value;
 			let checkRes = this.range?form.validation(formData, rules):"退款金额不能大于最大退款金额";
-			console.log('rule', checkRes)
 			if(!checkRes){
 				this.first=false
 				let pid = uni.getStorageSync("pid")
@@ -317,19 +315,19 @@ export default {
 
 .tui-goods-center {
 	flex: 1;
-	padding: 20rpx 8rpx;
+	max-width: 460rpx;
+	padding: 8rpx;
 	box-sizing: border-box;
 }
 
 .tui-goods-name {
-	max-width: 310rpx;
 	word-break: break-all;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	display: -webkit-box;
 	-webkit-box-orient: vertical;
 	-webkit-line-clamp: 2;
-	font-size: 26rpx;
+	font-size: 28rpx;
 	line-height: 32rpx;
 }
 
@@ -337,13 +335,14 @@ export default {
 	font-size: 22rpx;
 	color: #888888;
 	line-height: 32rpx;
-	padding-top: 20rpx;
+	padding-top: 5rpx;
 	word-break: break-all;
 	overflow: hidden;
+	width: 90%;
+	box-sizing: border-box;
+	white-space: nowrap;
+	overflow: hidden;
 	text-overflow: ellipsis;
-	display: -webkit-box;
-	-webkit-box-orient: vertical;
-	-webkit-line-clamp: 2;
 }
 
 .tui-price-right {
@@ -351,7 +350,7 @@ export default {
 	font-size: 24rpx;
 	color: #888888;
 	line-height: 30rpx;
-	padding-top: 20rpx;
+	padding-top: 8rpx;
 }
 
 .tui-refund__form {

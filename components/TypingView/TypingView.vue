@@ -1,5 +1,5 @@
 <template>
-    <view class="typing" :style="{
+    <view class="typing" @click="onClick" :style="{
         width: item.style.width*2 + 'rpx',
         marginTop: item.style.top*2+'rpx',
         marginLeft: item.style.left*2 + 'rpx',
@@ -23,6 +23,11 @@
 <script>
     export default {
         props: ['item'],
+        methods:{
+            onClick(v){
+				this.$emit('goto', this.item.content.chooseLink)
+        	}
+        }
     }
 </script>
 

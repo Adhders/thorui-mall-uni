@@ -61,7 +61,7 @@
 			<tui-list-cell :hover="false" padding="0">
 				<view class="tui-swipe-cell">
 					<view>设为默认地址</view>
-					<switch :checked="ruleForm.isChecked" @change="onChange" color="#19be6b" class="tui-switch-small" />
+					<tui-switch :checked="ruleForm.default" @change="onChange" color="#19be6b" scaleRatio="0.8" />
 				</view>
 			</tui-list-cell>
 
@@ -92,7 +92,7 @@
 					userName: '',
 					label: '',
 					location: '',
-					isChecked: false,
+					default: false,
 					detailInfo: '',
 					postalCode: '',
 				}
@@ -100,7 +100,6 @@
 		},
 		onLoad(options) {
 			if(options.address){
-				console.log('options', options.address)
 				this.ruleForm = JSON.parse(options.address)
 				this.selectedIndex = options.selectedIndex
 				uni.setNavigationBarTitle({
@@ -125,10 +124,10 @@
 		},
 		methods: {
 			onChange(e){
-				this.ruleForm.isChecked=e.detail.value
+				console.log('change', e)
+				this.ruleForm.default=e.detail.value
 			},
 			onSelect(v){
-				// this.ruleForm.label=v
 				this.$set(this.ruleForm, 'label', v)
 				this.$forceUpdate()
 			},
@@ -144,11 +143,11 @@
 						}
 					  })
 					} else {
-					  if (res.authSetting['scope.address'] == false) {
-						wx.openSetting({
-						  success(res) {
-							console.log(res.authSetting)
-						  }
+					    if (res.authSetting['scope.address'] == false) {
+						    wx.openSetting({
+						        success(res) {
+							    console.log(res.authSetting)
+						    }
 						})
 					  } else {
 						wx.chooseAddress({
@@ -232,31 +231,24 @@
 				//进行表单检查
 				let formData = e.detail.value;
 				let checkRes = form.validation(formData, rules);
-				// console.log('data', this.ruleForm)
+				console.log('data', this.ruleForm)
 				// console.log('selectedIndex', this.selectedIndex)
 				if (!checkRes) {
-					const isChecked = this.ruleForm.isChecked
-					delete this.ruleForm.isChecked
 					delete this.ruleForm.new
+					if(this.ruleForm.default){
+						this.addressList.forEach((o)=>{o.default=false})
+					}
 					if(this.selectedIndex!==undefined){
-						if(isChecked){
-							this.addressList.splice(this.selectedIndex, 1)
-							this.addressList.unshift(this.ruleForm)
-						}else{
-							this.addressList[this.selectedIndex] = this.ruleForm
-						}
+						this.addressList[this.selectedIndex] = this.ruleForm
 					}
 					else{
-						if(isChecked){
-							this.addressList.unshift(this.ruleForm)
-						}else{
-							this.addressList.push(this.ruleForm)
-						}
+						this.addressList.push(this.ruleForm)
 					}
 					const pid = uni.getStorageSync("pid")
 					const url = '/updateCustomer/' + pid + '/' + 'addressList'
 					this.tui.request(url, 'PUT',{addressList: this.addressList}).then(res => {
 						if(res.code==='0'){
+							console.log('addressList', this.addressList)
 							this.$store.commit('setAddress', this.addressList)
 							uni.navigateBack({delta: 1})
 						}
@@ -288,7 +280,7 @@
     .wechat-address{
 		margin-left: 20rpx
 	}
-    
+
 	.tui-line-cell {
 		width: 100%;
 		padding: 24rpx 30rpx;
@@ -328,7 +320,6 @@
 		color: #ccc;
 		font-size: 28rpx;
 	}
-
 	.tui-cell-title {
 		font-size: 28rpx;
 		flex-shrink: 0;
@@ -369,19 +360,6 @@
 		overflow: hidden;
 		font-size: 28rpx;
 	}
-
-	.tui-switch-small {
-		transform: scale(0.8);
-		transform-origin: 100% center;
-	}
-
-	/* #ifndef H5 */
-	.tui-switch-small .wx-switch-input {
-		margin: 0 !important;
-	}
-
-	/* #endif */
-
 	.tui-addr-save{
 		padding: 30rpx 30rpx;
 	}

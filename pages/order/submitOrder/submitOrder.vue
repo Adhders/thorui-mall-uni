@@ -1,18 +1,17 @@
 <template>
-	<tui-loading :fixed="false" v-if="loadding"></tui-loading>
-	<view class="container" v-else>
+	<view class="container">
 		<block v-if="address">
 			<view class="tui-box">
 				<tui-list-cell :arrow="true" unlined :radius="true" @click="chooseAddr">
 				<view class="tui-address">
 					<view v-if="true">
 						<view class="tui-userinfo">
-							<text class="tui-name">{{address.userName}}</text>
-							{{address.telNumber | formatNumber}}
+							<text class="tui-name">{{orderForm.address.userName}}</text>
+							{{orderForm.address.telNumber | formatNumber}}
 						</view>
 						<view class="tui-addr">
-							<view class="tui-addr-tag">默认</view>
-							<text>{{address.provinceName + address.cityName + address.countyName + address.detailInfo}}</text>
+							<view class="tui-addr-tag">{{orderForm.address.label}}</view>
+							<text>{{orderForm.address.location + orderForm.address.detailInfo}}</text>
 						</view>
 					</view>
 					<view class="tui-none-addr" v-else>
@@ -36,17 +35,17 @@
 									<view class="tui-goods-name">{{item.title}}</view>
 									<view class="tui-goods-attr">
 										<view class="tui-sub-info">{{item.slogan}}</view>
-										<view>
+										<view class="tui-sub-info">
 											{{item.propertyList | getProperty}}
 										</view>
 									</view>
 									<view class="tui-price-box">
 										<view>
 											<text class="tui-size-24">￥</text>
-											<text class="tui-goods-price">{{ item.price.split('.')[0] }}</text>
-											<text class="tui-size-24">.{{ item.price.split('.')[1]}}</text>
+											<text class="tui-goods-price">{{item.integerPrice}}</text>
+											<text class="tui-size-24" v-if="item.decimalPrice">.{{ item.decimalPrice}}</text>
 										</view>
-										<tui-numberbox :value="item.buyNum" :height="36" :width="64" :min="1" :index="index" @change="changeNum"></tui-numberbox>
+										<tui-numberbox class="tui-numberbox" :value="item.buyNum" :height="36" :width="64" :min="1" :index="index" @change="changeNum"></tui-numberbox>
 									</view>
 								</view>
 							</view>
@@ -140,13 +139,11 @@
 		},
 		data() {
 			return {
-				loadding: true,
-				hasCoupon: true,
+				hasCoupon: false,
 				insufficient: false,
 				show: false,
 				visible: false,
 				couponShow:false,
-				address: '',
 				orderForm: {
 					note: '',
 					discount: 0.00,
@@ -154,6 +151,15 @@
 					netCost: 0.00,
 					shipping_fee: 0.00,
 					goodsList: [],
+					address: {
+						telNumber: '',
+						userName: '',
+						label: '',
+						location: '',
+						default: false,
+						detailInfo: '',
+						postalCode: '',
+					}
 				},
 				buttons: [
 					{
@@ -180,24 +186,16 @@
 			}
 		},
 		onLoad(options){
+			let origin = options.mode //购物车
 			this.orderForm.goodsList = JSON.parse(options.goods)
+			this.orderForm.address = this.address
 			this.calcHandle()
 		},
-		onShow(){
-			const url = '/getAddressList/' + uni.getStorageSync("pid")
-			this.tui.request(url,'GET', undefined, true).then((res)=>{
-				if(res.code==='0'){
-					if(res.addressList.length>0){
-						this.address = res.addressList[0]
-						this.orderForm.address = this.address
-					}else{
-						this.visible=true
-					}
-					this.loadding=false
-				}
-			})
+		computed: {
+     		address(){
+		    	return this.$store.state.userInfo.defaultAddress
+			},
 		},
-
 		methods: {
 			calcHandle() {
 				let totalPrice = 0;
@@ -226,7 +224,7 @@
 			},
 			chooseAddr() {
 				uni.navigateTo({
-					url: "/pages/my/address/address"
+					url: "/pages/my/address/address?select=1"
 				})
 			},
 			addAddress(){
@@ -244,7 +242,8 @@
 				this.couponShow=false
 			},
 			invoice(){
-				this.tui.href('../invoice/invoice')
+				// this.tui.href('../invoice/invoice')
+				this.tui.toast('待开发')
 			}
 		}
 	}
@@ -296,7 +295,6 @@
 		transform-origin: 0 center;
 		border-radius: 6rpx;
 	}
-
 	.tui-bg-img {
 		position: absolute;
 		width: 100%;
@@ -345,7 +343,6 @@
 		justify-content: space-between;
 	}
 	.tui-sub-info {
-		max-width: 80%;
 		box-sizing: border-box;
 		white-space: nowrap;
 		overflow: hidden;
@@ -362,7 +359,8 @@
 		color: #e41f19;
 	}
 	.tui-goods-center {
-		flex: 1;
+		flex: auto;
+		max-width: 510rpx;
 		position: relative;
 		padding: 8rpx 8rpx;
 		box-sizing: border-box;
@@ -374,7 +372,7 @@
 		display: -webkit-box;
 		-webkit-box-orient: vertical;
 		-webkit-line-clamp: 2;
-		font-size: 26rpx;
+		font-size: 28rpx;
 		line-height: 32rpx;
 	}
 	.tui-goods-attr {

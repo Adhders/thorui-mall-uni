@@ -27,15 +27,17 @@ const store = createStore({
 		},
 		isLogin: false,
 		//登录后跳转的页面路径 + 页面参数
+		defaultAddress: '',
 		returnUrl: "",
 		//app版本
 		version: "1.6.0",
 		//当前是否有网络连接
 		networkConnected: true,
 		isOnline: false,
-		width : 750,
 		openid: '',
 		targetOrder: null,
+		tabBar: [],
+		pages: [],
 		likeList: [],
 		reviewLikes: [],
 		reviewList: [],
@@ -59,9 +61,6 @@ const store = createStore({
 		setOnline(state, payload) {
 			state.isOnline = state.isOnline
 		},
-		setWidth(state, width){
-		    state.width = width
-		},
 		setOpenid(state, openid){
 			state.openid = openid
 		},
@@ -71,11 +70,20 @@ const store = createStore({
 		login(state, isLogin){
 		    state.isLogin = isLogin
 		},
+		setTabBar(state, tabBar){
+			state.tabBar = tabBar
+		},
+		setPages(state, pages){
+			state.pages = pages
+		},
 		setUserInfo(state, userInfo){
 			state.userInfo = userInfo
 		},
 		setAddress(state, addressList){
 			state.addressList = addressList
+		},
+		setDefaultAddress(state, address){
+            state.defaultAddress = address
 		},
 		setOrderState(state, orderState){
 		    state.orderState = orderState

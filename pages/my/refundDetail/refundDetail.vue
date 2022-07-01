@@ -81,9 +81,8 @@ export default {
 			show: false
 		};
 	},
-	onLoad(){
-		this.order = this.$store.state.targetOrder
-		console.log('order', this.order)
+	onLoad(options){
+		this.order = JSON.parse(decodeURIComponent(options.order))
 	},
    	filters: {
 		getPrice(price) {
@@ -105,7 +104,6 @@ export default {
 		getImageUrl(status){
 			let fileName = (status==='退款成功')? 'img_success3x.png' : (status==='处理中' )? 'img_waiting.png' : 'img_refundfailure.png'
 			return this.webURL + fileName
-			
 		}
 	}
 };
@@ -209,33 +207,34 @@ export default {
 
 .tui-goods-center {
 	flex: 1;
-	padding: 20rpx 8rpx;
+	max-width: 460rpx;
+	padding: 8rpx;
 	box-sizing: border-box;
 }
 
 .tui-goods-name {
-	max-width: 310rpx;
+    width: 90%;
 	word-break: break-all;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	display: -webkit-box;
 	-webkit-box-orient: vertical;
 	-webkit-line-clamp: 2;
-	font-size: 26rpx;
+	font-size: 28rpx;
 	line-height: 32rpx;
 }
 
 .tui-goods-attr {
+	width: 90%;
 	font-size: 22rpx;
 	color: #888888;
 	line-height: 32rpx;
-	padding-top: 20rpx;
+	padding-top: 5rpx;
 	word-break: break-all;
+	box-sizing: border-box;
+	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
-	display: -webkit-box;
-	-webkit-box-orient: vertical;
-	-webkit-line-clamp: 2;
 }
 
 .tui-price-right {
@@ -243,7 +242,7 @@ export default {
 	font-size: 24rpx;
 	color: #888888;
 	line-height: 30rpx;
-	padding-top: 20rpx;
+	padding-top: 8rpx;
 }
 
 .tui-order-title {

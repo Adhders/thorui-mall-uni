@@ -3,30 +3,36 @@
 		<tui-loading :fixed="false" v-if="loadding"></tui-loading>
 		<view v-else>
 			<view class="tui-address" v-if="addressList.length>0">
-			<block v-for="(address,index) in addressList" :key="index">
-				<tui-swipe-action :actions="actions" @click="handlerButton(index, $event)" :forbid="index===0">
-					<template v-slot:content>
-						<tui-list-cell padding="0">
-							<view class="tui-address-flex">
-								<view class="tui-address-left">
-									<view class="tui-address-main">
-										<view class="tui-address-name tui-ellipsis">{{address.userName}}</view>
-										<view class="tui-address-tel">{{address.telNumber | getAddress}}</view>
+			<tui-radio-group>
+				<tui-label v-for="(address,index) in addressList" :key="index" @click="onChange(index)">
+					<view class="tui-align__center">
+						<tui-radio v-if="select" :checked="address.select" :value="index" color="#e81d1b" borderColor="#999">
+						</tui-radio>
+						<tui-swipe-action :actions="actions" @click="handlerButton(index, $event)" style="width: 100%">
+							<template v-slot:content>
+								<tui-list-cell padding="0">
+									<view class="tui-address-flex">
+										<view class="tui-address-left">
+											<view class="tui-address-main">
+												<view class="tui-address-name tui-ellipsis">{{address.userName}}</view>
+												<view class="tui-address-tel">{{address.telNumber | getAddress}}</view>
+											</view>
+											<view class="tui-addr">
+												<view class="tui-address-label" v-if="address.default">默认</view>
+												<view class="tui-address-label" v-if="address.label">{{address.label}}</view>
+												<text>{{address.location + address.detailInfo}}</text>
+											</view>
+										</view>
+										<view class="tui-address-imgbox" @tap.stop="editAddr(index)">
+											<image class="tui-address-img" src="https://system.chuangbiying.com/static/images/mall/my/icon_addr_edit.png" />
+										</view>
 									</view>
-									<view class="tui-address-detail">
-										<view class="tui-address-label" v-if="index===0">默认</view>
-										<view class="tui-address-label" v-if="address.label">{{address.label}}</view>
-										<text>{{address.detailInfo}}</text>
-									</view>
-								</view>
-								<view class="tui-address-imgbox" @click="editAddr(index)">
-									<image class="tui-address-img" src="https://system.chuangbiying.com/static/images/mall/my/icon_addr_edit.png" />
-								</view>
-							</view>
-						</tui-list-cell>
-					</template>
-				</tui-swipe-action>
-			</block>
+								</tui-list-cell>
+							</template>
+						</tui-swipe-action>
+					</view>
+				</tui-label>
+			</tui-radio-group>
 		</view>
 			<!-- 新增地址 -->
 			<view class="tui-address-new" v-if="addressList.length>0">
@@ -46,7 +52,11 @@
 	export default {
 		data() {
 			return {
+				pis: '',
+				select: false, //是否选择地址
 				loadding: true,
+				selectedAddress: '',
+				selectedIndex: 0,
 				actions: [{
 						name: '设为默认',
 						width: 80,
@@ -64,12 +74,23 @@
 				]
 			}
 		},
-		onLoad(){
-			const pid = uni.getStorageSync("pid")
-			const url = '/getAddressList/' + pid
+		onLoad(options){
+			console.log('options', options)
+			this.select = options.select? true: false
+			this.pid = uni.getStorageSync("pid")
+			const url = '/getAddressList/' + this.pid
 			this.tui.request(url,'GET', undefined, true).then((res)=>{
 				if(res.code==='0'){
 					this.loadding=false
+					if(this.select){ //初始化选择
+						res.addressList.forEach((o)=>{o.select=false})
+						let index = res.addressList.findIndex((o)=>{return o.default})
+						if(index!==-1){
+							res.addressList[index].select=true
+						}else{
+							res.addressList[0].select=true
+						}
+					}
 					this.$store.commit('setAddress', res.addressList)
 				}
 			}).catch(err=>{
@@ -90,16 +111,34 @@
 			}
 		},
 		methods: {
+			onChange(index){
+				console.log('change', index)
+				let pages = getCurrentPages(); //获取所有页面栈实例列表
+				let nowPage = pages[pages.length - 1]; //当前页页面实例
+				let prevPage = pages[pages.length - 2]; //上一页页面实例
+				console.log('prevPage', prevPage.$vm)
+				prevPage.$vm.orderForm.address = this.addressList[index]; //修改上一页data里面的地址
+				uni.navigateBack({
+					delta: 1
+				})
+			},
 			handlerButton(i, e) {
-				let index = e.index;
-				if(index===1){
+				if(e.index===1){
 					this.addressList.splice(i, 1)
-					this.tui.toast('删除成功', );
 				}else{
-					let temp = this.addressList[i]
-					this.addressList.splice(i,1)
-					this.addressList.unshift(temp)
+					this.addressList.forEach((o,index)=>{
+						o.default=index===i
+					})
+					let userInfo = this.$store.state.userInfo
+					userInfo.defaultAddress = this.addressList[i]
+					this.$store.commit('setUserInfo', userInfo)
+					uni.setStorage({
+						key: 'userInfo',
+						data: userInfo,
+					})
 				}
+				const url = '/updateCustomer/' + this.pid + '/' + 'addressList'
+				this.tui.request(url, 'PUT',{addressList: this.addressList}).then(res => {})
 			},
 			editAddr(index) {
 				let address = this.addressList[index]
@@ -117,26 +156,25 @@
 	}
 </script>
 
-<style>
-	.tui-page__spacing {
-		display: flex;
-		align-items: center;
-		flex-direction: column;
-	}
-	.thorui-loading__2,.thorui-loading__3,.tui-padding{
-		margin-top: 80rpx;
-	}
+<style scoped>
 	.tui-address {
 		width: 100%;
 		padding-top: 20rpx;
 		padding-bottom: 160rpx;
 	}
 	.tui-address-flex {
-		display: flex;
+		display: inline-flex;
 		justify-content: space-between;
 		align-items: center;
 	}
-
+	.tui-align__center{
+		display: flex;
+		align-items: center;
+		background: #fff;
+	}
+	 .tui-align__center >>> .tui-checkbox__input{
+		margin-left: 20rpx;
+	}
 	.tui-address-main {
 		width: 600rpx;
 		height: 70rpx;
@@ -145,24 +183,24 @@
 		line-height: 86rpx;
 		padding-left: 30rpx;
 	}
-
 	.tui-address-name {
 		width: 120rpx;
 		height: 60rpx;
 	}
-
 	.tui-address-tel {
 		margin-left: 12rpx;
 	}
-
-	.tui-address-detail {
+	.tui-addr {
 		font-size: 24rpx;
 		word-break: break-all;
 		padding-bottom: 25rpx;
 		padding-left: 25rpx;
-		padding-right: 120rpx;
+		box-sizing: border-box;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		max-width: 620rpx;
 	}
-
 	.tui-address-label {
 		padding: 5rpx 8rpx;
 		flex-shrink: 0;
@@ -178,7 +216,6 @@
 		transform-origin: center center;
 		margin-right: 6rpx;
 	}
-
 	.tui-address-imgbox {
 		width: 80rpx;
 		height: 100rpx;
@@ -188,12 +225,10 @@
 		align-items: center;
 		right: 10rpx;
 	}
-
 	.tui-address-img {
 		width: 36rpx;
 		height: 36rpx;
 	}
-
 	.tui-address-new {
 		width: 100%;
 		position: fixed;

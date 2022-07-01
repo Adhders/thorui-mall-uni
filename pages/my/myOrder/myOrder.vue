@@ -151,7 +151,6 @@
                 this.loadding = false
 				this.$store.commit('setOrderList', res.orderList)
 				this.currentTab= (option.currentTab)? parseInt(option.currentTab): 0
-				console.log(option,this.currentTab, res)
 				this.switchTab(this.currentTab)
 			})
 		},
@@ -269,7 +268,7 @@
 					signType: result.signType,
 					paySign: result.paySign,
 					success: function () {
-						url = '/updateOrder/' + order.orderNum + '/' + 'status'
+						url = '/updateOrder/' + order.orderNum + '/' + 'payment'
 						_this.tui.request(url, 'PUT', {status : "待评价"}).then(()=>{})
 						_this.tui.href("/pages/order/success/success")},
 					fail: function (err) {
@@ -281,8 +280,7 @@
                 this.tui.toast('待开发')
 			},
 			refund(order){
-        		this.$store.commit('setTargetOrder', order)
-				this.tui.href('/pages/my/refundList/refundList?order=' + order.orderNum)
+				this.tui.href('/pages/my/refundList/refundList?order=' + encodeURIComponent(JSON.stringify(order)))
 			},
 			onReceipt(item){  
 				this.selectedOrder = item
@@ -309,28 +307,30 @@
 				this.isDelete = false
 			},
 			detail(order) {
-				this.$store.commit('setTargetOrder', order)
 				uni.navigateTo({
-					url: '/pages/my/orderDetail/orderDetail'
+					url: '/pages/my/orderDetail/orderDetail?order=' + encodeURIComponent(JSON.stringify(order))
 				})
 			},
 			invoiceDetail(){
 				this.tui.href('/pages/my/invoiceDetail/invoiceDetail')
 			},
 			addEvaluate(order, mode){
-				let url = ''
-				url = (order.goodsList.length>1)?'/pages/my/evaluateList/evaluateList':
-					('/pages/my/addEvaluate/addEvaluate?mode=' + mode)
-				this.$store.commit('setTargetOrder', order)
+				let url = (order.goodsList.length>1)? '/pages/my/evaluateList/evaluateList?':
+					('/pages/my/addEvaluate/addEvaluate?mode=' + mode + '&')
+				url = url + 'order=' + encodeURIComponent(JSON.stringify(order))
 				uni.navigateTo({
 					url: url
 				})
 			}
 		},
 		onPullDownRefresh() {
-			setTimeout(() => {
-				uni.stopPullDownRefresh()
-			}, 200);
+			wx.showNavigationBarLoading() //在标题栏中显示加载
+			let url = '/getOrders/' + uni.getStorageSync("pid")
+			this.tui.request(url,'GET', undefined, true).then((res)=>{
+				this.$store.commit('setOrderList', res.orderList)
+				wx.hideNavigationBarLoading() //完成停止加载
+				wx.stopPullDownRefresh() //停止下拉刷新
+			})
 		},
 		onReachBottom() {
 			//只是测试效果，逻辑以实际数据为准
@@ -424,19 +424,20 @@
 
 	.tui-goods-center {
 		flex: 1;
+		max-width: 460rpx;
 		padding: 8rpx;
 		box-sizing: border-box;
 	}
 
 	.tui-goods-name {
-		max-width: 90%;
+		width: 90%;
 		word-break: break-all;
 		overflow: hidden;
 		text-overflow: ellipsis;
 		display: -webkit-box;
 		-webkit-box-orient: vertical;
 		-webkit-line-clamp: 2;
-		font-size: 24rpx;
+		font-size: 28rpx;
 		line-height: 32rpx;
 	}
 
@@ -445,20 +446,18 @@
 		color: #888888;
 		line-height: 32rpx;
 		padding-top: 5rpx;
-		word-break: break-all;
+		width: 90%;
+		box-sizing: border-box;
+		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
-		display: -webkit-box;
-		-webkit-box-orient: vertical;
-		-webkit-line-clamp: 2;
 	}
-
 	.tui-price-right {
 		text-align: right;
 		font-size: 24rpx;
 		color: #888888;
 		line-height: 30rpx;
-		padding-top: 10rpx;
+		padding-top: 8rpx;
 	}
 	.tui-color-red {
 		color: #E41F19;

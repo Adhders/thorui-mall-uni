@@ -15,7 +15,8 @@
 			</view>
 			<view v-if="isShowAdd" class="tui-upload-add" :style="{width:width+'rpx',height:height+'rpx'}"
 				@tap="chooseImage">
-				<view class="tui-upload-icon tui-icon-plus"></view>
+				<!-- <view class="tui-upload-icon tui-icon-plus"></view> -->
+				<tui-icon name="camera-add"></tui-icon>
 			</view>
 		</view>
 	</view>
@@ -361,9 +362,6 @@
 		content: "\e601";
 	}
 
-	.tui-icon-plus:before {
-		content: "\e609";
-	}
 
 	.tui-upload-box {
 		width: 100%;
@@ -372,7 +370,7 @@
 	}
 
 	.tui-upload-add {
-		font-size: 68rpx;
+		font-size: 44rpx;
 		font-weight: 100;
 		color: #888;
 		background-color: #F7F7F7;

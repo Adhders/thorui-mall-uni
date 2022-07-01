@@ -12,7 +12,7 @@
 		        lineHeight: item.style.fontSize*2  + 'rpx',
 		        backgroundColor: item.style.backgroundColor,
 		        fontWeight: item.style.isBold ? 'bold' : 'normal' }">
-			{{item.content}}
+			{{item.content.title}}
 		</view>
 	</view>
 </template>

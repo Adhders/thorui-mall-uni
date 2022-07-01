@@ -27,26 +27,13 @@
 	export default {
 		data() {
 			return {
-				height: 64, //header高度
-				top: 26, //标题图标距离顶部距离
+				top: getApp().globalData.menuTop,
+                height: getApp().globalData.navBarHeight,
 				nickname: '',
 				from: ''
 			};
 		},
 		onLoad(options) {
-			let obj = {};
-			// #ifdef MP-WEIXIN
-			obj = wx.getMenuButtonBoundingClientRect();
-			// #endif
-			setTimeout(() => {
-				uni.getSystemInfo({
-					success: res => {
-						this.width = obj.left || res.windowWidth;
-						this.height = obj.top ? obj.top + obj.height + 8 : res.statusBarHeight + 44;
-						this.top = obj.top ? obj.top + (obj.height - 32) / 2 : res.statusBarHeight + 6;
-					}
-				});
-			}, 0);
 	        this.from = options.from
 			this.appid = this.$store.state.appid
 			this.secret = this.$store.state.secret
@@ -89,7 +76,7 @@
 										_this.$store.commit('setReviewLikes', res.reviewLikes)
 										
 										if(_this.from === 'cart'){
-											uni.switchTab({url: '/pages/tabbar/cart/cart'})
+											uni.navigateTo({url: '/pages/tabbar/cart/cart'})
 										}else{
 											uni.navigateBack({delta: 1})
 										}
@@ -111,7 +98,7 @@
 			},
 			onCancel(){
 				if(this.from === 'cart'){
-					uni.switchTab({url: '/pages/tabbar/index/index'})
+					uni.navigateTo({url: '/pages/tabbar/index/index'})
 				}else{
 					uni.navigateBack({delta: 1})
 				}

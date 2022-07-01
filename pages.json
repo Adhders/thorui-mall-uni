@@ -3,7 +3,6 @@
 			"path": "pages/tabbar/index/index",
 			"style": {
 				"navigationBarTitleText": "",
-				"enablePullDownRefresh": true,
 				"onReachBottomDistance": 50,
 				"navigationStyle": "custom",
 				"app-plus": {
@@ -69,8 +68,8 @@
 				}
 			}
 
-		}, {
-			"path": "pages/index/productDetail/productDetail",
+		},{
+			"path": "pages/index/list/list",
 			"style": {
 				"backgroundColorTop": "#F7F7F7",
 				"backgroundColorBottom": "#F7F7F7",
@@ -86,6 +85,22 @@
 				}
 			}
 
+		},{
+			"path": "pages/index/productDetail/productDetail",
+			"style": {
+				"backgroundColorTop": "#F7F7F7",
+				"backgroundColorBottom": "#F7F7F7",
+				"navigationBarTitleText": " ",
+				"navigationStyle": "custom",
+				"app-plus": {
+					"titleNView": false,
+					"bounce": "vertical"
+				},
+				"mp-alipay":{
+					"transparentTitle": "always",
+					"titlePenetrate":"YES"
+				}
+			}
 		}, {
 			"path": "pages/index/invalidProduct/invalidProduct",
 			"style": {
@@ -252,7 +267,9 @@
 		}, {
 			"path": "pages/my/refundList/refundList",
 			"style": {
+				"enablePullDownRefresh": true,
 				"navigationBarTitleText": "退款/售后",
+				"onReachBottomDistance": 50,
 				"app-plus": {
 					"bounce": "vertical"
 				}
@@ -561,7 +578,7 @@
         }
     ],
 	"easycom": {
-		"autoscan": true,
+		"autoscan": true, 
 		"custom": {
 			"tui-(.*)": "@/components/thorui/tui-$1/tui-$1.vue",
 			"iconfont": "@/components/iconfont/iconfont.vue"
@@ -570,36 +587,7 @@
 	"globalStyle": {
 		"navigationBarBackgroundColor": "#FFFFFF",
 		"navigationBarTextStyle": "black",
+		"scrollIndicator":"none",
 		"navigationBarTitleText": ""
-	},
-	"tabBar": {
-		"color": "#666666",
-		"selectedColor": "#EB0909",
-		"backgroundColor": "#FFFFFF",
-		"list": [{
-				"pagePath": "pages/tabbar/index/index",
-				"text": "首页",
-				"iconPath": "static/images/tabbar/icon_index.png",
-				"selectedIconPath": "static/images/tabbar/icon_index_fill.png"
-			},
-			{
-				"pagePath": "pages/tabbar/classify/classify",
-				"text": "分类",
-				"iconPath": "static/images/tabbar/icon_classify.png",
-				"selectedIconPath": "static/images/tabbar/icon_classify_fill.png"
-			},
-			{
-				"pagePath": "pages/tabbar/cart/cart",
-				"text": "购物车",
-				"iconPath": "static/images/tabbar/icon_cart.png",
-				"selectedIconPath": "static/images/tabbar/icon_cart_fill.png"
-			},
-			{
-				"pagePath": "pages/tabbar/my/my",
-				"text": "我的",
-				"iconPath": "static/images/tabbar/icon_my.png",
-				"selectedIconPath": "static/images/tabbar/icon_my_fill.png"
-			}
-		]
 	}
 }

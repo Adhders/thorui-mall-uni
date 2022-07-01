@@ -223,6 +223,7 @@
 		display: -webkit-inline-flex;
 		display: inline-flex;
 		align-items: center;
+		flex-direction: row;
 	}
 
 	.tui-num-input {

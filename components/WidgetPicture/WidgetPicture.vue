@@ -8,19 +8,18 @@
         opacity: item.style.opacity,
         zIndex: item.style.zIndex,
         borderRadius: item.style.borderRadius*2 + 'rpx',
-        background: item.style.background,
-        }">
+        background: item.style.background}">
         <image class="img" mode="aspectFill" v-if="item.content.src" :src="item.content.src"/>
     </view>
 </template>
-
 <script>
     export default {
         props: ['item'],
-        data(){
-            return {
-                width: 375,
-            }
+        methods: {
+            onClick(v){
+                console.log('click',this.item.content)
+				this.$emit('goto', this.item.content.chooseLink)
+        	}
         }
     }
 </script>

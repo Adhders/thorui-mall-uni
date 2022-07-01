@@ -9,7 +9,7 @@
 				class="tui-tabbar-item"
 				:class="{ 'tui-item-hump': item.hump }"
 				:style="{ backgroundColor: item.hump && !backdropFilter ? backgroundColor : 'none' }"
-				@tap="tabbarSwitch(index, item.hump, item.pagePath, item.verify)"
+				@tap="tabbarSwitch(index, item.hump, item.pagePath, item.verify, item.chooseLink)"
 			>
 				<view class="tui-icon-box" :class="{ 'tui-tabbar-hump': item.hump }">
 					<image :src="current == index ? item.selectedIconPath : item.iconPath" :class="[item.hump ? '' : 'tui-tabbar-icon']"></image>
@@ -96,22 +96,25 @@ export default {
 		//z-index
 		zIndex: {
 			type: [Number, String],
-			default: 9999
+			default: 888
 		}
 	},
 	watch: {
-		current() {}
+		current(v) {
+			console.log('current', v)
+		}
 	},
 	data() {
 		return {};
 	},
 	methods: {
-		tabbarSwitch(index, hump, pagePath, verify) {
+		tabbarSwitch(index, hump, pagePath, verify, chooseLink) {
 			this.$emit('click', {
 				index: index,
 				hump: hump,
 				pagePath: pagePath,
-				verify: verify
+				verify: verify,
+				chooseLink: chooseLink
 			});
 		}
 	}
