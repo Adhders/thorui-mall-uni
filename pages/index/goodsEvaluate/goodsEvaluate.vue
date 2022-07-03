@@ -35,10 +35,10 @@
 		</view>
 		<view class="tui-evaluate__box" v-for="(item,index) in displayList" :key="index">
 			<view class="tui-flex__center">
-				<image :src="item.avatar" class="tui-avatar">
+				<image :src="item.avatar" class="tui-avatar"/>  
 			    <view class="tui-user-info">
 					<view class="tui-nickname">{{item.name}}</view>
-					<tui-rate :current="item.star" :size="11"></tui-rate>
+					<tui-rate :current="item.star" :size="14"></tui-rate>
 				</view>		
 				<text class="tui-review-time">{{item.create_time | timeFormat}}</text>
 			</view>
@@ -327,7 +327,8 @@
 	}
 	.tui-user-info {
 		flex: 1;
-		 margin-left: 10rpx
+		margin-left: 10rpx;
+		line-height: 26rpx;
 	}
 	.tui-avatar {
 		width: 64rpx;
@@ -337,7 +338,7 @@
 
 	.tui-nickname {
 		margin-left: 5rpx;
-		font-size: 22rpx;
+		font-size: 24rpx;
 	}
 	.tui-review-time {
 		font-size: 24rpx;

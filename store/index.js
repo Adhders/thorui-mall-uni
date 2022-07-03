@@ -38,6 +38,7 @@ const store = createStore({
 		targetOrder: null,
 		tabBar: [],
 		pages: [],
+		cart: [], //购物车
 		likeList: [],
 		reviewLikes: [],
 		reviewList: [],
@@ -82,14 +83,11 @@ const store = createStore({
 		setAddress(state, addressList){
 			state.addressList = addressList
 		},
-		setDefaultAddress(state, address){
-            state.defaultAddress = address
+		setCart(state, cart){
+			state.cart = cart
 		},
 		setOrderState(state, orderState){
 		    state.orderState = orderState
-	    },
-		setTargetOrder(state, order){
-			state.targetOrder = order
 	    },
 		setGoodsList(state, goodsList){
 			state.goodsList = goodsList

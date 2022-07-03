@@ -70,9 +70,8 @@
             addEvaluate(goods, index){
                 this.order.index = index
                 const mode = this.order.reviewState[index].count? 'additional' : 'first'
-                this.$store.commit('setTargetOrder', this.order)
                 uni.navigateTo({
-					url: '../addEvaluate/addEvaluate?mode=' + mode
+					url: '../addEvaluate/addEvaluate?mode=' + mode + '&order=' + encodeURIComponent(JSON.stringify(this.order))
 				})
             }
         }
@@ -105,7 +104,7 @@
 	.tui-goods-center {
 		flex: 1;
 		padding: 8rpx;
-        max-width: 460rpx;
+        max-width: 510rpx;
 		box-sizing: border-box;
 	}
 
@@ -124,7 +123,7 @@
 		font-size: 22rpx;
 		color: #888888;
 		line-height: 32rpx;
-		padding-top: 20rpx;
+		padding-top: 5rpx;
 		width: 90%;
 		box-sizing: border-box;
 		white-space: nowrap;
@@ -132,6 +131,7 @@
 		text-overflow: ellipsis;
 	}
     .tui-evalute-btn {
+        margin-top: 40rpx;
         float: right
     }
     /*.tui-message {*/

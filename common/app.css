@@ -6,12 +6,6 @@ page {
 	font-family: -apple-system-font, Helvetica Neue, Helvetica, sans-serif;
 }
 
-/* ::-webkit-scrollbar {
-	width: 0 !important;
-	height: 0 !important;
-	color: transparent !important;
-	display: none;
-} */
 
 button::after {
 	border: none;

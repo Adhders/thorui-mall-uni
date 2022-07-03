@@ -96,7 +96,7 @@
                 </view>
            </scroll-view>
         </view>
-        <popup-box ref="popup" :goods="goods"></popup-box>
+        <popup-box ref="popup"></popup-box>
     </view>
 </template>
 
@@ -142,7 +142,7 @@
                 })
             },
             addCart(goods){
-                this.goods = goods
+                this.$refs.popup.initial(goods.spu_id, goods.id)
                 this.$refs.popup.popupShow = true
             },
         }

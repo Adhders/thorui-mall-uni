@@ -131,7 +131,6 @@
 		data() {
 			return {
 				loadding: true,
-				cart: [],
 				total: 0,
 				isAll: false,
 				totalPrice: 0,
@@ -200,43 +199,65 @@
 				return res.slice(0, -1)
 			},
 		},
-		onShow(){
-			if(!this.tui.isLogin()) {
-				uni.redirectTo({url: '/pages/my/login/login?from=cart'})
-			}else{
-				let url = '/getCartInfo/' + this.$store.state.appid + '/' + uni.getStorageSync("pid")
-				this.tui.request(url,'GET', undefined, true).then((res)=>{
-					if(res.code==='0'){
-						res.cart.forEach((o)=>{
-							o.selected = false
-						})
-						this.cart = res.cart
-						let total = 0
-						this.dataList.map((item) => {
-							total += item.buyNum;
-						})
-						this.total = total
-						this.productList = this.goodsList.filter((sku)=>{ 
-							let index = this.cart.findIndex((o) => {return sku.id === o.id})
-							return sku.stock>0 && index ===-1
-						})
-						this.loadding = false
-					}
-				})
+		onLoad(){
+			this.loadData()
+		},
+		watch: {
+			cart: {
+				deep: true,
+				handler(v){
+					this.calcHandle()
+					this.productList = this.goodsList.filter((sku)=>{ 
+						let index = this.cart.findIndex((o) => {return sku.id === o.id})
+						return sku.stock>0 && index ===-1
+					})
+				}
 			}
 		},
 		computed: {
 			dataList() {
-                return this.cart.filter((o)=>{return o.valid})
+                return this.cart.filter((o)=>{return !o.invalid})
 			},
 			invalidList() {
-				return this.cart.filter((o)=>{return !o.valid})
+				return this.cart.filter((o)=>{return o.invalid})
 			},
 			goodsList() {
 				return this.$store.state.goodsList
+			},
+			cart() {
+				return this.$store.state.cart
 			}
 		},
 		methods: {
+			loadData(fresh){
+				if(fresh){ //下拉刷出新
+					wx.hideNavigationBarLoading() //完成停止加载
+					wx.stopPullDownRefresh() //停止下拉刷新
+				}
+				if(!this.tui.isLogin()) {
+					uni.redirectTo({url: '/pages/my/login/login?from=cart'})
+				}else{
+					let url = '/getCartInfo/' + this.$store.state.appid + '/' + uni.getStorageSync("pid")
+					this.tui.request(url,'GET', undefined, true).then((res)=>{
+						if(res.code==='0'){
+							res.cart.forEach((o)=>{
+								o.selected = false
+							})
+							this.$store.commit('setCart', res.cart)
+							let total = 0
+							this.dataList.map((o) => {
+								total += o.buyNum;
+							})
+							this.total = total
+							this.productList = this.goodsList.filter((sku)=>{ 
+								let index = this.cart.findIndex((o) => {return sku.id === o.id})
+								return sku.stock>0 && index ===-1
+							})
+							this.loadding = false
+						}
+					})
+				}
+			},
 			calcHandle() {
 				let total=0
 				let buyNum = 0;
@@ -262,18 +283,17 @@
 				this.cart[index].buyNum = e.value
 				setTimeout(() => {
 					this.updateCart()
-					this.calcHandle()
 				}, 0)  
 			},
 			handlerButton(e) {
 				let index = e.index;
 				let item = e.item;
-				if(index===2 || index===1&&!item.valid){
+				if(index===2 || index===1&&item.invalid){
 					let _index = this.cart.findIndex((o)=>{return o.id === item.id})
 					this.cart.splice(_index, 1)
 					this.updateCart()
 				}
-				if(index===1 || index===0&&!item.valid){
+				if(index===1 || index===0&&item.invalid){
 					this.onSearch(item.title)
 				}
 			},
@@ -288,11 +308,10 @@
 			btnPay() {
 				const goods = this.dataList.filter((o)=>{return o.selected})
 				uni.navigateTo({
-					url: '/pages/order/submitOrder/submitOrder?goods=' + JSON.stringify(goods)
+					url: '/pages/order/submitOrder/submitOrder?goods=' + JSON.stringify(goods) + '&mode=cart'
 				})
 			},
 			addCart(newGoods){
-				console.log('addCart', newGoods)
 				this.total += 1
 				let index = this.cart.findIndex((o)=>{return o.id===newGoods.id})
 				if(index !==-1){
@@ -345,7 +364,6 @@
 					this.updateCart()
 				}
 				this.closeActionSheet();
-				
 			},
 			closeActionSheet: function() {
 				this.showActionSheet = false
@@ -407,10 +425,11 @@
 			// let loadData = JSON.parse(JSON.stringify(this.productList));
 			// loadData = loadData.splice(0, 10)
 			// this.productList = loadData;
-			this.pageIndex = 1;
-			this.pullUpOn = true;
-			this.loadding = false
-			uni.stopPullDownRefresh()
+			// this.pageIndex = 1;
+			// this.pullUpOn = true;
+			// this.loadding = false
+			// uni.stopPullDownRefresh()
+			this.loadData(true)
 		},
 		onReachBottom: function() {
 			if (!this.pullUpOn) return;

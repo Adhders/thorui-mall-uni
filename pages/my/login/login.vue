@@ -56,6 +56,7 @@
 								let js_code = res.code;
 								const url = '/customerLogin/'+ _this.appid  + '/' + _this.secret + '/' + js_code
 								_this.tui.request(url, 'POST', data).then((res)=>{
+									console.log('login', res)
 									if(res.code==='0'){
 										let decoded = jwt.jwt_decode(res.token);
 										uni.setStorage({
@@ -73,6 +74,7 @@
 										data.phone = decoded.userInfo.phone
 					                    _this.$store.commit('login', true)
 										_this.$store.commit('setUserInfo', data)
+										_this.$store.commit('setOrderState', res.orderState)
 										_this.$store.commit('setReviewLikes', res.reviewLikes)
 										
 										if(_this.from === 'cart'){

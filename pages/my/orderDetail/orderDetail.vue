@@ -27,8 +27,8 @@
 			<view class="tui-flex-box">
 				<image :src="webURL+'img_order_address3x.png'" class="tui-icon-img"></image>
 				<view class="tui-addr">
-					<view class="tui-addr-userinfo">{{address.userName}}<text class="tui-addr-tel">{{address.telNumber | formatNumber}}</text></view>
-					<view class="tui-addr-text">{{ address.provinceName + address.cityName + address.countyName + address.detailInfo  }}</view>
+					<view class="tui-addr-userinfo">{{order.address.userName}}<text class="tui-addr-tel">{{order.address.telNumber | formatNumber}}</text></view>
+					<view class="tui-addr-text">{{ order.address.location + order.address.detailInfo  }}</view>
 				</view>
 			</view>
 		</tui-list-cell>
@@ -39,21 +39,7 @@
 					商品信息
 				</view>
 			</tui-list-cell>
-			<block v-for="(item,index) in order.goodsList" :key="index">
-				<tui-list-cell padding="0" @tap="detail(item)">
-					<view class="tui-goods-item">
-						<image :src="item.defaultImageUrl" class="tui-goods-img"></image>
-						<view class="tui-goods-center">
-							<view class="tui-goods-name">{{item.title}}</view>
-							<view class="tui-goods-attr">{{item.propertyList | getProperty}}</view>
-						</view>
-						<view class="tui-price-right">
-							<view>￥{{item.price}}</view>
-							<view>x{{item.buyNum}}</view>
-						</view>
-					</view>
-				</tui-list-cell>
-			</block>
+		    <t-order-item :order="order" type="detail"></t-order-item>
 			<view class="tui-goods-info">
 				<view class="tui-price-flex tui-size24">
 					<view>商品总额</view>
@@ -184,10 +170,12 @@
 
 <script>
 	import utils from "@/utils/util.js"
+	import tOrderItem from '@/components/views/t-order-item/t-order-item'
 	import tPayWay from "@/components/views/t-pay-way/t-pay-way"
 	export default {
 		components: {
-			tPayWay
+			tPayWay,
+			tOrderItem
 		},
 		data() {
 			return {
@@ -195,28 +183,20 @@
 				//1-待付款 2-付款成功 3-待收货 4-订单已完成 5-交易关闭
 				status: 2,
 				show: false,
-				address: {
-					userName: '',
-					cityName: '',
-					telNumber: '',
-					countyName: '',
-					provinceName: '',
-					detailInfo: ''
-				},
 				order: {
 					note: '',
 					discount: 0.00,
 					totalCost: 0.00,
 					netCost: 0.00,
 					shipping_fee: 0.00,
-					goodsList: []
+					goodsList: [],
+					address: {'telNumber': ''}
 				},
 			}
 		},
 		onLoad(options){
 			this.order =  JSON.parse(decodeURIComponent(options.order))
 			this.status = this.getStatus(this.order.status)
-			this.address = this.order.address
 		},
 		filters: {
 			formatNumber(v){
@@ -417,7 +397,7 @@
 		flex-shrink: 0;
 	}
 
-	.tui-logistics {
+	/* .tui-logistics {
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
@@ -435,7 +415,7 @@
 		line-height: 24rpx;
 		padding-top: 16rpx;
 		color: #666
-	}
+	} */
 
 	.tui-addr {
 		display: flex;
@@ -474,63 +454,6 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-	}
-
-
-	.tui-goods-item {
-		width: 100%;
-		padding: 20rpx 30rpx;
-		box-sizing: border-box;
-		display: flex;
-		justify-content: space-between;
-	}
-
-	.tui-goods-img {
-		width: 180rpx;
-		height: 180rpx;
-		display: block;
-		flex-shrink: 0;
-		border-radius: 8rpx;
-	}
-
-	.tui-goods-center {
-		flex: 1;
-		max-width: 450rpx;
-		padding: 8rpx;
-		box-sizing: border-box;
-	}
-
-	.tui-goods-name {
-		width: 90%;
-		word-break: break-all;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		display: -webkit-box;
-		-webkit-box-orient: vertical;
-		-webkit-line-clamp: 2;
-		font-size: 28rpx;
-		line-height: 32rpx;
-	}
-
-	.tui-goods-attr {
-		width: 90%;
-		font-size: 22rpx;
-		color: #888888;
-		padding-top: 5rpx;
-		word-break: break-all;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		box-sizing: border-box;
-		white-space: nowrap;
-		overflow: hidden;
-	}
-
-	.tui-price-right {
-		text-align: right;
-		font-size: 24rpx;
-		color: #888888;
-		line-height: 30rpx;
-		padding-top: 10rpx;
 	}
 
 	.tui-color-red {

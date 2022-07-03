@@ -18,21 +18,7 @@
 						<view class="tui-order-status" v-else >{{order.status}}</view>
 					</view>
 				</tui-list-cell>
-				<block v-for="(item,index) in order.goodsList" :key="index">
-					<tui-list-cell padding="0" @tap="detail(order)">
-						<view class="tui-goods-item">
-							<image :src=item.defaultImageUrl class="tui-goods-img"></image>
-							<view class="tui-goods-center">
-								<view class="tui-goods-name">{{item.title}}</view>
-								<view class="tui-goods-attr">{{item.propertyList | getProperty}}</view>
-							</view>
-							<view class="tui-price-right">
-								<view>￥{{item.price}}</view>
-								<view>x{{item.buyNum}}</view>
-							</view>
-						</view>
-					</tui-list-cell>
-				</block>
+				<t-order-item :order="order"></t-order-item>
 				<tui-list-cell :hover="false" unlined>
 					<view class="tui-goods-price">
 						<view>共{{order.goodsList | getNum}}件商品 实付：</view>
@@ -102,7 +88,7 @@
 				</view>
 			</view>
 			<tui-no-data v-if="displayList.length===0" :fixed="false"
-						 imgUrl="https://system.chuangbiying.com/static/images/index/img_noorder.png">
+				imgUrl="https://system.chuangbiying.com/static/images/index/img_noorder.png">
 				您还没有相关的订单</tui-no-data>
 		</view>
 		<tui-modal :show="isShow" @cancel="onCancel" :custom="true">
@@ -128,7 +114,11 @@
 </template>
 
 <script>
+    import tOrderItem from '@/components/views/t-order-item/t-order-item'
 	export default {
+		components: {
+			tOrderItem
+		},
 		data() {
 			return {
 				tabs: [{name: "全部"},  {name: "待付款"},  {name: "待发货"},  {name: "待收货"}, {name: "待评价"}],
@@ -145,14 +135,8 @@
 				scrollTop: 0,
 			}
 		},
-		onLoad(option){
-			let url = '/getOrders/' + uni.getStorageSync("pid")
-			this.tui.request(url,'GET', undefined, true).then((res)=>{
-                this.loadding = false
-				this.$store.commit('setOrderList', res.orderList)
-				this.currentTab= (option.currentTab)? parseInt(option.currentTab): 0
-				this.switchTab(this.currentTab)
-			})
+		onLoad(options){
+			this.loadData(options)
 		},
 		computed: {
 			orderList(){
@@ -160,17 +144,6 @@
 			}
 		},
 		filters: {
-			getPrice(price) {
-				price = price || 0;
-				return price.toFixed(2)
-			},
-			getProperty(attr) {
-				let str = ''
-				attr.forEach(o=>{
-					str = str + o.value + '，'
-				})
-				return str.slice(0,-1)
-			},
 			getNum(goodsList) {
 				let res = 0
 				goodsList.forEach((o)=>{
@@ -190,6 +163,23 @@
 				let t1 = Date.parse(new Date(time)) + expireTime
 				let t2 = Date.parse(new Date())
 				return (t1-t2)/1000
+			},
+			loadData(e, fresh){
+				let url = '/getOrders/' + uni.getStorageSync("pid")
+				this.tui.request(url,'GET', undefined, true).then((res)=>{
+					console.log('res', res)
+					if(res.code==='0'){
+						this.loadding = false
+						this.$store.commit('setOrderList', res.orderList)
+						this.currentTab= (e.currentTab)? parseInt(e.currentTab): 0
+						this.switchTab(this.currentTab)
+						if(fresh){
+							setTimeout(()=>{
+								wx.stopPullDownRefresh() //停止下拉刷新
+							}, 300)
+						}
+					}
+				})
 			},
 			isVisible(state){
 				return state.findIndex(o=>{return o.count===1}) !==-1
@@ -306,11 +296,6 @@
 				}
 				this.isDelete = false
 			},
-			detail(order) {
-				uni.navigateTo({
-					url: '/pages/my/orderDetail/orderDetail?order=' + encodeURIComponent(JSON.stringify(order))
-				})
-			},
 			invoiceDetail(){
 				this.tui.href('/pages/my/invoiceDetail/invoiceDetail')
 			},
@@ -324,13 +309,8 @@
 			}
 		},
 		onPullDownRefresh() {
-			wx.showNavigationBarLoading() //在标题栏中显示加载
-			let url = '/getOrders/' + uni.getStorageSync("pid")
-			this.tui.request(url,'GET', undefined, true).then((res)=>{
-				this.$store.commit('setOrderList', res.orderList)
-				wx.hideNavigationBarLoading() //完成停止加载
-				wx.stopPullDownRefresh() //停止下拉刷新
-			})
+			let e = {currentTab: this.currentTab}
+			this.loadData(e, true)
 		},
 		onReachBottom() {
 			//只是测试效果，逻辑以实际数据为准
@@ -406,63 +386,6 @@
 		font-size: 26rpx;
 	}
 
-	.tui-goods-item {
-		width: 100%;
-		padding: 20rpx 30rpx;
-		box-sizing: border-box;
-		display: flex;
-		justify-content: space-between;
-	}
-
-	.tui-goods-img {
-		width: 180rpx;
-		height: 180rpx;
-		display: block;
-		flex-shrink: 0;
-		border-radius: 8rpx;
-	}
-
-	.tui-goods-center {
-		flex: 1;
-		max-width: 460rpx;
-		padding: 8rpx;
-		box-sizing: border-box;
-	}
-
-	.tui-goods-name {
-		width: 90%;
-		word-break: break-all;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		display: -webkit-box;
-		-webkit-box-orient: vertical;
-		-webkit-line-clamp: 2;
-		font-size: 28rpx;
-		line-height: 32rpx;
-	}
-
-	.tui-goods-attr {
-		font-size: 22rpx;
-		color: #888888;
-		line-height: 32rpx;
-		padding-top: 5rpx;
-		width: 90%;
-		box-sizing: border-box;
-		white-space: nowrap;
-		overflow: hidden;
-		text-overflow: ellipsis;
-	}
-	.tui-price-right {
-		text-align: right;
-		font-size: 24rpx;
-		color: #888888;
-		line-height: 30rpx;
-		padding-top: 8rpx;
-	}
-	.tui-color-red {
-		color: #E41F19;
-		padding-right: 30rpx;
-	}
 	.tui-goods-price {
 		width: 100%;
 		display: flex;

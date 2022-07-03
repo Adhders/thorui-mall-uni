@@ -67,6 +67,10 @@
 			orderForm: {
 				type: Object,
 				default: {},
+			},
+			mode: {
+				type: String,
+				default: ''
 			}
 		},
 		data() {
@@ -89,6 +93,11 @@
 				]
 			};
 		},
+		computed:{
+			cart(){
+				return this.$store.state.cart
+			}
+		},
 		methods: {
 			close() {
 				if(!this.success){
@@ -109,7 +118,6 @@
 				let _this = this
 				let url = ''
 				let reviewState = []
-				console.log('order', order)
 				order.goodsList.forEach(()=>{reviewState.push({count: 0})})
 				order.reviewState = reviewState
 				wx.requestPayment({
@@ -144,6 +152,14 @@
 				this.success = false
 				const pid = uni.getStorageSync("pid")
 				const appid  =  this.$store.state.appid
+				if(this.mode==='cart'){
+					this.orderForm.goodsList.forEach((sku)=>{ 
+						let index = this.cart.findIndex((o) => {return sku.id === o.id})
+						this.cart.splice(index, 1)
+					})
+					let url = '/updateCustomer/' + pid +'/updateCart'
+					this.tui.request(url, 'PUT', {'cart': this.cart}).then((res)=>{console.log('res', res)})
+				}
 				let url = '/pay_miniprog/' + appid + '/' + pid
 				if(this.initial){
 					this.orderForm.status = '待支付'

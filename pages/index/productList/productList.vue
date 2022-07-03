@@ -833,12 +833,12 @@ export default {
 	bottom: 0;
 	z-index: 1000;
 	box-sizing: border-box;
-	padding: 0 30rpx;
+	padding: 10rpx 30rpx;
 	background: #fff;
 }
 
 .tui-attr-safearea {
-	height: 100rpx;
+	height: 90rpx;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;

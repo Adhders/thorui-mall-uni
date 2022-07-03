@@ -1,28 +1,30 @@
 <template>
-	<view class="father">
+	<page>
 		<NavBar :page="page" @back="onBack"></NavBar>
-		<view class="element-box"
-			:style="{marginTop: (page.style.isEmbedding? 0: height)+'px', marginBottom: (visible? height: 0) + 'px'}">
-			<view class="element-item" v-for="(item,index) in page.arrList" :key="index"
-				:class="{ embedding: page.style.isEmbedding, normal: !page.style.isEmbedding}">
-				<CarouselView :item=item v-if="item.cmptName==='CarouselView'" @goto="redirect"></CarouselView>
-				<AnnounceView :item=item v-if="item.cmptName==='AnnounceView'" @goto="redirect"></AnnounceView>
-				<ButtonView :item=item v-if="item.cmptName==='ButtonView'" @goto="redirect"></ButtonView>
-				<TitleView :item=item v-if="item.cmptName==='TitleView'" @goto="redirect"></TitleView>
-				<VideoView :item=item v-if="item.cmptName==='VideoView'" @goto="redirect"></VideoView>
-				<GoodsView :item="item" v-if="item.cmptName==='GoodsView'"></GoodsView>
-				<PictureView :item=item v-if="item.cmptName==='PictureView'" @goto="redirect"></PictureView>
-				<TypingView :item=item v-if="item.cmptName==='TypingView'" @goto="redirect"></TypingView>
-				<SearchView :item=item v-if="item.cmptName==='SearchView'"></SearchView>
-				<NavigateView :item=item v-if="item.cmptName==='NavigateView'" @goto="redirect"></NavigateView>
-				<FreeVesselView :item=item v-if="item.cmptName==='FreeVesselView'" @goto="redirect"></FreeVesselView>
-				<CrossView :item=item v-if="item.cmptName==='CrossView'" @goto="redirect"></CrossView>
+		<scroll-view scroll-y style="height: 100vh;" show-scrollbar>
+			<view class="element-box"
+				:style="{marginTop: (page.style.isEmbedding? 0: height)+'px', marginBottom: (visible? height: 0) + 'px'}">
+				<view class="element-item" v-for="(item,index) in page.arrList" :key="index"
+					:class="{ embedding: page.style.isEmbedding, normal: !page.style.isEmbedding}">
+					<CarouselView :item=item v-if="item.cmptName==='CarouselView'" @goto="redirect"></CarouselView>
+					<AnnounceView :item=item v-if="item.cmptName==='AnnounceView'" @goto="redirect"></AnnounceView>
+					<ButtonView :item=item v-if="item.cmptName==='ButtonView'" @goto="redirect"></ButtonView>
+					<TitleView :item=item v-if="item.cmptName==='TitleView'" @goto="redirect"></TitleView>
+					<VideoView :item=item v-if="item.cmptName==='VideoView'" @goto="redirect"></VideoView>
+					<GoodsView :item="item" v-if="item.cmptName==='GoodsView'"></GoodsView>
+					<PictureView :item=item v-if="item.cmptName==='PictureView'" @goto="redirect"></PictureView>
+					<TypingView :item=item v-if="item.cmptName==='TypingView'" @goto="redirect"></TypingView>
+					<SearchView :item=item v-if="item.cmptName==='SearchView'"></SearchView>
+					<NavigateView :item=item v-if="item.cmptName==='NavigateView'" @goto="redirect"></NavigateView>
+					<FreeVesselView :item=item v-if="item.cmptName==='FreeVesselView'" @goto="redirect"></FreeVesselView>
+					<CrossView :item=item v-if="item.cmptName==='CrossView'" @goto="redirect"></CrossView>
+				</view>
 			</view>
-		</view>
+		</scroll-view>	
 		<tui-tabbar :current="current" :tabBar="tabBar.list" v-if="visible" :color="tabBar.color"
 			:selectedColor="tabBar.selectedColor" :backgroundColor="tabBar.backgroundColor" @click="tabbarSwitch">
 		</tui-tabbar>
-	</view>
+	</page>
 </template>
 <script>
 	export default {
@@ -31,6 +33,7 @@
 				height: getApp().globalData.navBarHeight,
 				goodsList: [],
 				startVideo: true,
+				scrollTop: 0,
 				lastIndex: 0, //上一页面的索引
 				appid: '',
 				visible: true,
@@ -227,32 +230,10 @@
 </script>
 
 <style lang="scss" scoped>
-		.father {
-			width: 100vw;
-			height: 100vh;
-			overflow-x: hidden;
-			overflow-y: auto;
-		}
-	
-		// ::-webkit-scrollbar {
-		// 	width: 10px;
-		// 	height: 0;
-		// 	color: transparent;
-		// 	// display: none;
-		// }
-
-	//   .main, page{
-	// overflow: hidden;
-	// height: 100%;
-	// background-color: #fff;
-	//   }
-	//   .element-box{
-	// width: 100vw;
-	// height: 100vh;
-	// background-color: #ffffff;
-	// display: flex;
-	// flex-direction: column;	
-	//  overflow-y: auto;
-	//  height: 100%;
-	//   }
+	// .father {
+	// 	width: 100vw;
+	// 	height: 100vh;
+	// 	overflow-x: hidden;
+	// 	overflow-y: auto;
+	// }
 </style>

@@ -44,10 +44,6 @@
 export default {
 	name: 'addCart',
 	props: {
-        'goods': {
-            type: Object,
-            default: null,
-        },
         'scrollTop':{
             type: String,
             default: '0'
@@ -81,29 +77,14 @@ export default {
             return this.$store.state.goodsList
         }
     },
-    watch: {
-        goods(v){
-            if(v){
-                this.buyNum=1
-                this.skuList=[]
-                this.skuArray=[]
-                this.propsList=[]
-                this.invalidSkuList=[],
-                this.invalidSkuIndexList=[],
-                this.selectedIndex=[],
-                this.selectedGoodsAttrList=[]
-                this.initial(v.spu_id, v.sku_id)
-            }
-        }
-    },
     methods: {
-        initial(spu_id, sku_id){
+        initial(spu_id, id){
 			this.skuList = this.goodsList.filter((o)=>{return o.spu_id === spu_id})
 			if(this.skuList.length===0){
 				uni.redirectTo({url: '/pages/index/invalidProduct/invalidProduct'})
 			}
-			if(sku_id){
-                let index = this.skuList.findIndex((o)=>{return o.id === sku_id})
+			if(id){
+                let index = this.skuList.findIndex((o)=>{return o.id === id})
 				if(index === -1){
 					uni.redirectTo({url: '/pages/index/invalidProduct/invalidProduct'})
 				}else{
@@ -136,19 +117,24 @@ export default {
 				this.propsList = Object.keys(attrs).map((i)=>{
 					return { 'name': i, 'values': Array.from(attrs[i])}
 				}); //对象转数组
+                let skuArray = []
 				this.propsList.forEach((o)=>{
 					let skuValues = o.values.map((v)=>{return { 'name': o.name, 'value': v }})
-					this.skuArray.push(skuValues)
+					skuArray.push(skuValues)
 				})
-				this.verify() // 获取失效sku列表invalidList
-			    this.invalidSkuList.forEach((o)=>{ // 获取失效sku列表invalidList 的索引
+                this.skuArray = skuArray
+
+				this.invalidSkuList = this.verify() // 获取失效sku列表invalidList
+                let invalidSkuIndexList = [] // 获取失效sku列表invalidList 的索引
+			    this.invalidSkuList.forEach((o)=>{ 
 					let indexList = []
 					o.forEach((v)=>{
 						let prop = JSON.parse(v)
 						indexList.push(Array.from(attrs[prop.name]).indexOf(prop.value)) 
 					})
-					this.invalidSkuIndexList.push(JSON.stringify(indexList))
+					invalidSkuIndexList.push(JSON.stringify(indexList))
 				})
+                this.invalidSkuIndexList = invalidSkuIndexList
 				let labelNames = Object.keys(attrs)
 				this.selectedIndex = new Array(this.propsList.length).fill(0)
 				this.selectedGoodsAttrList.forEach((o)=>{
@@ -203,6 +189,7 @@ export default {
         },
         //验证商品sku是否失效
         verify(){
+            let res = []
             let descartes = this.calcDescartes(this.skuArray)
             descartes.forEach((m)=>{
                 let attr = []
@@ -212,9 +199,10 @@ export default {
                     attr.includes(JSON.stringify(v)))   
                 return intersection.length === attr.length})
                 if(skuIndex===-1){
-                    this.invalidSkuList.push(attr)
+                    res.push(attr)
                 }
             })
+            return res
         },
         hidePopup: function() {
             this.popupShow = false;

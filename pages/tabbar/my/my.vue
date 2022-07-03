@@ -237,7 +237,6 @@
 			this.appid = this.$store.state.appid
 			this.secret = this.$store.state.secret
 			this.loadData()
-		
 		},
 		onShow(){
 			this.current = this.tabBar.list.length-1
@@ -252,16 +251,13 @@
 		    	return this.$store.state.userInfo
 			},
 			isLogin(){
-		    	return uni.getStorageSync("pid") || this.$store.state.isLogin
+		    	return this.$store.state.isLogin
 			},
 			orderState(){
 				return this.$store.state.orderState
 			},
 			tabBar(){
 				return this.$store.state.tabBar
-			},
-			pages(){
-				return this.$store.state.pages
 			}
 		},
 		methods: {
@@ -270,7 +266,7 @@
 				if(pid){
 					let url = '/queryUserInfo/' + pid
 					this.tui.request(url).then((res)=>{
-						console.log('res', res)
+						console.log('my', res)
 						if(fresh){ //下拉刷出新
 							wx.hideNavigationBarLoading() //完成停止加载
 							wx.stopPullDownRefresh() //停止下拉刷新
@@ -302,8 +298,6 @@
 							uni.removeStorageSync('token')
 							this.tui.href('/pages/my/login/login')
 						}
-						
-
 					})
 				}else{
 					this.tui.href('/pages/my/login/login')
@@ -361,7 +355,6 @@
 				}
 			},
 			redirect(e){
-				console.log('goto', e)
 				let page = ''
 				if(e.pageName===''){
 					return
@@ -426,7 +419,6 @@
 		},
 		onPullDownRefresh() {
 			 this.loadData(true)
-		
 		},
 	};
 </script>

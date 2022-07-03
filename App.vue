@@ -61,9 +61,10 @@
 								data: decoded.userInfo,
 							})
 							this.$store.commit('login', true)
+							this.$store.commit('setUserInfo', decoded.userInfo)
 							this.$store.commit('setReviewLikes', res.reviewLikes)
 						}
-						else{
+					else{
 							this.$store.commit('login', false)
 							uni.removeStorageSync('pid')
 							uni.removeStorageSync('token')

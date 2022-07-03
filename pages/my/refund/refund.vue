@@ -4,21 +4,7 @@
 			<tui-list-cell padding="20rpx 30rpx" :hover="false" :lineLeft="false">
 				<view class="tui-goods-title"><view>商品信息</view></view>
 			</tui-list-cell>
-			<block v-for="(item, index) in order.goodsList" :key="index">
-				<tui-list-cell padding="0" @click="detail(order)">
-					<view class="tui-goods-item">
-						<image :src="item.defaultImageUrl" class="tui-goods-img"></image>
-						<view class="tui-goods-center">
-							<view class="tui-goods-name">{{item.title}}</view>
-							<view class="tui-goods-attr">{{item.propertyList | getProperty}}</view>
-						</view>
-						<view class="tui-price-right">
-							<view>￥{{item.price}}</view>
-							<view>x{{item.buyNum}}</view>
-						</view>
-					</view>
-				</tui-list-cell>
-			</block>
+			<tOrderItem :order="order"></tOrderItem>
 		</view>
 		<form @submit="formSubmit">
 			<view class="tui-refund__form">
@@ -58,8 +44,8 @@
 						</view>
 						<view style="color: #cccccc">您还可以输入{{count}}字</view>
 					</view>
-					<tui-textarea v-model="ruleForm.description" placeholder-class="tui-phcolor" :size="28" maxlength=150
-						:borderBottom="false" :textareaBorder="false" :borderTop="false" name="description" placeholder="请填写申请说明"/>
+					<tui-textarea v-model="ruleForm.detail" placeholder-class="tui-phcolor" :size="28" maxlength=150
+						:borderBottom="false" :textareaBorder="false" :borderTop="false" name="detail" placeholder="请填写申请说明"/>
 					<view class="upload-image">
 						<tui-upload :serverUrl="action"
 							:formData="formData"
@@ -69,7 +55,6 @@
 						</tui-upload>
 					</view>
 				</tui-list-cell>
-
 			</view>
 			<view class="tui-btn__box">
 				<tui-button height="88rpx" type="danger" shadow shape="circle" formType="submit" :disabled="!first">提交申请</tui-button>
@@ -102,9 +87,14 @@
 
 <script>
 import form from "@/components/common/tui-validation/tui-validation.js"
+import tOrderItem from '@/components/views/t-order-item/t-order-item'
 export default {
+	components: {
+		tOrderItem
+	},
 	data() {
 		return {
+			edit: false,
 			focus: false,
 			first: true,
 			range: true,
@@ -117,10 +107,9 @@ export default {
 			ruleForm: {
 				imgs: '',
         		refund_fee: '',
-				description: '',
+				detail: '',
 				refundType: '退货退款',
-				reason: '',
-				
+				reason: '',	
 			},
 			popupShow: false,
 			displayList: [],
@@ -144,10 +133,19 @@ export default {
 			goodsList: []
 		};
 	},
-	onLoad(option){
-		this.ruleForm.refundType = option.refundType
-		this.order = this.$store.state.targetOrder
-    	this.ruleForm.refund_fee = this.order.netCost
+	onLoad(options){
+		this.edit = options.edit
+		this.order = JSON.parse(decodeURIComponent(options.order))
+		if(this.edit){
+			this.ruleForm.imgs = this.order.imgs
+			this.ruleForm.detail = this.order.detail
+			this.ruleForm.refundType = this.order.refundType
+			this.ruleForm.refund_fee = this.order.refund_fee
+			this.ruleForm.reason = this.order.reason
+		}else{
+			this.ruleForm.refund_fee = this.order.netCost
+			this.ruleForm.refundType = options.refundType
+		}
 		//将系统宽度px转换为rpx
 		let systemWidth = getApp().globalData.windowWidth/(uni.upx2px(100)/100)
 		// 100为页面两边的距离加上图片间隔
@@ -165,12 +163,14 @@ export default {
 	},
 	computed: {
 		count(){
-			return 150-this.getCount(this.ruleForm.description.length)
+			return 150-this.getCount(this.ruleForm.detail.length)
+		},
+		refundList(){
+			return this.$store.state.refundList
 		}
 	},
 	watch: {
 		'ruleForm.refund_fee': function(v){
-			console.log('refund_fee', v)
 			if(v > this.order.netCost){
 				this.range=false
 				this.tui.toast("退款金额不能大于最大退款金额")
@@ -234,7 +234,7 @@ export default {
 				rule: ["required"],
 				msg: ["请选择退款原因"]
 			},{
-				name: "description",
+				name: "detail",
 				rule: ["required"],
 				msg: ["请输入申请说明"]
 			}];
@@ -254,23 +254,36 @@ export default {
 				let pid = uni.getStorageSync("pid")
 				let appid = this.$store.state.appid
 				let orderNum = this.order.orderNum
-				let url = '/addRefundOrder/' + pid + '/' + appid + '/' + orderNum
-				this.tui.request(url, 'POST', this.ruleForm).then(
-					(res) =>{
-						if(res.code==='0'){
-							this.tui.toast("申请售后成功")
-							this.ruleForm.orderNum = orderNum
-							this.ruleForm.refundNum = res.refundNum
-							this.ruleForm.status = '处理中'
-							this.ruleForm.netCost = this.order.netCost
-							this.ruleForm.goodsList = this.order.goodsList
-							this.$store.state.refundList.unshift(this.ruleForm)
+				if(this.edit){
+					let url = '/updateRefundOrders/' + this.order.refundNum + '/edit'
+					this.tui.request(url, 'PUT', this.ruleForm).then(
+						(res) =>{
+							let obj = Object.assign({},this.order, this.ruleForm)
+							let index = this.refundList.findIndex((o)=>{return o.refundNum === obj.refundNum})
+							this.$set(this.refundList, index, obj)
+							this.tui.toast("更新成功")
 							setTimeout(()=>{
 								uni.navigateBack({delta: 1})
-							}, 1000);
+							}, 500);
 						}
-					}
-				)
+					)
+				}else{
+					let url = '/addRefundOrder/' + pid + '/' + appid + '/' + orderNum
+					this.tui.request(url, 'POST', this.ruleForm).then(
+						(res) =>{
+							if(res.code==='0'){
+								this.tui.toast("申请售后成功")
+								this.ruleForm.refundNum = res.refundNum
+								this.ruleForm.status = '处理中'	
+								this.$store.state.orderState[5]+=1						
+								this.refundList.unshift(Object.assign({}, this.order, this.ruleForm))
+								setTimeout(()=>{
+									uni.navigateBack({delta: 1})
+								}, 500);
+							}
+						}
+					)
+				}
 			}else {
 				uni.showToast({
 					title: checkRes,
@@ -296,61 +309,6 @@ export default {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-}
-
-.tui-goods-item {
-	width: 100%;
-	padding: 20rpx 30rpx;
-	box-sizing: border-box;
-	display: flex;
-	justify-content: space-between;
-}
-
-.tui-goods-img {
-	width: 180rpx;
-	height: 180rpx;
-	display: block;
-	flex-shrink: 0;
-}
-
-.tui-goods-center {
-	flex: 1;
-	max-width: 460rpx;
-	padding: 8rpx;
-	box-sizing: border-box;
-}
-
-.tui-goods-name {
-	word-break: break-all;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	display: -webkit-box;
-	-webkit-box-orient: vertical;
-	-webkit-line-clamp: 2;
-	font-size: 28rpx;
-	line-height: 32rpx;
-}
-
-.tui-goods-attr {
-	font-size: 22rpx;
-	color: #888888;
-	line-height: 32rpx;
-	padding-top: 5rpx;
-	word-break: break-all;
-	overflow: hidden;
-	width: 90%;
-	box-sizing: border-box;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
-}
-
-.tui-price-right {
-	text-align: right;
-	font-size: 24rpx;
-	color: #888888;
-	line-height: 30rpx;
-	padding-top: 8rpx;
 }
 
 .tui-refund__form {

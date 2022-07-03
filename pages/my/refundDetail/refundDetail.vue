@@ -9,39 +9,34 @@
 				<image :src="getImageUrl(order.status)" class="tui-status-img" mode="widthFix"></image>
 			</view>
 		</view>
+		<tui-list-cell unlined :hover="false">
+			<view class="tui-flex-box">
+				<image :src="webURL+'img_order_address3x.png'" class="tui-icon-img"></image>
+				<view class="tui-addr">
+					<view class="tui-addr-userinfo">{{order.address.userName}}<text class="tui-addr-tel">{{order.address.telNumber | formatNumber}}</text></view>
+					<view class="tui-addr-text">{{ order.address.location + order.address.detailInfo  }}</view>
+				</view>
+			</view>
+		</tui-list-cell>
 		<tui-list-cell :hover="false" unlined v-if="order.refundType==='退货退款'">
 			<view class="tui-title">
 				<text>退款金额</text>
-				<text>￥{{order.refund_fee}}</text>
+				<text class="refund_fee">￥{{order.refund_fee}}</text>
 			</view>
 		</tui-list-cell>
 		<view class="tui-order-item">
 			<tui-list-cell :hover="false" :lineLeft="false"><view class="tui-order-title">订单信息</view></tui-list-cell>
-			<block v-for="(item, index) in order.goodsList" :key="index">
-				<tui-list-cell padding="0">
-					<view class="tui-goods-item">
-						<image :src="item.defaultImageUrl" class="tui-goods-img"></image>
-						<view class="tui-goods-center">
-							<view class="tui-goods-name">{{item.title}}</view>
-							<view class="tui-goods-attr">{{item.propertyList | getProperty}}</view>
-						</view>
-						<view class="tui-price-right">
-							<view>￥{{item.price}}</view>
-							<view>x{{item.buyNum}}</view>
-						</view>
-					</view>
-				</tui-list-cell>
-			</block>
+			<tOrderItem :order="order" type="detail"></tOrderItem>
 		</view>
 		<view class="tui-order-info">
 			<view class="tui-order-content">
-        <view class="tui-order-flex">
+        		<view class="tui-order-flex">
 					<view class="tui-item-title">服务单号：</view>
 					<view class="tui-item-content">{{order.refundNum}}</view>
 				</view>
-        <view class="tui-order-flex">
+        		<view class="tui-order-flex">
 					<view class="tui-item-title">申请时间：</view>
-					<view class="tui-item-content">{{order.create_time | formatDate}}</view>
+					<view class="tui-item-content">{{order.application_time | formatDate}}</view>
 				</view>
 				<view class="tui-order-flex">
 					<view class="tui-item-title">服务类型：</view>
@@ -55,7 +50,20 @@
 					<view class="tui-item-title">退款方式:</view>
 					<view class="tui-item-content">原支付返还</view>
 				</view>
-
+				<view class="tui-order-flex">
+					<view class="tui-item-title">退款详情:</view>
+					<view class="tui-item-content"></view>
+				</view>
+				<view class="tui-content__box">
+					<view class="tui-desc">
+						{{order.detail}}
+					</view>
+					<view class="tui-img__box">
+						<block v-for="(img, index) in order.imgs" :key="index">
+							<image :src="img" mode="widthFill"></image>
+						</block>
+					</view>
+				</view>
 			</view>
 			<tui-list-view unlined="bottom">
 				<tui-list-cell unlined>
@@ -71,33 +79,35 @@
 
 <script>
 import utils from "@/utils/util.js"
+import tOrderItem from '@/components/views/t-order-item/t-order-item'
 export default {
+	components: {
+		tOrderItem
+	},
 	data() {
 		return {
 			webURL: 'https://system.chuangbiying.com/static/images/mall/order/',
 			//1-退款中 2-退款成功 3-退款失败
 			status: 1,
-      		order: {goodsList:[]},
-			show: false
+      		order: {
+				address: {'telNumber': ''}
+			},
+			imgs:[
+				'https://system.chuangbiying.com/static/images/mall/product/1.jpg',
+				'https://system.chuangbiying.com/static/images/mall/product/2.jpg',
+				'https://system.chuangbiying.com/static/images/mall/product/3.jpg',
+			]
 		};
 	},
 	onLoad(options){
 		this.order = JSON.parse(decodeURIComponent(options.order))
 	},
    	filters: {
-		getPrice(price) {
-			price = price || 0;
-			return price.toFixed(2)
+		formatNumber(v){
+			return utils.formatNumber(v)
 		},
       	formatDate(v){
 			return utils.formatDate("y-m-d h:i:s", v)
-		},
-		getProperty(attr) {
-			let str = ''
-			attr.forEach(o=>{
-				str = str + o.value + '，'
-			})
-			return str.slice(0,-1)
 		}
  	},
 	methods: {
@@ -109,7 +119,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .container {
 	padding-bottom: 80rpx;
 }
@@ -175,6 +185,31 @@ export default {
 	height: 44rpx;
 	flex-shrink: 0;
 }
+
+.tui-addr {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	padding-left: 20rpx;
+	box-sizing: border-box;
+}
+
+.tui-addr-userinfo {
+	font-size: 30rpx;
+	line-height: 30rpx;
+	font-weight: bold;
+}
+
+.tui-addr-text {
+	font-size: 24rpx;
+	line-height: 32rpx;
+	padding-top: 16rpx;
+}
+
+.tui-addr-tel {
+	padding-left: 40rpx;
+}
+
 .tui-order-item {
 	margin-top: 20rpx;
 	border-radius: 10rpx;
@@ -190,61 +225,11 @@ export default {
 	justify-content: space-between;
 }
 
-.tui-goods-item {
-	width: 100%;
-	padding: 20rpx 30rpx;
-	box-sizing: border-box;
-	display: flex;
-	justify-content: space-between;
+.refund_fee {
+	font-size: 32rpx;
+    font-weight: 500;
+    color: #eb0909;
 }
-
-.tui-goods-img {
-	width: 180rpx;
-	height: 180rpx;
-	display: block;
-	flex-shrink: 0;
-}
-
-.tui-goods-center {
-	flex: 1;
-	max-width: 460rpx;
-	padding: 8rpx;
-	box-sizing: border-box;
-}
-
-.tui-goods-name {
-    width: 90%;
-	word-break: break-all;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	display: -webkit-box;
-	-webkit-box-orient: vertical;
-	-webkit-line-clamp: 2;
-	font-size: 28rpx;
-	line-height: 32rpx;
-}
-
-.tui-goods-attr {
-	width: 90%;
-	font-size: 22rpx;
-	color: #888888;
-	line-height: 32rpx;
-	padding-top: 5rpx;
-	word-break: break-all;
-	box-sizing: border-box;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
-}
-
-.tui-price-right {
-	text-align: right;
-	font-size: 24rpx;
-	color: #888888;
-	line-height: 30rpx;
-	padding-top: 8rpx;
-}
-
 .tui-order-title {
 	position: relative;
 	font-size: 28rpx;
@@ -290,5 +275,44 @@ export default {
 	width: 36rpx;
 	height: 36rpx;
 	margin-right: 16rpx;
+}
+
+.tui-content__box {
+	min-height: 300rpx;
+	width: 100%;
+	font-size: 24rpx;
+	background: #fff;
+	padding: 10rpx 0;
+	box-sizing: border-box;
+}
+
+.tui-rate__box {
+	width: 100%;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	font-size: 24rpx;
+	color: #999;
+	padding: 12rpx 0 20rpx;
+}
+
+.tui-desc {
+	color: #666;
+	text-indent: 2em;
+	word-break: break-all;
+	text-align: justify;
+}
+
+.tui-img__box {
+	width: 100%;
+	font-size: 0;
+	padding-top: 4rpx;
+}
+
+.tui-img__box image {
+	width: 200rpx;
+	height: 200rpx;
+	margin-right: 12rpx;
+	margin-top: 12rpx;
 }
 </style>

@@ -2,6 +2,7 @@
  * 常用方法封装 请求，文件上传等
  * @author echo.
  **/
+
 import store from '../store'
 const tui = {
 	//接口地址
@@ -174,7 +175,7 @@ const tui = {
 	},
 	//判断是否登录
 	isLogin: function() {
-		return uni.getStorageSync("pid") || store.state.isLogin
+		return store.state.isLogin
 	},
 	//跳转页面，校验登录状态
 	href(url, isVerify) {

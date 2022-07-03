@@ -107,15 +107,15 @@
 						<view class="tui-selected-box">{{selectedGoodsAttrList | attrFormat}}，</view>
 						<view class="tui-buyNum">{{buyNum}}{{goodsDetail.sellUnit}}</view>
 						<view class="tui-ml-auto">
-							<tui-icon name="arrowright" :size="16" color="#666"></tui-icon>
+							<tui-icon name="arrowright" :size="36" color="#666" unit="rpx"></tui-icon>
 						</view>
 					</view>
 
 					<view class="tui-list-cell tui-last" @tap="showPopup('property')">
-						<view class="tui-bold tui-cell-title" >参数</view>
+						<view class="tui-bold tui-cell-title">参数</view>
 						<view class="tui-selected-box" style="max-width: 160rpx">{{ goodsDetail.selectedGoodsPropList | propsFormat}}</view>
 						<view class="tui-ml-auto">
-							<tui-icon name="arrowright" :size="16" color="#666"></tui-icon>
+							<tui-icon name="arrowright" :size="36" color="#666" unit="rpx"></tui-icon>
 						</view>
 					</view>
 					<view class="tui-guarantee" @tap="showPopup('service')">
@@ -128,12 +128,13 @@
 
 				<view class="tui-cmt-box tui-mtop tui-radius-all">
 					<view class="tui-list-cell tui-last tui-between">
-						<view class="tui-bold tui-cell-title ">评价
+						<view class="tui-bold tui-cell-title">
+							<text>评价</text>
                             <text>({{reviews}})</text>
                         </view>
-						<view style="display: flex" @tap="evaluate">
-							<view class="tui-cell-notice">查看全部</view>
-							<tui-icon name="arrowright" :size="16" color="#666"></tui-icon>
+						<view class="tui-showAll" @tap="evaluate">
+							<view>查看全部</view>
+							<tui-icon name="arrowright" :size="32" color="#666" unit="rpx"></tui-icon>
 						</view>
 					</view>
 
@@ -141,9 +142,9 @@
 						<view class="tui-cmt-content tui-padding" v-if="index<=1">
 							<view class="tui-cmt-user">
 								<image :src="review.avatar" class="tui-avatar"></image>
-								<view style="margin-left: 10rpx">
+								<view class="tui-user-info">
 									<view class="tui-nickname">{{review.name}}</view>
-									<tui-rate :current="review.star" :size="11"></tui-rate>
+									<tui-rate :current="review.star" :size="14"></tui-rate>
 								</view>	
 							</view>
 							<view class="tui-cmt ">{{review.msg}}</view>
@@ -318,7 +319,7 @@
 				selectedIndex: [],
 				height: getApp().globalData.navBarHeight, //header高度
 				top: getApp().globalData.menuTop, //标题图标距离顶部距离
-				scrollH: 0, //滚动总高度
+				scrollH: getApp().globalData.windowWidth, //滚动总高度
 				opcity: 0,
 				mode: 'service',
 				iconOpcity: 0.5,
@@ -388,26 +389,16 @@
 		},
 		
 		onLoad: function(options) {
-			let obj = {};
 			// #ifdef MP-WEIXIN
 			this.videoplayObj = wx.createVideoContext('myVideo')
-			obj = wx.getMenuButtonBoundingClientRect();
 			// #endif
 			uni.setStorageSync('currentTime', 0)
 			setTimeout(() => {
 				this.startVideo = false
 			}, 600);
-			setTimeout(() => {
-				uni.getSystemInfo({
-					success: res => {
-						this.width = obj.left || res.windowWidth;
-						this.scrollH = res.windowWidth;
-					}
-				});
-			}, 0);
             this.spu_id = parseInt(options.spu_id)
-			const sku_id = parseInt(options.sku_id)
-			this.$refs.popup.initial(this.spu_id, sku_id)
+			const id = parseInt(options.sku_id)
+			this.$refs.popup.initial(this.spu_id, id)
 			let url = '/getGoodsReview/' + this.spu_id
 			this.tui.request(url).then(res=>{
 				if (res.code==='0'){
@@ -465,7 +456,7 @@
 		},
 		methods: {
 			onSelectGoods(goodsDetail, selectedGoodsAttrList){
-				console.log('update', goodsDetail, selectedGoodsAttrList)
+
 				this.goodsDetail = goodsDetail
 				this.selectedGoodsAttrList = selectedGoodsAttrList
 			},
@@ -1089,12 +1080,6 @@
 		left: 126rpx;
 	}
 
-	.tui-cell-notice{
-		color: #888;
-		font-size: 22rpx;
-		margin-right: -4rpx;
-	}
-
 	.tui-last::after {
 		border-bottom: 0 !important;
 	}
@@ -1161,6 +1146,13 @@
 	.tui-cmt-box {
 		background: #fff;
 	}
+	
+	.tui-showAll{
+		display: flex; 
+		line-height: 24rpx;
+		font-size: 24rpx ;
+		color: #888;
+	}
 
 	.tui-between {
 		justify-content: space-between !important;
@@ -1177,7 +1169,10 @@
 		display: flex;
 		align-items: center;
 	}
-
+	.tui-user-info {
+		margin-left: 10rpx;
+		line-height: 26rpx;
+	}
 	.tui-avatar {
 		width: 60rpx;
 		height: 60rpx;
@@ -1186,7 +1181,7 @@
 	}
 	.tui-nickname {
 		margin-left: 5rpx;
-		font-size: 22rpx;
+		font-size: 24rpx;
 	}
 	.tui-cmt {
 		font-size: 24rpx;

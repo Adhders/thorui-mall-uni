@@ -114,7 +114,7 @@
 					<tui-button width="200rpx" height="70rpx" :size="28" type="danger" shape="circle" @click="btnPay">确认支付</tui-button>
 				</view>
 			</view>
-			<t-pay-way :show="show" @close="popupClose" :orderForm="orderForm"></t-pay-way>
+			<t-pay-way :show="show" @close="popupClose" :orderForm="orderForm" :mode="mode"></t-pay-way>
 			<t-select-coupons :show="couponShow" @close="couponClose"></t-select-coupons>
 		</block>
 		<block v-else>
@@ -139,6 +139,7 @@
 		},
 		data() {
 			return {
+				mode: '',
 				hasCoupon: false,
 				insufficient: false,
 				show: false,
@@ -186,7 +187,7 @@
 			}
 		},
 		onLoad(options){
-			let origin = options.mode //购物车
+			this.mode = options.mode //购物车
 			this.orderForm.goodsList = JSON.parse(options.goods)
 			this.orderForm.address = this.address
 			this.calcHandle()

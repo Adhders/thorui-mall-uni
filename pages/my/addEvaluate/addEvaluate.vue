@@ -130,8 +130,7 @@
 				}
 				this.tui.request(url, method, this.postData).then(res=>{
 					if(res.code==='0') {
-						console.log('res', res)
-						let orderList =  this.$store.state.orderList
+						let orderList = this.$store.state.orderList
 						let index =  orderList.findIndex(o=>{return o.orderNum === this.orderNum})
 						if(this.mode==='first'){
 							orderList[index].reviewState = res.reviewState

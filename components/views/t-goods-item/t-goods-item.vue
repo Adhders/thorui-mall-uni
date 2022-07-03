@@ -26,7 +26,7 @@
 			</view>
 		</view>
 		<!-- 当mode为list时，addCart组件会跟随scroll-view一起滚动，addCart组件要放到list页面里才能避免一起滚动-->
-		<popup-box ref="popup" :goods="goods" @add="onAdd" v-if="mode!=='list'"></popup-box>
+		<popup-box ref="popup" @add="onAdd" v-if="mode!=='list'"></popup-box>
 	</view>		
 </template>
 
@@ -57,7 +57,6 @@ export default {
 					showPrice: true,
 				}
 			}
-
 		},
 		isList: {
 			type: Boolean,
@@ -70,7 +69,6 @@ export default {
 	},
 	data() {
 		return {
-			goods: null,
 		}
 	},
 	methods: {
@@ -83,7 +81,7 @@ export default {
 			if(this.mode==='list'){
 				this.$emit('add', goods)
 			}else{
-				this.goods = goods
+				this.$refs.popup.initial(goods.spu_id, goods.id)
 				this.$refs.popup.popupShow = true
 			}
 		},
