@@ -33,7 +33,7 @@
 <!--					</view>-->
 					<block v-if="order.status==='交易关闭'">
 						<view class="tui-btn-ml">
-							<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @tap="onDelete(order)">删除订单</tui-button>
+							<tui-button type="danger" plain width="152rpx" height="56rpx" :size="26" shape="circle" @tap="onDelete(order)">删除订单</tui-button>
 						</view>
 					</block>
 					<block v-if="order.status==='待支付'">
@@ -57,13 +57,16 @@
 							<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="refund(order)">申请退款</tui-button>
 						</view>
 						<view class="tui-btn-ml">
-							<tui-button type="black"  plain width="152rpx" height="56rpx" :size="26" shape="circle">再次购买</tui-button>
+							<tui-button type="black"  plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="buy(order)">再次购买</tui-button>
 						</view>
 						<view class="tui-btn-ml">
 							<tui-button type="danger" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="onReceipt(order)">确认收货</tui-button>
 						</view>
 					</block>
 					<block v-if="order.status==='交易成功'">
+					    <view class="tui-btn-ml">
+							<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @tap="onDelete(order)">删除订单</tui-button>
+						</view>
 						<view class="tui-btn-ml">
 							<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="refund(order)">退换/售后</tui-button>
 						</view>
@@ -71,7 +74,7 @@
 							<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="addEvaluate(order, 'additional')">追加评价</tui-button>
 						</view>
 						<view class="tui-btn-ml">
-							<tui-button type="danger"  plain width="152rpx" height="56rpx" :size="26" shape="circle">再次购买</tui-button>
+							<tui-button type="danger"  plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="buy(order)">再次购买</tui-button>
 						</view>
 					</block>
 					<block v-if="order.status==='待评价'">
@@ -79,10 +82,42 @@
 							<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="refund(order)">退换/售后</tui-button>
 						</view>
 						<view class="tui-btn-ml">
-							<tui-button type="black"  plain width="152rpx" height="56rpx" :size="26" shape="circle">再次购买</tui-button>
+							<tui-button type="black"  plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="buy(order)">再次购买</tui-button>
 						</view>
 						<view class="tui-btn-ml">
 							<tui-button type="danger" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="addEvaluate(order, 'first')">评价</tui-button>
+						</view>
+					</block>
+                   
+                    <block v-if="order.status==='处理中'">
+						<view class="tui-btn-ml">
+							<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @tap="detail(order)">
+								售后信息
+							</tui-button>
+						</view>
+					</block>
+					<block v-if="order.status==='申请已撤销'">
+						<view class="tui-btn-ml">
+							<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @tap="onDelete(order)">
+								删除订单
+							</tui-button>
+						</view>
+						<view class="tui-btn-ml">
+							<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @tap="detail(order)">
+								售后信息
+							</tui-button>
+						</view>
+					</block>
+					<block  v-if="order.status==='退款成功'">
+						<view class="tui-btn-ml">
+							<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @tap="onDelete(order)">
+								删除订单
+							</tui-button>
+						</view>
+						<view class="tui-btn-ml">
+							<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @tap="detail(order)">
+								售后信息
+							</tui-button>
 						</view>
 					</block>
 				</view>
@@ -155,6 +190,12 @@
 		watch: {
 			currentTab(v){
 				this.switchTab(v)
+			},
+			orderList: {
+				deep: true,
+				handler(v){
+					this.switchTab(this.currentTab)
+				}
 			}
 		},
 		methods: {
@@ -167,12 +208,10 @@
 			loadData(e, fresh){
 				let url = '/getOrders/' + uni.getStorageSync("pid")
 				this.tui.request(url,'GET', undefined, true).then((res)=>{
-					console.log('res', res)
 					if(res.code==='0'){
 						this.loadding = false
-						this.$store.commit('setOrderList', res.orderList)
 						this.currentTab= (e.currentTab)? parseInt(e.currentTab): 0
-						this.switchTab(this.currentTab)
+						this.$store.commit('setOrderList', res.orderList)
 						if(fresh){
 							setTimeout(()=>{
 								wx.stopPullDownRefresh() //停止下拉刷新
@@ -230,7 +269,6 @@
 				let url = '/closeOrder_miniProg/' + order.orderNum
 				this.tui.request(url).then(
 					(res)=>{
-						console.log('res', res)
 						if(res.code===204){
 							url = '/updateOrder/' + order.orderNum + '/' + 'status'
 							this.tui.request(url, 'PUT', {status : "交易关闭"}).then(
@@ -238,7 +276,6 @@
 									if(res.code==='0'){
 										let index =  this.orderList.findIndex((o)=>{ return o.orderNum === order.orderNum})
 										this.orderList[index].status = "交易关闭"
-                                        this.switchTab(this.currentTab)
 									}
 							})
 						}else{
@@ -266,6 +303,10 @@
 					},
 				})
 			},
+			buy(order){
+				let goods = order.goodsList[0]
+				this.tui.href('/pages/index/productDetail/productDetail?spu_id=' + goods.spu_id + '&sku_id=' + goods.id + '&buy=true')
+			},
 			remind() {
                 this.tui.toast('待开发')
 			},
@@ -290,7 +331,6 @@
 				if(e.index===1){
 					let selectedIndex = this.orderList.findIndex((o)=>{ return o.orderNum === this.selectedOrder.orderNum})
 					this.orderList.splice(selectedIndex,1)
-					this.switchTab(this.currentTab)
 					let url = '/deleteOrder/' + this.selectedOrder.orderNum
 					this.tui.request(url, 'DELETE').then(()=>{this.tui.toast('删除订单成功')})
 				}
@@ -306,6 +346,9 @@
 				uni.navigateTo({
 					url: url
 				})
+			},
+			detail(order) {
+				this.tui.href('/pages/my/refundList/refundList?history=' + encodeURIComponent(JSON.stringify(order)))
 			}
 		},
 		onPullDownRefresh() {

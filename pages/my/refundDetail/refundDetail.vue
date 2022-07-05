@@ -60,7 +60,7 @@
 					</view>
 					<view class="tui-img__box">
 						<block v-for="(img, index) in order.imgs" :key="index">
-							<image :src="img" mode="widthFill"></image>
+							<image :src="imgUrl+img" mode="aspectFill" @tap.stop="previewImage(index, order.imgs)"></image>
 						</block>
 					</view>
 				</view>
@@ -73,7 +73,34 @@
 					</view>
 				</tui-list-cell>
 			</tui-list-view>
+			<view class="tui-tabbar tui-order-btn">
+				<block v-if="order.status==='处理中'">
+					<view class="tui-btn-ml">
+						<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @tap="onEdit(order)">
+							修改申请
+						</tui-button>
+					</view>
+					<view class="tui-btn-ml">
+						<tui-button type="danger" plain width="152rpx" height="56rpx" :size="26" shape="circle" @tap="onCancel(order)">
+							取消售后
+						</tui-button>
+					</view>
+				</block>
+				<block v-if="order.status==='申请已撤销' || order.status==='退款成功'">
+					<view class="tui-btn-ml">
+						<tui-button type="black" plain width="175rpx" height="56rpx" :size="26" shape="circle" @tap="onDelete(order)">
+							删除售后单
+						</tui-button>
+					</view>
+					<view class="tui-btn-ml" v-if="order.refundList[0].refundNum === order.refundNum">
+						<tui-button type="danger" plain width="152rpx" height="56rpx" :size="26" shape="circle" @tap="onApply(order)">
+							再次申请
+						</tui-button>
+					</view>
+				</block>
+			</view>
 		</view>
+		<tui-modal :show="isDelete" @click="onRemove"  title="确定删除售后单？" content="删除之后此售后单将无法恢复，请慎重考虑？"></tui-modal>	
 	</view>
 </template>
 
@@ -86,17 +113,15 @@ export default {
 	},
 	data() {
 		return {
+			imgUrl: 'http://review.chuangbiying.com/',
 			webURL: 'https://system.chuangbiying.com/static/images/mall/order/',
 			//1-退款中 2-退款成功 3-退款失败
 			status: 1,
+			selectedOrder: null,
+			isDelete: false,
       		order: {
 				address: {'telNumber': ''}
-			},
-			imgs:[
-				'https://system.chuangbiying.com/static/images/mall/product/1.jpg',
-				'https://system.chuangbiying.com/static/images/mall/product/2.jpg',
-				'https://system.chuangbiying.com/static/images/mall/product/3.jpg',
-			]
+			}
 		};
 	},
 	onLoad(options){
@@ -110,11 +135,88 @@ export default {
 			return utils.formatDate("y-m-d h:i:s", v)
 		}
  	},
+	computed: {
+        refundList(){
+			return this.$store.state.refundList
+		},
+		orderList(){
+			return this.$store.state.orderList
+		}
+	},
 	methods: {
 		getImageUrl(status){
 			let fileName = (status==='退款成功')? 'img_success3x.png' : (status==='处理中' )? 'img_waiting.png' : 'img_refundfailure.png'
 			return this.webURL + fileName
-		}
+		},
+		onDelete(order){
+   			this.selectedOrder = order
+			this.isDelete=true
+		},
+		onRemove(e){
+			if(e.index===1){
+				let url = '/deleteRefundOrder/' + this.selectedOrder.refundNum
+				this.tui.request(url, 'DELETE').then(()=>{
+					this.tui.toast('删除售后单成功')
+					//更新申请列表
+					let orderIndex = this.orderList.findIndex((o)=>{ return o.orderNum === this.selectedOrder.orderNum})
+					if(orderIndex!==-1){
+						let refundList = this.orderList[orderIndex].refundList
+						let index = refundList.findIndex((o)=>{
+							return o.refundNum === this.selectedOrder.refundNum
+						})
+						refundList.splice(index, 1)
+					}
+                    //更新退款列表
+					let selectedIndex = this.refundList.findIndex((o)=>{ return o.refundNum === this.selectedOrder.refundNum})
+					this.refundList.splice(selectedIndex,1)
+				})
+			}
+			this.isDelete = false
+			uni.navigateBack({delta: 1})
+		},
+		onCancel(order) {
+			let url = '/updateRefundOrders/' + order.refundNum + '/status'
+			this.tui.request(url, 'PUT', {status: '申请已撤销'}).then((res)=>{
+				if(res.code==='0'){
+                    order.status = '申请已撤销'
+					//更新申请列表
+					let orderIndex = this.orderList.findIndex((o)=>{ return o.orderNum === order.orderNum})
+					if(orderIndex !==-1){
+						this.$set(this.orderList[orderIndex], 'status', '申请已撤销')
+						let refundList = this.orderList[orderIndex].refundList
+						let index = refundList.findIndex((o)=>{
+							return o.refundNum === order.refundNum
+						})
+						refundList[index].status='申请已撤销'
+					}
+					//更新退款列表
+                    this.$store.state.orderState[5]-=1 
+					let selectedIndex = this.refundList.findIndex((o)=>{ return o.refundNum === order.refundNum})
+					let refundOrder = this.refundList[selectedIndex]
+					this.$set(refundOrder, 'status', '申请已撤销')
+					this.tui.toast('取消服务单成功')
+				}
+			})
+		},
+		onApply(order) {
+			let url = '/pages/my/refundType/refundType?order=' + encodeURIComponent(JSON.stringify(order)) + '&repeat=refundDetail' 
+			this.tui.href(url)
+		},
+		onEdit(order){
+			this.tui.href('/pages/my/refund/refund?edit=true' + '&order=' + encodeURIComponent(JSON.stringify(order)))
+		},
+		detail(order) {
+			this.tui.href('/pages/my/refundDetail/refundDetail?order=' + encodeURIComponent(JSON.stringify(order)))
+		},
+		previewImage(current, imgs) {
+			let urls = imgs.map(item => {
+				return this.imgUrl + item
+			})
+			uni.previewImage({
+				current: current,
+				urls: urls
+			})
+		},
 	}
 };
 </script>
@@ -239,7 +341,7 @@ export default {
 
 .tui-order-content {
 	width: 100%;
-	padding: 24rpx 30rpx;
+	padding: 24rpx 30rpx 0;
 	box-sizing: border-box;
 	background: #fff;
 	font-size: 24rpx;
@@ -278,22 +380,12 @@ export default {
 }
 
 .tui-content__box {
-	min-height: 300rpx;
+	/* min-height: 250rpx; */
 	width: 100%;
 	font-size: 24rpx;
 	background: #fff;
 	padding: 10rpx 0;
 	box-sizing: border-box;
-}
-
-.tui-rate__box {
-	width: 100%;
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	font-size: 24rpx;
-	color: #999;
-	padding: 12rpx 0 20rpx;
 }
 
 .tui-desc {
@@ -312,7 +404,36 @@ export default {
 .tui-img__box image {
 	width: 200rpx;
 	height: 200rpx;
+	border-radius: 8rpx;
 	margin-right: 12rpx;
 	margin-top: 12rpx;
+}
+.tui-tabbar {
+	width: 100%;
+	height: 100rpx;
+	background: #fff;
+	position: fixed;
+	left: 0;
+	bottom: 0;
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	font-size: 26rpx;
+	box-shadow: 0 0 1px rgba(0, 0, 0, .3);
+	padding-bottom: env(safe-area-inset-bottom);
+	z-index: 996;
+}
+.tui-order-btn {
+	width: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	background: #fff;
+	padding: 0 30rpx 20rpx;
+	box-sizing: border-box;
+}
+
+.tui-btn-ml {
+	margin-left: 20rpx;
 }
 </style>

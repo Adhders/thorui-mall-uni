@@ -113,7 +113,6 @@
 			onChange(index){
 				if(this.select){
 					let pages = getCurrentPages(); //获取所有页面栈实例列表
-					let nowPage = pages[pages.length - 1]; //当前页页面实例
 					let prevPage = pages[pages.length - 2]; //上一页页面实例
 					prevPage.$vm.orderForm.address = this.addressList[index]; //修改上一页data里面的地址
 					uni.navigateBack({

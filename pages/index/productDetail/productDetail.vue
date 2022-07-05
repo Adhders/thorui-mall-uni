@@ -399,6 +399,9 @@
             this.spu_id = parseInt(options.spu_id)
 			const id = parseInt(options.sku_id)
 			this.$refs.popup.initial(this.spu_id, id)
+            if(Boolean(options.buy)){ //是否再次购买
+				this.$refs.popup.popupShow = true
+			}
 			let url = '/getGoodsReview/' + this.spu_id
 			this.tui.request(url).then(res=>{
 				if (res.code==='0'){

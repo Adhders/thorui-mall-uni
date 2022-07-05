@@ -15,19 +15,19 @@
 				</view>
 				<view class="tui-img__box" v-if="reviewDetail.imgs.length>0">
 					<block v-for="(src,subIndex) in reviewDetail.imgs" :key="subIndex">
-						<image @tap.stop="previewImage(index,subIndex)"
+						<image @tap.stop="previewImage(subIndex)"
 							:class="{'tui-image':reviewDetail.imgs.length===1, 'tui-image-double': reviewDetail.imgs.length===2}"
 							:src="webURL+src"
 							mode="aspectFill"></image>
 					</block>
 				</view>
 				<view class="tui-desc" v-if="reviewDetail.additional">
-					<view class="additional">购买{{reviewDetail.additional.date | timeFormat}}后追平</view>
+					<view class="additional">购买{{reviewDetail.additional.date | intervalTime}}后追平</view>
 					<view>{{reviewDetail.additional.msg}}</view>
 				</view>
 				<view class="tui-img__box" v-if="reviewDetail.additional.imgs.length>0">
 					<block v-for="(src,subIndex) in reviewDetail.additional.imgs" :key="subIndex">
-						<image @tap.stop="previewImage(index,subIndex,true)"
+						<image @tap.stop="previewImage(subIndex,true)"
 							:class="{'tui-image':reviewDetail.additional.imgs.length===1, 'tui-image-double': reviewDetail.additional.imgs.length===2}"
 							:src="webURL+src"
 							mode='aspectFill'>
@@ -107,6 +107,17 @@
 		filters: {
 			timeFormat(v){
 				return utils.formatDate("y-m-d", v);
+			},
+			intervalTime(v){
+				var new_date = new Date(); //新建一个日期对象，默认现在的时间
+				var old_date = new Date(v); //设置过去的一个时间点，"yyyy-MM-dd HH:mm:ss"格式化日期
+				
+				var difftime = (new_date - old_date)/1000; //计算时间差,并把毫秒转换成秒
+				
+				var days = parseInt(difftime/86400); // 天  
+				var hours = parseInt(difftime/3600); // 小时 
+				var minutes = parseInt(difftime/60); // 分钟
+				return days? days+'天': hours? hours + '小时' : minutes? minutes + '分钟': '1分钟' 
 			}
 		},
 		onLoad() {
@@ -169,7 +180,7 @@
 					duration: 100
 				})
 			},
-			previewImage(index, current, additional) {
+			previewImage(current, additional) {
 				let imgs = []
 				if(additional){
 					imgs = this.reviewDetail.additional.imgs

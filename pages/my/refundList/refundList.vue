@@ -36,7 +36,7 @@
 						</tui-list-cell>
 					</view>
 				</view>
-				<view class="tui-order-btn" v-else>
+				<view class="tui-order-btn">
 					<view class="tui-btn-ml tui-apply-btn" v-if="currentTab===0 && order.refundList.length===0">
 						<tui-button type="danger" plain width="152rpx" height="56rpx" :size="26" shape="circle" @tap="onApply(order)">
 							申请售后
@@ -85,9 +85,9 @@
 								</tui-button>
 							</view> -->
 						</block>
-						<block v-if="order.status==='申请已撤销'">
+						<block v-if="order.status==='申请已撤销' || order.status==='退款成功'">
 							<view class="tui-btn-ml">
-								<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @tap="onDelete(order)">
+								<tui-button type="black" plain width="175rpx" height="56rpx" :size="26" shape="circle" @tap="onDelete(order)">
 									删除售后单
 								</tui-button>
 							</view>
@@ -96,21 +96,9 @@
 									售后详情
 								</tui-button>
 							</view>
-							<view class="tui-btn-ml">
-								<tui-button type="danger" plain width="152rpx" height="56rpx" :size="26" shape="circle" @tap="onApply(order)">
+							<view class="tui-btn-ml" v-if="order.refundList[0].refundNum === order.refundNum">
+								<tui-button type="danger" plain width="152rpx" height="56rpx" :size="26" shape="circle" @tap="onApply(order, true)">
 									再次申请
-								</tui-button>
-							</view>
-						</block>
-					    <block  v-if="order.status==='退款成功'">
-							<view class="tui-btn-ml">
-								<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @tap="onDelete(order)">
-									删除售后单
-								</tui-button>
-							</view>
-							<view class="tui-btn-ml">
-								<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @tap="detail(order)">
-									售后详情
 								</tui-button>
 							</view>
 						</block>
@@ -136,12 +124,14 @@ export default {
 	data() {
 		return {
 			tabs: [{name: "售后申请"}, {name: "处理中"}, {name: "申请记录"}],
+			initial: true,
 			scrollTop: 0,
 			currentTab: 1,
 			selectedOrder: null,
 			isDelete: false,
 			loadding: true,
-			orderList: [],
+			// orderList: [], //可以申请退款的订单
+			applylist: [],
       		displayList: [],
 		};
 	},
@@ -156,38 +146,51 @@ export default {
 	computed: {
         refundList(){
 			return this.$store.state.refundList
+		},
+		orderList(){
+			return this.$store.state.orderList
 		}
 	},
 	watch: {
 		refundList: {
 			deep: true,
 			handler(v){
-				this.switchTab(this.currentTab)
-				this.$forceUpdate()
+				console.log('watch', v, this.initial)
+				if(!this.initial){
+					this.switchTab(this.currentTab)
+					this.$forceUpdate()
+				}
 			}
-		}
+		},
 	},
 	methods: {
-		loadData(e, fresh){
+		loadData(e, fresh){		
 			let url = '/getRefundOrders/' + uni.getStorageSync("pid")
 			this.tui.request(url,'GET', undefined, true).then((res)=>{
-				console.log('res', res)
+				console.log('refundList', res)
 				if(res.code==='0'){
 					this.loadding = false
-					this.$store.commit('setRefundList', res.refundList)
+					this.$store.commit('setRefundList', res.refundList)	
+                    setTimeout(()=>{
+						this.initial = false
+					}, 500)	
 					if(e.order){
 						let refundOrder = JSON.parse(decodeURIComponent(e.order))
 						this.currentTab = 0
 						this.displayList = [refundOrder]
+					}
+					else if(e.history){
+						let refundOrder = JSON.parse(decodeURIComponent(e.history))
+						this.refundHistory(refundOrder)
 					}else{
 						this.switchTab(this.currentTab)
-					}
-				}
+					}	
+				} 
 			})
-			url = '/getOrders/' + uni.getStorageSync("pid") + '/refundList' //获取可以申请退款的订单(默认两周内的订单)
+			url = '/getOrders/' + uni.getStorageSync("pid")
 			this.tui.request(url,'GET', undefined, true).then((res)=>{
 				if(res.code==='0'){
-					this.orderList = res.orderList
+					this.$store.commit('setOrderList', res.orderList)
 				}
 			})
 			if(fresh){
@@ -204,7 +207,13 @@ export default {
 		switchTab(v){
 			switch(v){
 				case 0: {
-					this.displayList = this.orderList
+					this.displayList = this.orderList.filter((o)=>{
+						const expireTime = 14*24*60*60*1000 //14天有效期
+						let t1 = Date.parse(new Date(o.payment_time)) + expireTime
+						let t2 = Date.parse(new Date())
+						console.log(t1, t2)
+						return t1-t2>0
+					})
 					break;
 				}
 				case 1: {
@@ -220,16 +229,27 @@ export default {
 			}
 		},
 		onDelete(order){
-			this.selectedOrder = order
+   			this.selectedOrder = order
 			this.isDelete=true
 		},
 		onRemove(e){
 			if(e.index===1){
-				let selectedIndex = this.refundList.findIndex((o)=>{ return o.refundNum === this.selectedOrder.refundNum})
-				this.refundList.splice(selectedIndex,1)
-				this.switchTab(this.currentTab)
 				let url = '/deleteRefundOrder/' + this.selectedOrder.refundNum
-				this.tui.request(url, 'DELETE').then(()=>{this.tui.toast('删除售后单成功')})
+				this.tui.request(url, 'DELETE').then(()=>{
+					this.tui.toast('删除售后单成功')
+					//更新申请列表
+					let orderIndex = this.orderList.findIndex((o)=>{ return o.orderNum === this.selectedOrder.orderNum})
+					if(orderIndex!==-1){
+						let refundList = this.orderList[orderIndex].refundList
+						let index = refundList.findIndex((o)=>{
+							return o.refundNum === this.selectedOrder.refundNum
+						})
+						refundList.splice(index, 1)
+					}
+                    //更新退款列表
+					let selectedIndex = this.refundList.findIndex((o)=>{ return o.refundNum === this.selectedOrder.refundNum})
+					this.refundList.splice(selectedIndex,1)
+				})
 			}
 			this.isDelete = false
 		},
@@ -237,22 +257,36 @@ export default {
 			let url = '/updateRefundOrders/' + order.refundNum + '/status'
 			this.tui.request(url, 'PUT', {status: '申请已撤销'}).then((res)=>{
 				if(res.code==='0'){
+					//更新申请列表
+					let orderIndex = this.orderList.findIndex((o)=>{ return o.orderNum === order.orderNum})
+					if(orderIndex !==-1){
+						this.$set(this.orderList[orderIndex], 'status', '申请已撤销')
+						let refundList = this.orderList[orderIndex].refundList
+						let index = refundList.findIndex((o)=>{
+							return o.refundNum === order.refundNum
+						})
+						refundList[index].status='申请已撤销'
+					}
+					//更新退款列表
+                    this.$store.state.orderState[5]-=1 
 					let selectedIndex = this.refundList.findIndex((o)=>{ return o.refundNum === order.refundNum})
-					this.refundList[selectedIndex].status = '申请已撤销'
-					this.$store.state.orderState[5]-=1
-					this.switchTab(this.currentTab)
+					let refundOrder = this.refundList[selectedIndex]
+					this.$set(refundOrder, 'status', '申请已撤销')
 					this.tui.toast('取消服务单成功')
 				}
 			})
-
 		},
-		onApply(order) {
-			this.tui.href('/pages/my/refundType/refundType?order=' + encodeURIComponent(JSON.stringify(order)))
+		onApply(order, repeat) {
+			let url = '/pages/my/refundType/refundType?order=' + encodeURIComponent(JSON.stringify(order))
+			if(repeat){
+				url = url + '&repeat=refundList'
+			}
+			this.tui.href(url)
 		},
 		refundHistory(order){ 
 			this.currentTab = 2
 			let res = []
-			order.refundList.forEach((refundOrder)=>{
+			order.refundList.forEach((refundOrder)=>{    
 				res.push(Object.assign({}, order, refundOrder))
 			})
 			this.displayList = res

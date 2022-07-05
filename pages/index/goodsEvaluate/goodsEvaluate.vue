@@ -55,7 +55,7 @@
 					</block>
 				</view>
 				<view class="tui-desc" v-if="item.additional">
-					<view class="additional">购买{{item.additional.date | timeFormat}}后追平</view>
+					<view class="additional">购买{{item.additional.date | intervalTime}}后追平</view>
 					<view>{{item.additional.msg}}</view>
 				</view>
 				<view class="tui-img__box" v-if="item.additional.imgs.length>0">
@@ -106,16 +106,20 @@
 		},
 		filters: {
 			timeFormat(v){
-				// var new_date = new Date(); //新建一个日期对象，默认现在的时间
-				// var old_date = new Date(v); //设置过去的一个时间点，"yyyy-MM-dd HH:mm:ss"格式化日期
-				
-				// var difftime = (new_date - old_date)/1000; //计算时间差,并把毫秒转换成秒
-				
-				// var days = parseInt(difftime/86400); // 天  
-				// var hours = parseInt(difftime/3600); // 小时 
-				// var minutes = parseInt(difftime/60); // 分钟
 				return utils.formatDate("y-m-d", v);
+			},
+			intervalTime(v){
+				var new_date = new Date(); //新建一个日期对象，默认现在的时间
+				var old_date = new Date(v); //设置过去的一个时间点，"yyyy-MM-dd HH:mm:ss"格式化日期
+				
+				var difftime = (new_date - old_date)/1000; //计算时间差,并把毫秒转换成秒
+				
+				var days = parseInt(difftime/86400); // 天  
+				var hours = parseInt(difftime/3600); // 小时 
+				var minutes = parseInt(difftime/60); // 分钟
+				return days? days+'天': hours? hours + '小时' : minutes? minutes + '分钟': '1分钟' 
 			}
+	
 		},
 		onLoad(){
 			this.selectedType.image = this.reviewList.filter(v=>{ return v.imgs.length>0 }).length

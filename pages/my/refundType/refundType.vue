@@ -32,15 +32,21 @@ export default {
 	},
 	data() {
 		return {
-            order: {}
+            order: {},
+            repeat: false,
         }
     },
     onLoad(options){
 		this.order = JSON.parse(decodeURIComponent(options.order))
+        this.repeat = options.repeat
     },
     methods: {
         goto(refundType){
-            this.tui.href('/pages/my/refund/refund?refundType=' + refundType + '&order=' + encodeURIComponent(JSON.stringify(this.order)))
+            let url = '/pages/my/refund/refund?refundType=' + refundType + '&order=' + encodeURIComponent(JSON.stringify(this.order))
+            if(this.repeat){
+                url = url + '&repeat=' + this.repeat
+            }
+            this.tui.href(url)
         }
     }
 }

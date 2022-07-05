@@ -30,7 +30,6 @@
 		},
         methods:{
             detail(order, goods) {
-                console.log('detail', order, goods, this.type)
                 if(this.type==='detail'){
                     uni.navigateTo({url: '/pages/index/productDetail/productDetail?spu_id=' + goods.spu_id + '&sku_id=' + goods.id})
                 }else{

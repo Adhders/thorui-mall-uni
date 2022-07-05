@@ -110,71 +110,104 @@
 		<view class="tui-safe-area"></view>
 		<view class="tui-tabbar tui-order-btn">
 			<block v-if="order.status==='交易关闭'">
-				<view class="tui-btn-mr">
-					<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @tap="onDelete(order)">删除订单</tui-button>
+				<view class="tui-btn-ml">
+					<tui-button type="danger" plain width="152rpx" height="56rpx" :size="26" shape="circle" @tap="onDelete(order)">删除订单</tui-button>
 				</view>
 			</block>
 			<block v-if="order.status==='待支付'">
-				<view class="tui-btn-mr">
-					<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @tap="onDelete(order)">取消订单</tui-button>
+				<view class="tui-btn-ml">
+					<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @tap="cancelOrder(order)">取消订单</tui-button>
 				</view>
-				<view class="tui-btn-mr">
+				<view class="tui-btn-ml">
 					<tui-button type="danger" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="pay(order)">去支付</tui-button>
 				</view>
 			</block>
 			<block v-if="order.status==='待发货'">
-				<view class="tui-btn-mr">
+				<view class="tui-btn-ml">
 					<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @tap="refund(order)">申请退款</tui-button>
 				</view>
-				<view class="tui-btn-mr">
+				<view class="tui-btn-ml">
 					<tui-button type="danger" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="remind">催发货</tui-button>
 				</view>
 			</block>
 			<block v-if="order.status==='待收货'">
-				<view class="tui-btn-mr">
+				<view class="tui-btn-ml">
 					<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="refund(order)">申请退款</tui-button>
 				</view>
-				<view class="tui-btn-mr">
-					<tui-button type="black"  plain width="152rpx" height="56rpx" :size="26" shape="circle">再次购买</tui-button>
+				<view class="tui-btn-ml">
+					<tui-button type="black"  plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="buy(order)">再次购买</tui-button>
 				</view>
-				<view class="tui-btn-mr">
+				<view class="tui-btn-ml">
 					<tui-button type="danger" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="onReceipt(order)">确认收货</tui-button>
 				</view>
 			</block>
 			<block v-if="order.status==='交易成功'">
-				<view class="tui-btn-mr">
-					<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="onReceipt(order)">退换/售后</tui-button>
+			    <view class="tui-btn-ml">
+					<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @tap="onDelete(order)">删除订单</tui-button>
 				</view>
-				<view class="tui-btn-mr">
-					<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="addEvaluate">追加评价</tui-button>
+				<view class="tui-btn-ml">
+					<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="refund(order)">退换/售后</tui-button>
 				</view>
-				<view class="tui-btn-mr">
-					<tui-button type="danger"  plain width="152rpx" height="56rpx" :size="26" shape="circle">再次购买</tui-button>
+				<view class="tui-btn-ml" v-if="isVisible(order.reviewState)">
+					<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="addEvaluate(order, 'additional')">追加评价</tui-button>
+				</view>
+				<view class="tui-btn-ml">
+					<tui-button type="danger"  plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="buy(order)">再次购买</tui-button>
 				</view>
 			</block>
 			<block v-if="order.status==='待评价'">
-				<view class="tui-btn-mr">
-					<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="onReceipt(order)">退换/售后</tui-button>
+				<view class="tui-btn-ml">
+					<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="refund(order)">退换/售后</tui-button>
 				</view>
-				<view class="tui-btn-mr">
-					<tui-button type="black"  plain width="152rpx" height="56rpx" :size="26" shape="circle">再次购买</tui-button>
+				<view class="tui-btn-ml">
+					<tui-button type="black"  plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="buy(order)">再次购买</tui-button>
 				</view>
-				<view class="tui-btn-mr">
-					<tui-button type="danger" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="addEvaluate">评价</tui-button>
+				<view class="tui-btn-ml">
+					<tui-button type="danger" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="addEvaluate(order, 'first')">评价</tui-button>
+				</view>
+			</block>
+			<block v-if="order.status==='处理中'">
+				<view class="tui-btn-ml">
+					<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @tap="detail(order)">
+						售后信息
+					</tui-button>
+				</view>
+			</block>
+			<block v-if="order.status==='申请已撤销' || order.status==='退款成功'">
+				<view class="tui-btn-ml">
+					<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @tap="onDelete(order)">
+						删除订单
+					</tui-button>
+				</view>
+				<view class="tui-btn-ml">
+					<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @tap="detail(order)">
+						售后信息
+					</tui-button>
 				</view>
 			</block>
 		</view>
-		<t-pay-way :show="show" @close="popupClose"></t-pay-way>
+		<tui-modal :show="isShow" @cancel="onCancel" :custom="true">
+			<view class="tui-modal-custom">
+				<image :src=selectedImg class="tui-tips-img"></image>
+				<view class="tips-title">
+					<view class="tui-modal-custom-text">确认收到货了吗？</view>
+					<view class="tui-modal-custom-text subTitle">为保障售后权益，请检查后再确认收货</view>
+				</view>
+				<view class="btn-block">
+					<tui-button class="btn cancel" height="72rpx" :size="28" shape="circle" @click="onCancel">取消</tui-button>
+					<tui-button class="btn" height="72rpx" :size="28" type="danger" shape="circle" @click="onConfirm">确认收货</tui-button>
+				</view>
+			</view>
+		</tui-modal>
+		<tui-modal :show="isDelete" @click="onRemove"  title="确定删除订单？" content="删除之后订单无法恢复，请慎重考虑？"></tui-modal>
 	</view>
 </template>
 
 <script>
 	import utils from "@/utils/util.js"
 	import tOrderItem from '@/components/views/t-order-item/t-order-item'
-	import tPayWay from "@/components/views/t-pay-way/t-pay-way"
 	export default {
 		components: {
-			tPayWay,
 			tOrderItem
 		},
 		data() {
@@ -182,7 +215,9 @@
 				webURL: "https://system.chuangbiying.com/static/images/mall/order/",
 				//1-待付款 2-付款成功 3-待收货 4-订单已完成 5-交易关闭
 				status: 2,
-				show: false,
+				selectedOrder : '',
+				isShow: false,
+				isDelete: false,
 				order: {
 					note: '',
 					discount: 0.00,
@@ -204,22 +239,14 @@
 			},
 			formatDate(v){
 				return utils.formatDate("y-m-d h:i:s", v)
-			},
-			getProperty(attr) {
-				let str = ''
-				attr.forEach(o=>{
-					str = str + o.value + '，'
-				})
-				return str.slice(0,-1)
-			},
-
+			}
+		},
+		computed: {
+			orderList(){
+				return this.$store.state.orderList
+			}
 		},
 		methods: {
-			detail(item) {    
-				this.tui.href(
-					'/pages/index/productDetail/productDetail?spu_id=' + item.spu_id + '&sku_id=' + item.id
-				)
-			},
 			getStatus: function(status){
 				const statusList = [
 					{status: '待支付'}, {status: '待发货'}, {status: '待收货'},
@@ -263,6 +290,9 @@
 				this.tui.toast('订单已失效')
 				this.cancelOrder(order)
 			},
+			isVisible(state){
+				return state.findIndex(o=>{return o.count===1}) !==-1
+			},
 			remind() {
                 this.tui.toast('待开发')
 			},
@@ -280,25 +310,29 @@
 					success: function () {
 						url = '/updateOrder/' + order.orderNum + '/' + 'payment'
 						_this.tui.request(url, 'PUT', {status : "待评价"}).then(()=>{})
+						order.status = "待评价"
 						_this.tui.href("/pages/order/success/success")},
 					fail: function (err) {
 						console.log('err', err)
 					},
 				})
 			},
+			buy(order){
+				let goods = order.goodsList[0]
+				this.tui.href('/pages/index/productDetail/productDetail?spu_id=' + goods.spu_id + '&sku_id=' + goods.id + '&buy=true')
+			},
 			cancelOrder(order) {
 				let url = '/closeOrder_miniProg/' + order.orderNum
 				this.tui.request(url).then(
 					(res)=>{
-						console.log('res', res)
 						if(res.code===204){
 							url = '/updateOrder/' + order.orderNum + '/' + 'status'
 							this.tui.request(url, 'PUT', {status : "交易关闭"}).then(
 								(res)=>{
 									if(res.code==='0'){
+										order.status="交易关闭"
 										let index =  this.orderList.findIndex((o)=>{ return o.orderNum === order.orderNum})
 										this.orderList[index].status = "交易关闭"
-                                        this.switchTab(this.currentTab)
 									}
 							})
 						}else{
@@ -306,15 +340,29 @@
 						}
 				})
 			},
+			onDelete(order){
+				this.selectedOrder = order
+				this.isDelete=true
+			},
+			onRemove(e){
+				if(e.index===1){
+					let selectedIndex = this.orderList.findIndex((o)=>{ return o.orderNum === this.selectedOrder.orderNum})
+					this.orderList.splice(selectedIndex,1)
+					let url = '/deleteOrder/' + this.selectedOrder.orderNum
+					this.tui.request(url, 'DELETE').then(()=>{this.tui.toast('删除订单成功')})
+				}
+				this.isDelete = false
+				uni.navigateBack({delta: 1})
+			},
+			invoiceDetail(){
+				this.tui.href('/pages/my/invoiceDetail/invoiceDetail')
+			},
 			refund(order){
 				this.tui.href('/pages/my/refundList/refundList?order=' + encodeURIComponent(JSON.stringify(order)))
 			},
-			popupClose() {
-				this.show = false
-			},
-			onReceipt(item){  
-				this.selectedOrder = item
-				this.selectedImg = item.goodsList[0].defaultImageUrl
+			onReceipt(order){  
+				this.selectedOrder = order
+				this.selectedImg = order.goodsList[0].defaultImageUrl
 				this.isShow=true
 			},
 			addEvaluate(order, mode){
@@ -324,6 +372,9 @@
 				uni.navigateTo({
 					url: url
 				})
+			},
+			detail(order) {
+				this.tui.href('/pages/my/refundList/refundList?history=' + encodeURIComponent(JSON.stringify(order)))
 			}
 		}
 	}
@@ -562,7 +613,7 @@
 
 	.tui-tabbar {
 		width: 100%;
-		height: 98rpx;
+		height: 100rpx;
 		background: #fff;
 		position: fixed;
 		left: 0;
@@ -576,8 +627,17 @@
 		z-index: 996;
 	}
 
-	.tui-btn-mr {
-		margin-right: 30rpx;
+	.tui-order-btn {
+		width: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: flex-end;
+		background: #fff;
+		padding: 0 30rpx 20rpx;
+		box-sizing: border-box;
+	}
+	.tui-btn-ml {
+		margin-left: 20rpx;
 	}
 	.tui-contact{
 		display: flex;

@@ -95,6 +95,7 @@ export default {
 	data() {
 		return {
 			edit: false,
+			repeat: false,
 			focus: false,
 			first: true,
 			range: true,
@@ -134,6 +135,8 @@ export default {
 		};
 	},
 	onLoad(options){
+		console.log('options',options)
+		this.repeat = options.repeat
 		this.edit = options.edit
 		this.order = JSON.parse(decodeURIComponent(options.order))
 		if(this.edit){
@@ -167,6 +170,9 @@ export default {
 		},
 		refundList(){
 			return this.$store.state.refundList
+		},
+		orderList(){
+			return this.$store.state.orderList
 		}
 	},
 	watch: {
@@ -233,10 +239,6 @@ export default {
 				name: "reason",
 				rule: ["required"],
 				msg: ["请选择退款原因"]
-			},{
-				name: "detail",
-				rule: ["required"],
-				msg: ["请输入申请说明"]
 			}];
 			let extra = {
 				name: "refund_fee",
@@ -259,6 +261,14 @@ export default {
 					this.tui.request(url, 'PUT', this.ruleForm).then(
 						(res) =>{
 							let obj = Object.assign({},this.order, this.ruleForm)
+							let orderIndex = this.orderList.findIndex((o)=>{ return o.orderNum === this.order.orderNum})
+							if(orderIndex !==-1){
+								let refundList = this.orderList[orderIndex].refundList
+								let index = refundList.findIndex((o)=>{
+									return o.refundNum === this.order.refundNum
+								})
+								this.$set(refundList, index, obj)
+							}
 							let index = this.refundList.findIndex((o)=>{return o.refundNum === obj.refundNum})
 							this.$set(this.refundList, index, obj)
 							this.tui.toast("更新成功")
@@ -272,14 +282,21 @@ export default {
 					this.tui.request(url, 'POST', this.ruleForm).then(
 						(res) =>{
 							if(res.code==='0'){
+								let index = this.orderList.findIndex((o)=>{return o.orderNum === this.order.orderNum})
+								if(index!==-1){
+									this.orderList[index].status=res.refundOrder.status
+									this.orderList[index].refundList.unshift(res.refundOrder)
+								}
+								if(this.repeat){ //更新旧的refundOrder
+									let index = this.refundList.findIndex((o)=>{return o.refundNum === this.order.refundNum})
+									this.refundList[index].refundList.unshift(res.refundOrder)
+								}
+								this.$store.state.orderState[5]+=1	
+								this.order.refundList.unshift(res.refundOrder)	
+								this.refundList.unshift(Object.assign({}, this.order, res.refundOrder))
+								let delta = (this.repeat==='refundDetail')? 3: 2  //判断是否从退款详情页发起的重新申请
+								uni.navigateBack({delta: delta})
 								this.tui.toast("申请售后成功")
-								this.ruleForm.refundNum = res.refundNum
-								this.ruleForm.status = '处理中'	
-								this.$store.state.orderState[5]+=1						
-								this.refundList.unshift(Object.assign({}, this.order, this.ruleForm))
-								setTimeout(()=>{
-									uni.navigateBack({delta: 1})
-								}, 500);
 							}
 						}
 					)
