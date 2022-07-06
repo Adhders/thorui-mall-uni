@@ -135,7 +135,6 @@ export default {
 		};
 	},
 	onLoad(options){
-		console.log('options',options)
 		this.repeat = options.repeat
 		this.edit = options.edit
 		this.order = JSON.parse(decodeURIComponent(options.order))
@@ -233,13 +232,19 @@ export default {
 		//表单规则
 			let rules = [{
 				name: "refundType",
-				rule: ["required"], //可使用区间，此处主要测试功能
+				rule: ["required"], 
 				msg: ["请选择售后类型"]
 			}, {
 				name: "reason",
 				rule: ["required"],
 				msg: ["请选择退款原因"]
-			}];
+			},{
+				name: "detail",
+				rule: ["required"],
+				msg: ["请填写申请说明"]
+			}
+			
+			];
 			let extra = {
 				name: "refund_fee",
 				rule: ["required"],
@@ -289,7 +294,9 @@ export default {
 								}
 								if(this.repeat){ //更新旧的refundOrder
 									let index = this.refundList.findIndex((o)=>{return o.refundNum === this.order.refundNum})
-									this.refundList[index].refundList.unshift(res.refundOrder)
+									if(index!==-1){
+										this.refundList[index].refundList.unshift(res.refundOrder)
+									}
 								}
 								this.$store.state.orderState[5]+=1	
 								this.order.refundList.unshift(res.refundOrder)	

@@ -11,7 +11,7 @@
 					</view>
 					<view class="tui-icon-box tui-icon-ml" :style="{backgroundColor: 'rgba(0, 0, 0,' + iconOpcity + ')'}" @tap.stop="openMenu">
 						<tui-icon name="more-fill" :size="20" :color="opcity >= 1 ? '#000' : '#fff'"></tui-icon>
-						<tui-badge type="red" :scaleRatio="0.9" absolute top="-6rpx" right="-8rpx">5</tui-badge>
+						<tui-badge type="red" :scaleRatio="0.9" absolute top="-6rpx" right="-8rpx" v-if="total">{{total}}</tui-badge>
 					</view>
 				</view>
 			</view>
@@ -188,8 +188,6 @@
 				</view>
 			</view>
 
-			<!--底部操作栏-->
-
 			<!--顶部下拉菜单-->
 			<tui-top-dropdown backgroundColor="rgba(76, 76, 76, 0.95)" :show="menuShow" :height="0" @close="closeMenu">
 				<view class="tui-menu-box tui-padding tui-ptop">
@@ -328,7 +326,7 @@
 						icon: 'message',
 						text: '消息',
 						size: 26,
-						badge: 3
+						badge: 0
 					},
 					{
 						icon: 'home',
@@ -346,7 +344,7 @@
 						icon: 'cart',
 						text: '购物车',
 						size: 23,
-						badge: 2
+						badge: 0,
 					},
 					{
 						icon: 'kefu',
@@ -367,6 +365,7 @@
 						badge: 0
 					}
 				],
+				total: 0, //未读消息和购物车数据条数
 				menuShow: false,
 				popupShow: false,
 				buyNum: 1,
@@ -408,7 +407,16 @@
 				    this.reviews = res.reviewList.length
 					this.$store.commit('setReviewList', res.reviewList)
 				}
-			})		   
+			})
+
+			//计算当前购物车商品数量
+			let total = 0
+			let dataList = this.cart.filter((o)=>{return !o.invalid})
+			dataList.map((o) => {
+				total += o.buyNum;
+			})
+			this.topMenu[3].badge=total
+			this.total = total
 		},
 		onShow(){
 			// 视频全屏播放返回后的处理
@@ -447,7 +455,7 @@
 					res += o.name+ '\u3000'
 				})
 				return res
-			},
+			}
 		},
 		computed: {
 			reviewList() {
@@ -455,6 +463,9 @@
 			},
 			goodsList() {
 				return this.$store.state.goodsList
+			},
+			cart(){
+				return this.$store.state.cart
 			}
 		},
 		methods: {
@@ -590,13 +601,7 @@
 						3: '/pages/tabbar/cart/cart',
 						5: '/pages/my/feedback/feedback?page=mall'
 					} [index];
-					if (index == 0 || index == 5) {
-						url && this.tui.href(url)
-					} else {
-						uni.switchTab({
-							url: url
-						})
-					}
+					this.tui.href(url)
 				}
 			},
 			coupon() {

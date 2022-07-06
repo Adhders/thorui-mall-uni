@@ -15,7 +15,7 @@ const store = createStore({
 	state: {
 		appid: "wx09760711e33ab5bb",
 		corpId: 'ww5dc8a0b776f02df8',
-		qrcode: 'https://thorui.cn/extend/share/applets.png',
+		qrcode: 'https://system.chuangbiying.com/store/qrcode/thorUI.png',
 		serviceId: "https://work.weixin.qq.com/kfid/kfcb67b111a2c17d9e0",
 		secret: "53dc8454d875811c698b8d42bfac644e",
 		//用户信息

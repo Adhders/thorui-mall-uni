@@ -88,7 +88,7 @@
 				</block>
 				<block v-if="order.status==='申请已撤销' || order.status==='退款成功'">
 					<view class="tui-btn-ml">
-						<tui-button type="black" plain width="175rpx" height="56rpx" :size="26" shape="circle" @tap="onDelete(order)">
+						<tui-button type="black" :disabled="order.undeletable"  plain width="175rpx" height="56rpx" :size="26" shape="circle" @tap="onDelete(order)">
 							删除售后单
 						</tui-button>
 					</view>
@@ -157,15 +157,6 @@ export default {
 				let url = '/deleteRefundOrder/' + this.selectedOrder.refundNum
 				this.tui.request(url, 'DELETE').then(()=>{
 					this.tui.toast('删除售后单成功')
-					//更新申请列表
-					let orderIndex = this.orderList.findIndex((o)=>{ return o.orderNum === this.selectedOrder.orderNum})
-					if(orderIndex!==-1){
-						let refundList = this.orderList[orderIndex].refundList
-						let index = refundList.findIndex((o)=>{
-							return o.refundNum === this.selectedOrder.refundNum
-						})
-						refundList.splice(index, 1)
-					}
                     //更新退款列表
 					let selectedIndex = this.refundList.findIndex((o)=>{ return o.refundNum === this.selectedOrder.refundNum})
 					this.refundList.splice(selectedIndex,1)

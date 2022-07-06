@@ -86,7 +86,7 @@
 							</view> -->
 						</block>
 						<block v-if="order.status==='申请已撤销' || order.status==='退款成功'">
-							<view class="tui-btn-ml">
+							<view class="tui-btn-ml" v-if="!order.undeletable">
 								<tui-button type="black" plain width="175rpx" height="56rpx" :size="26" shape="circle" @tap="onDelete(order)">
 									删除售后单
 								</tui-button>
@@ -155,7 +155,6 @@ export default {
 		refundList: {
 			deep: true,
 			handler(v){
-				console.log('watch', v, this.initial)
 				if(!this.initial){
 					this.switchTab(this.currentTab)
 					this.$forceUpdate()
@@ -173,7 +172,7 @@ export default {
 					this.$store.commit('setRefundList', res.refundList)	
                     setTimeout(()=>{
 						this.initial = false
-					}, 500)	
+					}, 600)	
 					if(e.order){
 						let refundOrder = JSON.parse(decodeURIComponent(e.order))
 						this.currentTab = 0
@@ -209,9 +208,8 @@ export default {
 				case 0: {
 					this.displayList = this.orderList.filter((o)=>{
 						const expireTime = 14*24*60*60*1000 //14天有效期
-						let t1 = Date.parse(new Date(o.payment_time)) + expireTime
-						let t2 = Date.parse(new Date())
-						console.log(t1, t2)
+						let t1 = Date.parse(new Date(o.payment_time)) + expireTime //当payment_time为null时，t1=expireTime
+						let t2 = Date.parse(new Date()) 
 						return t1-t2>0
 					})
 					break;
@@ -237,15 +235,6 @@ export default {
 				let url = '/deleteRefundOrder/' + this.selectedOrder.refundNum
 				this.tui.request(url, 'DELETE').then(()=>{
 					this.tui.toast('删除售后单成功')
-					//更新申请列表
-					let orderIndex = this.orderList.findIndex((o)=>{ return o.orderNum === this.selectedOrder.orderNum})
-					if(orderIndex!==-1){
-						let refundList = this.orderList[orderIndex].refundList
-						let index = refundList.findIndex((o)=>{
-							return o.refundNum === this.selectedOrder.refundNum
-						})
-						refundList.splice(index, 1)
-					}
                     //更新退款列表
 					let selectedIndex = this.refundList.findIndex((o)=>{ return o.refundNum === this.selectedOrder.refundNum})
 					this.refundList.splice(selectedIndex,1)
@@ -287,6 +276,7 @@ export default {
 			this.currentTab = 2
 			let res = []
 			order.refundList.forEach((refundOrder)=>{    
+				refundOrder.undeletable=true
 				res.push(Object.assign({}, order, refundOrder))
 			})
 			this.displayList = res

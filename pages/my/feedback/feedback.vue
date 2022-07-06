@@ -2,7 +2,7 @@
 	<view class="container">
 		<view class="title">问题描述</view>
 		<view class="tui-cells">
-			<textarea class="tui-textarea" placeholder="我希望加入XXXX功能，因为XX情况下，会出现XX异常" maxlength="500" placeholder-class="phcolor"
+			<textarea class="tui-textarea" placeholder="请输入您遇到的问题" maxlength="500" placeholder-class="phcolor"
 			 v-model="desc" />
 			<view class="textarea-counter">{{descNum}}/500</view>
 	    </view> 
@@ -49,21 +49,21 @@
 				}
 				let checkRes = form.validation(formData, rules);
 				if (!checkRes) {
-					this.tui.request("/Home/AddFeedBack","POST",{
-						Name: this.email,
-						Subject: "问题反馈",
-						Email: this.email,
-						Message: this.desc
-					}).then((res)=>{
-						console.log(res)
-						if (res.code == 100) {
-							this.tui.toast('提交成功');
-							this.desc="";
-							this.email="";
-						} else {
-							this.tui.toast(res.message);
-						}
-					}).catch((res)=>{})
+					this.tui.toast('功能开发中')
+					// this.tui.request("/Home/AddFeedBack","POST",{
+					// 	Name: this.email,
+					// 	Subject: "问题反馈",
+					// 	Email: this.email,
+					// 	Message: this.desc
+					// }).then((res)=>{
+					// 	if (res.code == 100) {
+					// 		this.tui.toast('提交成功');
+					// 		this.desc="";
+					// 		this.email="";
+					// 	} else {
+					// 		this.tui.toast(res.message);
+					// 	}
+					// }).catch((res)=>{})
 				} else {
 					this.tui.toast(checkRes)
 				}

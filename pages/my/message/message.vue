@@ -18,7 +18,7 @@
 						</view>
 						<view class="tui-title">客服消息</view>
 					</view>
-					<tui-badge :position="false" type="red" :scale="false">1</tui-badge>
+					<!-- <tui-badge :position="false" type="red" :scale="false">0</tui-badge> -->
 				</view>
 			</tui-list-cell>
 			<tui-list-cell @click="href(3)">
@@ -29,7 +29,7 @@
 						</view>
 						<view class="tui-title">发货通知</view>
 					</view>
-					<tui-badge :position="false" type="red" :scale="false">12</tui-badge>
+					<!-- <tui-badge :position="false" type="red" :scale="false">0</tui-badge> -->
 				</view>
 			</tui-list-cell>
 			<tui-list-cell @click="href(4)">
@@ -40,7 +40,7 @@
 						</view>
 						<view class="tui-title">收货通知</view>
 					</view>
-					<tui-badge :position="false" type="red" :scale="false" v-if="false">1</tui-badge>
+					<!-- <tui-badge :position="false" type="red" :scale="false" v-if="false">0</tui-badge> -->
 				</view>
 			</tui-list-cell>
 			<tui-list-cell @click="href(5)">
@@ -51,7 +51,7 @@
 						</view>
 						<view class="tui-title">付款通知</view>
 					</view>
-					<tui-badge :position="false" type="red" :scale="false">8</tui-badge>
+					<!-- <tui-badge :position="false" type="red" :scale="false">8</tui-badge> -->
 				</view>
 			</tui-list-cell>
 			<tui-list-cell :unlined="true" @click="href(6)">
@@ -62,7 +62,7 @@
 						</view>
 						<view class="tui-title">系统通知</view>
 					</view>
-					<tui-badge :position="false" type="red" :scale="false">10</tui-badge>
+					<!-- <tui-badge :position="false" type="red" :scale="false">0</tui-badge> -->
 				</view>
 			</tui-list-cell>
 		</view>

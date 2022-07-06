@@ -40,7 +40,7 @@
 				<view class="tui-set-box">
 					<view class="tui-icon-box tui-icon-message" @tap="href(7)">
 						<tui-icon name="message" color="#fff" :size="26"></tui-icon>
-						<view v-if="isLogin" class="tui-badge tui-badge-white">1</view>
+						<!-- <view v-if="isLogin" class="tui-badge tui-badge-white">1</view> -->
 					</view>
 					<view class="tui-icon-box tui-icon-setup" @tap="href(2)">
 						<tui-icon name="setup" color="#fff" :size="26"></tui-icon>
@@ -48,24 +48,20 @@
 				</view>
 				<!-- #endif -->
 			</view>
-			<view class="tui-header-btm" @tap="href(5)">
+			<!-- <view class="tui-header-btm">
 				<view class="tui-btm-item">
-					<view class="tui-btm-num">25</view>
+					<view class="tui-btm-num">0</view>
 					<view class="tui-btm-text">收藏夹</view>
 				</view>
 				<view class="tui-btm-item">
-					<view class="tui-btm-num">22</view>
-					<view class="tui-btm-text">店铺关注</view>
-				</view>
-				<view class="tui-btm-item">
-					<view class="tui-btm-num">3</view>
+					<view class="tui-btm-num">0</view>
 					<view class="tui-btm-text">喜欢的内容</view>
 				</view>
 				<view class="tui-btm-item">
 					<view class="tui-btm-num">44</view>
 					<view class="tui-btm-text">足迹</view>
 				</view>
-			</view>
+			</view> -->
 		</view>
 		<view class="tui-content-box">
 			<view class="tui-box tui-order-box">
@@ -114,43 +110,44 @@
 				</view>
 			</view>
 
-<!--			<view class="tui-box tui-assets-box">-->
-<!--				<tui-list-cell padding="0" unlined :hover="false">-->
-<!--					<view class="tui-cell-header">-->
-<!--						<view class="tui-cell-title">我的资产</view>-->
-<!--					</view>-->
-<!--				</tui-list-cell>-->
-<!--				<view class="tui-order-list tui-assets-list">-->
-<!--					<view class="tui-order-item" @tap="href(11)">-->
-<!--						<view class="tui-assets-num"><text>20</text></view>-->
-<!--						<view class="tui-assets-text">余额</view>-->
-<!--					</view>-->
-<!--					<view class="tui-order-item" @tap="href(8)">-->
-<!--						<view class="tui-assets-num">-->
-<!--							<text>3</text>-->
-<!--							<view class="tui-badge-dot"></view>-->
-<!--						</view>-->
-<!--						<view class="tui-assets-text">优惠券</view>-->
-<!--					</view>-->
-<!--					<view class="tui-order-item">-->
-<!--						<view class="tui-assets-num">-->
-<!--							<text>7</text>-->
-<!--							<view class="tui-badge-dot"></view>-->
-<!--						</view>-->
-<!--						<view class="tui-assets-text">积分</view>-->
-<!--					</view>-->
-<!--					<view class="tui-order-item">-->
-<!--						<view class="tui-assets-num"><text>0</text></view>-->
-<!--						<view class="tui-assets-text">红包</view>-->
-<!--					</view>-->
-<!--					<view class="tui-order-item">-->
-<!--						<view class="tui-assets-num"><text>1</text></view>-->
-<!--						<view class="tui-assets-text">礼品卡</view>-->
-<!--					</view>-->
-<!--				</view>-->
-<!--			</view>-->
+			<!-- <view class="tui-box tui-assets-box">
+				<tui-list-cell padding="0" unlined :hover="false">
+					<view class="tui-cell-header">
+						<view class="tui-cell-title">我的资产</view>
+					</view>
+				</tui-list-cell>
+				<view class="tui-order-list tui-assets-list">
+					<view class="tui-order-item" @tap="href(11)">
+						<view class="tui-assets-num"><text>20</text></view>
+						<view class="tui-assets-text">余额</view>
+					</view>
+					<view class="tui-order-item" @tap="href(8)">
+						<view class="tui-assets-num">
+							<text>3</text>
+							<view class="tui-badge-dot"></view>
+						</view>
+						<view class="tui-assets-text">优惠券</view>
+					</view>
+					<view class="tui-order-item">
+						<view class="tui-assets-num">
+							<text>7</text>
+							<view class="tui-badge-dot"></view>
+						</view>
+						<view class="tui-assets-text">积分</view>
+					</view>
+					<view class="tui-order-item">
+						<view class="tui-assets-num"><text>0</text></view>
+						<view class="tui-assets-text">红包</view>
+					</view>
+					<view class="tui-order-item">
+						<view class="tui-assets-num"><text>1</text></view>
+						<view class="tui-assets-text">礼品卡</view>
+					</view>
+				</view>
+			</view> -->
 
-			<view class="tui-box tui-tool-box">
+
+			<!-- <view class="tui-box tui-tool-box">
 				<tui-list-cell :arrow="true" padding="0" :lineLeft="false">
 					<view class="tui-cell-header">
 						<view class="tui-cell-title">常用工具</view>
@@ -208,7 +205,7 @@
 						<view class="tui-tool-text">开发票</view>
 					</view>
 				</view>
-			</view>
+			</view> -->
 		</view>
 		<tui-tabbar :current="current" :tabBar="tabBar.list" 
 			:color="tabBar.color" :selectedColor="tabBar.selectedColor" :backgroundColor="tabBar.backgroundColor"
@@ -702,7 +699,7 @@
 		display: block;
 	}
 
-	.tui-assets-box {
+	/* .tui-assets-box {
 		height: 178rpx;
 		margin-top: 20rpx;
 	}
@@ -716,14 +713,14 @@
 		font-weight: 500;
 		color: #333;
 		position: relative;
-	}
+	} */
 
-	.tui-assets-text {
+	/* .tui-assets-text {
 		font-size: 24rpx;
 		font-weight: 400;
 		color: #666;
 		padding-top: 6rpx;
-	}
+	} */
 
 	.tui-tool-box {
 		margin-top: 20rpx;

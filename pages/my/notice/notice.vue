@@ -41,18 +41,12 @@
 			</tui-list-cell>
 		</view>
 		<view class="tui-top">
-			<tui-list-cell :hover="false">
-				<view class="tui-notice-item">
-					<view class="tui-list-item_title">我关注的</view>
-					<switch :checked="false" color="#19be6b" class="tui-scale-small" />
-				</view>
-			</tui-list-cell>
-			<tui-list-cell :hover="false">
+			<!-- <tui-list-cell :hover="false">
 				<view class="tui-notice-item">
 					<view class="tui-list-item_title">我订阅的</view>
 					<switch :checked="false" color="#19be6b" class="tui-scale-small" />
 				</view>
-			</tui-list-cell>
+			</tui-list-cell> -->
 			<tui-list-cell :hover="false" :unlined="true">
 				<view class="tui-notice-item">
 					<view class="tui-list-item_title">我喜欢的</view>
