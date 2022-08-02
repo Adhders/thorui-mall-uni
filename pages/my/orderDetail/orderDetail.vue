@@ -8,7 +8,7 @@
 					<view class="tui-reason"><text class="tui-reason-text">{{getReason(status)}}</text>
 						<tui-countdown :time="getTime(order.create_time)" color="rgba(254,254,254,0.75)"
 						 colonColor="rgba(254,254,254,0.75)" borderColor="transparent" @end="onEnd(order)"
-						 backgroundColor="transparent" v-if="status===1"></tui-countdown>
+						 backgroundColor="transparent" v-if="status===0"></tui-countdown>
 					</view>
 				</view>
 				<image :src="getImg(status)" class="tui-status-img" mode="widthFix"></image>
@@ -99,8 +99,8 @@
 				</view>
 			</view>
 			<tui-list-view unlined="bottom">
-				<tui-list-cell unlined>
-					<view class="tui-contact" @tap="openService">
+				<tui-list-cell unlined @tap="openService">
+					<view class="tui-contact">
 						<image src="https://system.chuangbiying.com/static/images/mall/icon_contactmerchant.png"></image>
 						<text>联系商家</text>
 					</view>
@@ -212,6 +212,7 @@
 		},
 		data() {
 			return {
+				appid: '',
 				webURL: "https://system.chuangbiying.com/static/images/mall/order/",
 				//1-待付款 2-付款成功 3-待收货 4-订单已完成 5-交易关闭
 				status: 2,
@@ -232,6 +233,8 @@
 		onLoad(options){
 			this.order =  JSON.parse(decodeURIComponent(options.order))
 			this.status = this.getStatus(this.order.status)
+			console.log('status', this.status)
+			this.appid = this.$store.state.appid
 		},
 		filters: {
 			formatNumber(v){
@@ -250,12 +253,13 @@
 			getStatus: function(status){
 				const statusList = [
 					{status: '待支付'}, {status: '待发货'}, {status: '待收货'},
-					{status: '待评价'}, {status: '交易成功'}, {status: '交易关闭'}
+					{status: '待评价'}, {status: '交易成功'}, {status: '交易关闭'},
+					{status: '处理中'}, {status: '退款成功'}
 				]
-				return statusList.findIndex((o)=>{
-					return o.status===status})
+				return statusList.findIndex((o)=>{return o.status===status})
 			},
 			getTime(time){
+				time = time.replace(/-/g, "/") //如果不转化，在ios设备上会计算错误
 				const expireTime = 24*60*60*1000 //一天后过期
 				let t1 = Date.parse(new Date(time)) + expireTime
 				let t2 = Date.parse(new Date())
@@ -274,14 +278,14 @@
 			},
 			getImg: function(status) {
 				return this.webURL + ["img_order_payment3x.png", "img_order_send3x.png", "img_order_received3x.png",
-					"img_order_signed3x.png", "img_order_signed3x.png",  "img_order_closed3x.png"
+					"img_order_signed3x.png", "img_order_signed3x.png",  "img_order_closed3x.png", "img_waiting.png", "img_success3x.png"
 				][status]
 			},
 			getStatusText: function(status) {
-				return ["等待您付款", "付款成功", "待收货", "待评价", "交易成功", "交易关闭"][status]
+				return ["等待您付款", "付款成功", "待收货", "待评价", "交易成功", "交易关闭", '处理中', "退款成功"][status]
 			},
 			getReason: function(status) {
-				return ["剩余时间", "等待卖家发货", "还剩X天XX小时自动确认", "", "", "超时未付款，订单自动取消"][status]
+				return ["", "等待卖家发货", "还剩X天XX小时自动确认", "", "感谢购买我们的商品，欢迎下次再来!", "超时未付款，订单自动取消", "等待商家处理", ""][status]
 			},
 			logistics() {
 				this.tui.href("/pages/my/logistics/logistics")
@@ -309,7 +313,12 @@
 					paySign: result.paySign,
 					success: function () {
 						url = '/updateOrder/' + order.orderNum + '/' + 'payment'
-						_this.tui.request(url, 'PUT', {status : "待评价"}).then(()=>{})
+						_this.tui.request(url, 'PUT', {status : "待评价"}).then(()=>{
+							let goodsList = order.goodsList
+							goodsList.forEach((o)=>{
+								_this.tui.request('/updateGoodsStock', 'PUT', {id: o.id, buyNum: o.buyNum})
+							})
+						})
 						order.status = "待评价"
 						_this.tui.href("/pages/order/success/success")},
 					fail: function (err) {
@@ -322,21 +331,24 @@
 				this.tui.href('/pages/index/productDetail/productDetail?spu_id=' + goods.spu_id + '&sku_id=' + goods.id + '&buy=true')
 			},
 			cancelOrder(order) {
-				let url = '/closeOrder_miniProg/' + order.orderNum
+				let url = '/closeOrder_miniProg/' + this.appid + '/' + order.orderNum
 				this.tui.request(url).then(
 					(res)=>{
 						if(res.code===204){
-							url = '/updateOrder/' + order.orderNum + '/' + 'status'
-							this.tui.request(url, 'PUT', {status : "交易关闭"}).then(
-								(res)=>{
-									if(res.code==='0'){
-										order.status="交易关闭"
-										let index =  this.orderList.findIndex((o)=>{ return o.orderNum === order.orderNum})
-										this.orderList[index].status = "交易关闭"
-									}
-							})
-						}else{
-							this.tui.toast('取消失败，请稍后再试')
+							let index =  this.orderList.findIndex((o)=>{ return o.orderNum === order.orderNum})
+							this.orderList[index].status = "交易关闭"
+							this.tui.toast('取消成功，交易关闭')
+							order.status = "交易关闭"
+							this.status = this.getStatus("交易关闭")
+						}else if(res.code===400){
+							let index =  this.orderList.findIndex((o)=>{ return o.orderNum === order.orderNum})
+							this.orderList[index].status = "待评价"
+							this.tui.toast('无法取消订单，该订单已支付成功')
+							order.status = "待评价"
+							this.status = this.getStatus("待评价")
+						}
+						else{
+							this.tui.toast(res.message)
 						}
 				})
 			},

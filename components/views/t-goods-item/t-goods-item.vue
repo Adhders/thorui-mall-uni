@@ -2,7 +2,7 @@
 	<view class="tui-pro-item" :class="[isList ? 'tui-flex-list' : '', {border: params.type==='3', shadow: params.type==='2'}]" 
 	     :style="{ borderRadius: params.borderRadius*2 + 'rpx'}" hover-class="tui-hover" :hover-start-time="150">
 		<image :src="entity.defaultImageUrl" @tap="detail(entity)" class="tui-pro-img"  :style="{borderRadius: params.type!='1'? 0 : params.borderRadius*2 + 'rpx'}"
-			mode="widthFix" :class="[isList? 'tui-proimg-list' : '']" />
+			:mode="isList? 'aspectFill': 'widthFix'" :class="[isList? 'tui-proimg-list' : '']" />
 		<!-- <view class="image-tag" v-if="params.showTags" >
 			<image  class="img" style="width: 53px; height: 15px" mode="widthFix" src="https://system.chuangbiying.com/static/images/mini/listTpl_goods.png"/>
 		</view> -->
@@ -22,21 +22,17 @@
 					<text class="tui-size-24" v-if="entity.decimalPrice">.{{entity.decimalPrice}}</text>
 					<text class="tui-factory-price" v-if="params.showPrice && entity.originalPrice">￥{{ entity.originalPrice }}</text>
 				</view>
-				<tui-icon name="cart" :size="16" color="#e41f19" @tap.stop="onSelect(entity)" v-if="params.showCart"></tui-icon>
+				<tui-icon name="cart" :size="32" unit="rpx" color="#e41f19" @tap.stop="onSelect(entity)" v-if="params.showCart"></tui-icon>
 			</view>
 		</view>
 		<!-- 当mode为list时，addCart组件会跟随scroll-view一起滚动，addCart组件要放到list页面里才能避免一起滚动-->
-		<popup-box ref="popup" @add="onAdd" v-if="mode!=='list'"></popup-box>
+		<!-- <popup-box ref="popup" @add="onAdd" v-if="mode!=='list'"></popup-box> -->
 	</view>		
 </template>
 
 <script>
-import popupBox from '@/components/views/addCart/addCart'
 export default {
 	name: 'tGoodsItem',
-	components: {
-		popupBox
-	},
 	props: {
 		entity: {
 			type: Object,
@@ -78,15 +74,7 @@ export default {
 			})
 		},
 		onSelect(goods){
-			if(this.mode==='list'){
-				this.$emit('add', goods)
-			}else{
-				this.$refs.popup.initial(goods.spu_id, goods.id)
-				this.$refs.popup.popupShow = true
-			}
-		},
-		onAdd(newGoods){
-			this.$emit('add', newGoods)
+			this.tui.href('/pages/index/productDetail/productDetail?spu_id=' + goods.spu_id + '&sku_id=' + goods.id + '&buy=true')
 		}
 	}
 };
@@ -168,11 +156,11 @@ export default {
 	}
 	.icon-box{
 		display: flex;
-		align-items: center;
+		align-items: baseline;
 		flex-direction: row;
 		justify-content: space-between;
 		width: 100%;
-		height: 60rpx;
+		// height: 60rpx;
 		.tui-pro-price {
 			padding-top: 10rpx;
 			flex: auto;

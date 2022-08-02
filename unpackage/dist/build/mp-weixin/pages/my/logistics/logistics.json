@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "查看物流",
+  "usingComponents": {
+    "tui-time-axis": "/components/thorui/tui-time-axis/tui-time-axis",
+    "tui-timeaxis-item": "/components/thorui/tui-timeaxis-item/tui-timeaxis-item",
+    "tui-icon": "/components/thorui/tui-icon/tui-icon"
+  }
+}

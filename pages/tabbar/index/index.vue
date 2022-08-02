@@ -3,7 +3,7 @@
 		<NavBar :page="page" @back="onBack"></NavBar>
 		<scroll-view scroll-y style="height: 100vh;" show-scrollbar>
 			<view class="element-box"
-				:style="{marginTop: (page.style.isEmbedding? 0: height)+'px', marginBottom: (visible? height: 0) + 'px'}">
+				:style="{marginTop: (page.style.isEmbedding? 0: height)+'px', paddingBottom: (visible? height: 0) + 'px'}">
 				<view class="element-item" v-for="(item,index) in page.arrList" :key="index"
 					:class="{ embedding: page.style.isEmbedding, normal: !page.style.isEmbedding}">
 					<CarouselView :item=item v-if="item.cmptName==='CarouselView'" @goto="redirect"></CarouselView>
@@ -30,8 +30,8 @@
 	export default {
 		data() {
 			return {
+				appid: '',
 				height: getApp().globalData.navBarHeight,
-				goodsList: [],
 				startVideo: true,
 				scrollTop: 0,
 				lastIndex: 0, //上一页面的索引
@@ -52,10 +52,9 @@
 			}
 		},
 		onLoad() {
-			this.appid = this.$store.state.appid
+			this.appid = getApp().globalData.appid
 			let url = '/getStoreGoods/' + this.appid
 			this.tui.request(url).then(res => {
-				console.log('res', res)
 				if (res.code === '0') {
 					res.goodsList.forEach((o) => {
 						o.integerPrice = parseInt(o.price)
@@ -66,7 +65,6 @@
 					url = '/getStoreGoodsGroup/' + this.appid
 					this.tui.request(url).then(
 						res => {
-							console.log('group', res)
 							if (res.code === '0') {
 								let goodsGroup = []
 								res.goodsGroup.forEach((o) => {
@@ -98,14 +96,12 @@
 					this.page = this.pages[0]
 					this.$store.commit('setTabBar', this.tabBar)
 					this.$store.commit('setPages', this.pages)
-					console.log('page', this.page)
 				}
 			}).catch(err => {
 				console.log('err', err)
 			})
 		},
 		onShow() {
-
 			let index = this.pages.findIndex((o) => {
 				return o.id === this.page.id
 			})
@@ -230,10 +226,5 @@
 </script>
 
 <style lang="scss" scoped>
-	// .father {
-	// 	width: 100vw;
-	// 	height: 100vh;
-	// 	overflow-x: hidden;
-	// 	overflow-y: auto;
-	// }
+
 </style>

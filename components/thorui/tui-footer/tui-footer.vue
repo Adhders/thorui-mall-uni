@@ -67,7 +67,7 @@
 	.tui-fixed {
 		position: fixed;
 		z-index: 9999;
-		bottom: 0;
+		bottom: 120rpx;
 		left: 0;
 	}
 

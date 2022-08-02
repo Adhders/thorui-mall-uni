@@ -231,8 +231,6 @@
 				//进行表单检查
 				let formData = e.detail.value;
 				let checkRes = form.validation(formData, rules);
-				console.log('data', this.ruleForm)
-				// console.log('selectedIndex', this.selectedIndex)
 				if (!checkRes) {
 					delete this.ruleForm.new
 					if(this.ruleForm.default){
@@ -243,12 +241,26 @@
 					}
 					else{
 						this.addressList.push(this.ruleForm)
+						if(this.addressList.length===1){
+							let userInfo = this.$store.state.userInfo
+							userInfo.defaultAddress = this.ruleForm
+							this.$store.commit('setUserInfo', userInfo)
+							uni.setStorage({
+								key: 'userInfo',
+								data: userInfo,
+							})
+							let pages = getCurrentPages(); //获取所有页面栈实例列表
+							let prevPage = pages[pages.length - 2]; //上一页页面实例
+							// console.log('prevPage', prevPage)
+							if(prevPage.route.split('/').pop()==='submitOrder'){
+								prevPage.$vm.orderForm.address = this.ruleForm; //当上一页为提交订单时，设置订单地址
+							}
+						}
 					}
 					const pid = uni.getStorageSync("pid")
 					const url = '/updateCustomer/' + pid + '/' + 'addressList'
 					this.tui.request(url, 'PUT',{addressList: this.addressList}).then(res => {
 						if(res.code==='0'){
-							console.log('addressList', this.addressList)
 							this.$store.commit('setAddress', this.addressList)
 							uni.navigateBack({delta: 1})
 						}

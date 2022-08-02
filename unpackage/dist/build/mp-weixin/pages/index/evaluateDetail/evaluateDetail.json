@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "全部评论",
+  "usingComponents": {
+    "tui-rate": "/components/thorui/tui-rate/tui-rate",
+    "tui-list-cell": "/components/thorui/tui-list-cell/tui-list-cell",
+    "tui-icon": "/components/thorui/tui-icon/tui-icon",
+    "tui-divider": "/components/thorui/tui-divider/tui-divider"
+  }
+}

@@ -1,7 +1,7 @@
 <template>
 	<view class="tui-checkbox__input" :class="{'tui-checkbox__disabled':disabled}"
 		:style="{backgroundColor:getBackgroundStyle(val,isCheckMark),border:getBorderStyle(val,isCheckMark),zoom:nvue?1:scaleRatio,transform:`scale(${nvue?scaleRatio:1})`}"
-		@tap.stop="radioChange">
+		@tap="radioChange">
 		<view class="tui-check__mark" :style="{borderBottomColor:checkMarkColor,borderRightColor:checkMarkColor}"
 			v-if="val"></view>
 		<radio class="tui-radio__hidden" :color="color" :disabled="disabled" :value="value" :checked="val"></radio>

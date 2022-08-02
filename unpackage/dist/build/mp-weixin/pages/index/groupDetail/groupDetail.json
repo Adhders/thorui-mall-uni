@@ -1,0 +1,17 @@
+{
+  "navigationBarTitleText": "",
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "tui-icon": "/components/thorui/tui-icon/tui-icon",
+    "tui-badge": "/components/thorui/tui-badge/tui-badge",
+    "tui-tag": "/components/thorui/tui-tag/tui-tag",
+    "tui-list-cell": "/components/thorui/tui-list-cell/tui-list-cell",
+    "tui-countdown": "/components/thorui/tui-countdown/tui-countdown",
+    "tui-button": "/components/thorui/tui-button/tui-button",
+    "tui-nomore": "/components/thorui/tui-nomore/tui-nomore",
+    "tui-top-dropdown": "/components/thorui/tui-top-dropdown/tui-top-dropdown",
+    "tui-bottom-popup": "/components/thorui/tui-bottom-popup/tui-bottom-popup",
+    "tui-numberbox": "/components/thorui/tui-numberbox/tui-numberbox",
+    "tui-modal": "/components/thorui/tui-modal/tui-modal"
+  }
+}

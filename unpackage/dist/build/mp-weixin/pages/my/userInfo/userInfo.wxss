@@ -1,0 +1,1 @@
+.tui-userinfo-box{margin:20rpx 0;color:#333}.tui-list-cell{width:100%;display:flex;align-items:center;justify-content:space-between;padding:24rpx 60rpx 24rpx 30rpx;box-sizing:border-box;font-size:30rpx}.tui-avatar{width:100rpx;height:100rpx;display:block;overflow:hidden;border-radius:50%}.tui-content{font-size:26rpx;color:#666}

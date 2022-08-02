@@ -1,0 +1,7 @@
+{
+  "usingComponents": {
+    "widget-text": "/components/WidgetText/WidgetText",
+    "widget-picture": "/components/WidgetPicture/WidgetPicture"
+  },
+  "component": true
+}

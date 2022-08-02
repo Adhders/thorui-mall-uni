@@ -12,16 +12,18 @@
 					<view class="tui-line-cell" >
 						<view class="tui-title">
 							<text>申请类型</text>
+							<text style="margin-left: 20rpx">{{ruleForm.refundType}}</text>
 						</view>
-						<input placeholder-class="tui-phcolor" class="tui-input" name="refundType"  v-model="ruleForm.refundType"/>
 					</view>
 				</tui-list-cell>
 				<tui-list-cell padding="0" arrow @click="onPopup">
 					<view class="tui-line-cell">
 						<view class="tui-title">
 							<text>申请原因</text>
+							<text style="margin-left: 20rpx" :class="{'tui-phcolor': ruleForm.reason===''}">
+								{{ruleForm.reason? ruleForm.reason : '请选择退款原因' }}
+							</text>
 						</view>
-						<input placeholder-class="tui-phcolor" class="tui-input" name="reason"  v-model="ruleForm.reason"  placeholder="请选择退款原因" />
 					</view>
 				</tui-list-cell>
 				<tui-list-cell :hover="false" padding="0" v-if="ruleForm.refundType==='退货退款'">
@@ -29,7 +31,7 @@
 						<view class="tui-title">
 							<text>退款金额</text>
 						</view>
-						<view class="refund_amount">￥</view>
+						<view class="refund_amount"  style="margin-left: 20rpx">￥</view>
 						<input placeholder-class="tui-phcolor" class="tui-input refund_amount" name="refund_fee" v-model="ruleForm.refund_fee" />
 					</view>
 				</tui-list-cell>
@@ -98,13 +100,13 @@ export default {
 			repeat: false,
 			focus: false,
 			first: true,
-			range: true,
+			range: true, //退款金额是否合理，是否超过netCost
 			order: {},
 			width: '',
 			choice: 'refundType',
 			formData: {},
 			bucket_image: 'chuangbiying-review',
-			action: 'http://up-cn-east-2.qiniup.com',
+			action: 'https://up-cn-east-2.qiniup.com',
 			ruleForm: {
 				imgs: '',
         		refund_fee: '',
@@ -230,11 +232,13 @@ export default {
 		},
 		formSubmit(e){
 		//表单规则
-			let rules = [{
+			let rules = [
+				{
 				name: "refundType",
 				rule: ["required"], 
 				msg: ["请选择售后类型"]
-			}, {
+			}, 
+			{
 				name: "reason",
 				rule: ["required"],
 				msg: ["请选择退款原因"]
@@ -242,9 +246,7 @@ export default {
 				name: "detail",
 				rule: ["required"],
 				msg: ["请填写申请说明"]
-			}
-			
-			];
+			}];
 			let extra = {
 				name: "refund_fee",
 				rule: ["required"],
@@ -254,8 +256,8 @@ export default {
 				rules.splice(2, 0, extra)
 			}
 			//进行表单检查
-			let formData = e.detail.value;
-			let checkRes = this.range?form.validation(formData, rules):"退款金额不能大于最大退款金额";
+			let formData = this.ruleForm
+			let checkRes = this.range? form.validation(formData, rules) : "退款金额不能大于最大退款金额";
 			if(!checkRes){
 				this.first=false
 				let pid = uni.getStorageSync("pid")
@@ -350,7 +352,6 @@ export default {
 	font-size: 28rpx;
 }
 .tui-title {
-	width: 160rpx;
 	font-size: 28rpx;
 	color: #666;
 }

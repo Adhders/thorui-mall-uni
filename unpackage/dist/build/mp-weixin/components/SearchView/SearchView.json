@@ -1,0 +1,6 @@
+{
+  "usingComponents": {
+    "tui-searchbar": "/components/thorui/tui-searchbar/tui-searchbar"
+  },
+  "component": true
+}

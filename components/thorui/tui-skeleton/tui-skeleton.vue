@@ -152,7 +152,7 @@
 <style scoped>
 	.tui-skeleton-cmomon {
 		position: absolute;
-		z-index: 99999;
+		z-index: 0;
 	}
 
 	.tui-skeleton-box {

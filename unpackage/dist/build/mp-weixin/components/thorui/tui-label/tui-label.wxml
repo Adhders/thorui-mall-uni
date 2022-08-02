@@ -1,0 +1,1 @@
+<view data-event-opts="{{[['tap',[['onClick',['$event']]]]]}}" class="{{['tui-label__box','data-v-3ca27122',(isFull)?'tui-label__full':'']}}" style="{{'padding:'+(padding)+';'+('margin:'+(margin)+';')}}" catchtap="__e"><slot></slot></view>

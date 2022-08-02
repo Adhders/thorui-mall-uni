@@ -1,0 +1,1 @@
+<view class="tui-linkage-class"><slot></slot></view>

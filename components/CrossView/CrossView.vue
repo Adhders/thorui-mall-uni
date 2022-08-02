@@ -35,6 +35,7 @@
 <style scoped>
     .tui-divider {
         width: 100%;
+        background: #fff;
         position: relative;
         text-align: center;
         display: flex;

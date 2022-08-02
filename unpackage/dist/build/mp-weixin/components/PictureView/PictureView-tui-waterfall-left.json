@@ -1,0 +1,8 @@
+{
+  "component": true,
+  "usingComponents": {
+    "PictureView-tui-waterfall-left": "/components/PictureView/PictureView-tui-waterfall-left",
+    "PictureView-tui-waterfall-right": "/components/PictureView/PictureView-tui-waterfall-right",
+    "tui-waterfall": "/components/thorui/tui-waterfall/tui-waterfall"
+  }
+}

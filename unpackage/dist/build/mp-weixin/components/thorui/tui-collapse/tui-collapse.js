@@ -1,0 +1,10 @@
+(global["webpackJsonp"]=global["webpackJsonp"]||[]).push([["components/thorui/tui-collapse/tui-collapse"],{"3b55":function(t,e,n){"use strict";n.r(e);var r=n("4851"),u=n("d4d4");for(var a in u)"default"!==a&&function(t){n.d(e,t,(function(){return u[t]}))}(a);n("5a89");var i,c=n("f0c5"),o=Object(c["a"])(u["default"],r["b"],r["c"],!1,null,"56491cfe",null,!1,r["a"],i);e["default"]=o.exports},4851:function(t,e,n){"use strict";var r;n.d(e,"b",(function(){return u})),n.d(e,"c",(function(){return a})),n.d(e,"a",(function(){return r}));var u=function(){var t=this,e=t.$createElement;t._self._c},a=[]},"527c":function(t,e,n){},"5a89":function(t,e,n){"use strict";var r=n("527c"),u=n.n(r);u.a},"70cc":function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=void 0;var r={name:"tuiCollapse",emits:["click"],props:{bgColor:{type:String,default:"transparent"},hdBgColor:{type:String,default:"#fff"},bdBgColor:{type:String,default:"transparent"},condition:{type:String,default:""},height:{type:String,default:"auto"},index:{type:Number,default:0},current:{type:Number,default:-1},disabled:{type:[Boolean,String],default:!1},arrow:{type:[Boolean,String],default:!0},arrowColor:{type:String,default:"#333"}},watch:{current:function(){this.updateCurrentChange()}},created:function(){this.updateCurrentChange()},data:function(){return{isOpen:!1}},methods:{updateCurrentChange:function(){this.isOpen=this.index==this.current},handleClick:function(){this.disabled||this.$emit("click",{index:Number(this.index)})}}};e.default=r},d4d4:function(t,e,n){"use strict";n.r(e);var r=n("70cc"),u=n.n(r);for(var a in r)"default"!==a&&function(t){n.d(e,t,(function(){return r[t]}))}(a);e["default"]=u.a}}]);
+;(global["webpackJsonp"] = global["webpackJsonp"] || []).push([
+    'components/thorui/tui-collapse/tui-collapse-create-component',
+    {
+        'components/thorui/tui-collapse/tui-collapse-create-component':(function(module, exports, __webpack_require__){
+            __webpack_require__('543d')['createComponent'](__webpack_require__("3b55"))
+        })
+    },
+    [['components/thorui/tui-collapse/tui-collapse-create-component']]
+]);

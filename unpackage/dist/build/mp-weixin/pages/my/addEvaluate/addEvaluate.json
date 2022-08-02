@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "评价晒单",
+  "usingComponents": {
+    "tui-list-cell": "/components/thorui/tui-list-cell/tui-list-cell",
+    "tui-rate": "/components/thorui/tui-rate/tui-rate",
+    "tui-upload": "/components/thorui/tui-upload/tui-upload",
+    "tui-button": "/components/thorui/tui-button/tui-button"
+  }
+}

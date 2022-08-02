@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "我的钱包",
+  "usingComponents": {
+    "tui-button": "/components/thorui/tui-button/tui-button"
+  }
+}

@@ -39,7 +39,7 @@
 			},
 			zIndex: {
 				type: [Number, String],
-				default: 999
+				default: 9999
 			},
 			maskZIndex: {
 				type: [Number, String],

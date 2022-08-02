@@ -10,13 +10,13 @@
                     height: (item.style.scale==='0')? '300rpx' : '600rpx',
                     borderRadius: item.style.type!='1' ? 0 : item.style.borderRadius*2 + 'rpx' }"
                     :src=product.defaultImageUrl  @tap.stop="detail(product)" />
-                <!-- <view class="image-tag" v-show="item.style.showTags">
+                <!-- <view class="image-tag" v-if="item.style.showTags">
                     <image  class="img" style="width: 53px; height: 15px" src="https://system.chuangbiying.com/static/images/mini/listTpl_goods.png"/>
                 </view> -->
                 <view class="price-panel">
                     <view class="title"><span>{{product.title}}</span></view>
                     <view class="tui-sub-info">{{product.slogan}}</view>
-                    <view class="label-box" v-show="item.style.showTags">
+                    <view class="label-box" v-if="item.style.showTags">
                         <tui-tag type="green"  padding="10rpx" scaleMultiple="0.8" size="24rpx" v-for="tag in product.selectedTag" :key="tag.name">{{tag.name}}</tui-tag>
                     </view>
                     <view class="icon-box">
@@ -27,7 +27,7 @@
                             <text class="del-val" v-if="item.style.showPrice">¥{{product.originalPrice}}</text>
                         </view>
                         <view class="saled-out" v-if="item.style.showSales">已售{{numFormat(product.salesNum)}}件</view>
-                        <tui-icon name="cart" :size="16" color="#e41f19" @tap.stop="addCart(product)" v-show="item.style.showCart"></tui-icon>
+                        <tui-icon name="cart" :size="32" unit="rpx" color="#e41f19" @tap.stop="onSelect(product)" v-if="item.style.showCart"></tui-icon>
                     </view>
                 </view>
             </view>
@@ -46,19 +46,19 @@
             <view class="merchandise-item" v-for="(product,index) in goodsList" :key="index"
                 :class="{border: item.style.type=='3',shadow: item.style.type=='2'}"
                 :style="{borderRadius: item.style.borderRadius*2 + 'rpx'}">
-                <image class='img' style="minWidth: 240rpx; width: 240rpx; height: 240rpx" :src=product.defaultImageUrl mode="widthFix" 
+                <image class='img' style="minWidth: 240rpx; width: 240rpx; height: 240rpx" :src=product.defaultImageUrl  mode="aspectFill"
                 :style="{borderRadius: item.style.type!='1'? 0 : item.style.borderRadius*2 + 'rpx'}"  @tap.stop="detail(product)" />
-                <!-- <view class="image-tag" v-show="item.style.showTags">
+                <!-- <view class="image-tag" v-if="item.style.showTags">
                     <img class="img" style="width: 53px; height: 15px" src="https://system.chuangbiying.com/static/images/mini/listTpl_goods.png">
                 </view> -->
                 <view class="price-panel type4">
                     <view class="title"><text>{{product.title}}</text></view>
                     <view class="tui-sub-info">{{product.slogan}}</view>
-                    <view class="label-box" v-show="item.style.showTags">
+                    <view class="label-box" v-if="item.style.showTags">
                        <tui-tag type="green"  padding="10rpx" scaleMultiple="0.8" size="24rpx" v-for="tag in product.selectedTag" :key="tag.name">
                        {{tag.name}}</tui-tag>
                     </view>
-                    <view class="saled-out" v-show="item.style.showSales">已售{{numFormat(product.salesNum)}}件</view>
+                    <view class="saled-out" v-if="item.style.showSales">已售{{numFormat(product.salesNum)}}件</view>
                     <view class="icon-box">
                         <view class="price">
                             <text class="price-unit">¥</text>
@@ -66,19 +66,19 @@
                             <text class="dot-val" v-if="product.decimalPrice">.{{product.decimalPrice}}</text>
                             <text class="del-val" v-if="item.style.showPrice">¥{{product.originalPrice}}</text>
                         </view>
-                        <tui-icon name="cart" :size="16" color="#e41f19" @tap.stop="addCart(product)" v-show="item.style.showCart"></tui-icon>
+                        <tui-icon name="cart" :size="32" unit="rpx" color="#e41f19" @tap.stop="onSelect(product)" v-if="item.style.showCart"></tui-icon>
                     </view>
                 </view>
             </view>
         </view>
         <view class="displayBox type5" v-if="item.style.layout==='5'">
-            <scroll-view class="scroll-view_H" scroll-x="true" @scroll="scroll">
+            <scroll-view class="scroll-view_H" scroll-x="true">
                  <view class="scroll-view-item_H merchandise-item" v-for="(product,index) in goodsList" :key="index"
                     :class="{border: item.style.type=='3',shadow: item.style.type=='2'}"
                     :style="{borderRadius: item.style.borderRadius + 'px'}">
                     <image class="img" :src="product.defaultImageUrl" mode="widthFix"  @tap.stop="detail(product)"
                         :style="{ width: '260rpx',borderRadius: item.style.type!='1'? 0 : item.style.borderRadius*2 + 'rpx'}"/>
-                    <!-- <view class="image-tag" v-show="item.style.showTags">
+                    <!-- <view class="image-tag" v-if="item.style.showTags">
                         <img class='img' style="width: 53px; height: 15px" src="https://system.chuangbiying.com/static/images/mini/listTpl_goods.png">
                     </view> -->
                     <view class="price-panel">
@@ -90,22 +90,19 @@
                                 <text class="dot-val" v-if="product.decimalPrice">.{{product.decimalPrice}}</text>
                                 <text class="del-val" v-if="item.style.showPrice">¥{{product.originalPrice}}</text>
                             </view>
-                            <tui-icon name="cart" :size="16" color="#e41f19" @tap.stop="addCart(product)" v-show="item.style.showCart"></tui-icon>
+                            <tui-icon name="cart" :size="32" unit="rpx" color="#e41f19" @tap.stop="onSelect(product)" v-if="item.style.showCart"></tui-icon>
                         </view>
                     </view>
                 </view>
            </scroll-view>
         </view>
-        <popup-box ref="popup"></popup-box>
     </view>
 </template>
 
 <script>
     import tGoodsItem from '@/components/views/t-goods-item/t-goods-item'
-    import popupBox from '@/components/views/addCart/addCart'
     export default {
         components: {
-            popupBox,
             tGoodsItem
         },
         props: ['item'],
@@ -116,21 +113,26 @@
                 goods: '',
             }
         },
-        mounted(){
-            this.item.content.goodsList.forEach((o)=>{
-                let index = this.productList.findIndex((v)=>{
-                    return v.id === o.id
-                })
-                if(index!==-1){
-                    this.goodsList.push(this.productList[index])
-                }
-            })
-            console.log('goodsList', this.goodsList)
-        },
         computed: {
             productList(){
                 return this.$store.state.goodsList
             }
+        },
+        watch:{
+            productList: {
+                immediate: true,
+                handler(v){
+                    let goodsList = []
+                    this.item.content.goodsList.forEach((goods)=>{
+                        let index = v.findIndex((o)=>{ return o.id ===goods.id })
+                        if(index!==-1){
+                            goodsList.push(v[index])
+                        }
+                    })
+                    this.goodsList = goodsList
+                }
+            }
+
         },
         methods: {
             numFormat(v){
@@ -141,10 +143,9 @@
                     url: '/pages/index/productDetail/productDetail?spu_id=' + item.spu_id + '&sku_id=' + item.id
                 })
             },
-            addCart(goods){
-                this.$refs.popup.initial(goods.spu_id, goods.id)
-                this.$refs.popup.popupShow = true
-            },
+            onSelect(goods){
+                this.tui.href('/pages/index/productDetail/productDetail?spu_id=' + goods.spu_id + '&sku_id=' + goods.id + '&buy=true')
+            }
         }
     }
 </script>
@@ -213,10 +214,10 @@
             }
             .icon-box{
                 display: flex;
-                align-items: center;
+                align-items: baseline;
                 justify-content: space-between;
                 width: 100%;
-                height: 60rpx;
+                // height: 60rpx;
                 .price {
                     display: flex;
                     align-items: baseline;
@@ -270,6 +271,9 @@
                     position: absolute;
                     bottom: 0rpx;
                 }
+            }
+            .img{
+                max-height: 240rpx;
             }
         }
     }

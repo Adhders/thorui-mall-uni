@@ -13,11 +13,10 @@ import {createStore} from 'vuex'
 const store = createStore({
 // #endif
 	state: {
-		appid: "wx09760711e33ab5bb",
-		corpId: 'ww5dc8a0b776f02df8',
-		qrcode: 'https://system.chuangbiying.com/store/qrcode/thorUI.png',
-		serviceId: "https://work.weixin.qq.com/kfid/kfcb67b111a2c17d9e0",
-		secret: "53dc8454d875811c698b8d42bfac644e",
+		appid: '',
+		corpId: '',
+		serviceId: "", //微信客服
+		shareText: '',
 		//用户信息
 		userInfo: uni.getStorageSync("userInfo") ? uni.getStorageSync("userInfo") : {
 			avatarUrl: 'https://mmbiz.qpic.cn/mmbiz/icTdbqWNOwNRna42FI242Lcia07jQodd2FJGIYQfG0LAJGFxM4FbnQP6yfMxBgJ0F3YRqJCJ1aPAK2dQagdusBZg/0',
@@ -30,7 +29,7 @@ const store = createStore({
 		defaultAddress: '',
 		returnUrl: "",
 		//app版本
-		version: "1.6.0",
+		version: "1.0.0",
 		//当前是否有网络连接
 		networkConnected: true,
 		isOnline: false,
@@ -62,8 +61,17 @@ const store = createStore({
 		setOnline(state, payload) {
 			state.isOnline = state.isOnline
 		},
+		setShareText(state, shareText){
+			state.shareText = shareText
+		},
 		setOpenid(state, openid){
 			state.openid = openid
+		},
+		setCorpId(state, corpId){
+			state.corpId = corpId
+		},
+		setServiceId(state, serviceId){
+			state.serviceId = serviceId
 		},
 		setAppid(state, appid){
 			state.appid = appid

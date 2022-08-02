@@ -11,7 +11,7 @@
                 :show-center-play-btn="false" :src="video.src" :muted="ismute" :autoplay="item.style.autoplay">
             </video>
             <view class="icon-play" @tap.stop="onPlay" v-if="startVideo">
-                <image class='img' src="https://system.chuangbiying.com/assets/play.svg" mode=""></image>
+                <image class='img' src="https://system.chuangbiying.com/assets/img/video-play.png" mode=""></image>
             </view>
             <tui-slider class="tui-video-slider" :height="2"  :blockHeight="0" :blockWidth="0"
                backgroundColor="#ccc" activeColor="#fff" :value="currentTime" :max="duration" :width="width">
@@ -43,7 +43,7 @@
                 videoplayObj: {}, //video对象
                 playing: true, // 是否正在播放视频
                 startVideo: true, //中间播放按钮
-                voiceControl: "https://system.chuangbiying.com/assets/mute.svg"
+                voiceControl: "https://system.chuangbiying.com/assets/svg/mute.svg"
             }
         },
         mounted(){
@@ -66,7 +66,7 @@
             },
             onChange(){
                 this.ismute = !this.ismute
-                this.voiceControl = this.ismute? 'https://system.chuangbiying.com/assets/mute.svg' : 'https://system.chuangbiying.com/assets/volume.svg'
+                this.voiceControl = this.ismute? 'https://system.chuangbiying.com/assets/svg/mute.svg' : 'https://system.chuangbiying.com/assets/svg/volume.svg'
             },
 			timeupdate(e){
 				this.duration = parseInt(e.detail.duration)

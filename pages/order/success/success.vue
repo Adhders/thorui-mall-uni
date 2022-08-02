@@ -26,10 +26,10 @@
 		data() {
 			return {}
 		},
-		methods: {
+		methods: {  
 			go(page) {
 				if (page === 1) {
-					uni.switchTab({
+					uni.redirectTo({
 						url: "/pages/tabbar/index/index"
 					})
 				} else {

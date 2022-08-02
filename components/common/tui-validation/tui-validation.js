@@ -40,6 +40,7 @@ const form = {
 				let isError = false;
 				switch (ruleItem) {
 					case "required":
+						console.log('key', formData[key])
 						isError = form._isNullOrEmpty(formData[key]);
 						break;
 					case "isMobile":

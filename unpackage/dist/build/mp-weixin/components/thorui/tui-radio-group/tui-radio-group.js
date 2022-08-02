@@ -1,0 +1,10 @@
+(global["webpackJsonp"]=global["webpackJsonp"]||[]).push([["components/thorui/tui-radio-group/tui-radio-group"],{3700:function(t,n,e){"use strict";e.r(n);var u=e("ffb6"),i=e.n(u);for(var a in u)"default"!==a&&function(t){e.d(n,t,(function(){return u[t]}))}(a);n["default"]=i.a},"3c9e":function(t,n,e){"use strict";e.d(n,"b",(function(){return i})),e.d(n,"c",(function(){return a})),e.d(n,"a",(function(){return u}));var u={tuiFormField:function(){return e.e("components/thorui/tui-form-field/tui-form-field").then(e.bind(null,"3737"))}},i=function(){var t=this,n=t.$createElement;t._self._c},a=[]},6933:function(t,n,e){"use strict";e.r(n);var u=e("3c9e"),i=e("3700");for(var a in i)"default"!==a&&function(t){e.d(n,t,(function(){return i[t]}))}(a);var r,o=e("f0c5"),l=Object(o["a"])(i["default"],u["b"],u["c"],!1,null,null,null,!1,u["a"],r);n["default"]=l.exports},ffb6:function(t,n,e){"use strict";Object.defineProperty(n,"__esModule",{value:!0}),n.default=void 0;var u={name:"tui-radio-group",emits:["change","input","update:modelValue"],behaviors:["wx://form-field-group"],props:{name:{type:String,default:""},value:{type:String,default:""}},data:function(){return{val:""}},watch:{value:function(t){this.modelChange(t)}},created:function(){this.childrens=[]},methods:{radioChange:function(t){this.$emit("change",t),this.$emit("input",t.detail.value)},changeValue:function(t,n){this.val=t,this.childrens.forEach((function(t){t!==n&&(t.val=!1)}));var e={detail:{value:t}};this.radioChange(e)},modelChange:function(t){this.childrens.forEach((function(n){n.value===t?n.val=!0:n.val=!1}))}}};n.default=u}}]);
+;(global["webpackJsonp"] = global["webpackJsonp"] || []).push([
+    'components/thorui/tui-radio-group/tui-radio-group-create-component',
+    {
+        'components/thorui/tui-radio-group/tui-radio-group-create-component':(function(module, exports, __webpack_require__){
+            __webpack_require__('543d')['createComponent'](__webpack_require__("6933"))
+        })
+    },
+    [['components/thorui/tui-radio-group/tui-radio-group-create-component']]
+]);

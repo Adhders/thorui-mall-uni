@@ -234,7 +234,6 @@ export default {
                         }
                     }
                 )
-
             }
             this.popupShow = false;
         },

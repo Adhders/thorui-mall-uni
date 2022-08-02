@@ -1,0 +1,10 @@
+(global["webpackJsonp"]=global["webpackJsonp"]||[]).push([["components/thorui/tui-tabbar/tui-tabbar"],{2448:function(t,e,n){},"63e0":function(t,e,n){"use strict";var a=n("2448"),r=n.n(a);r.a},"6f38":function(t,e,n){"use strict";n.r(e);var a=n("710a"),r=n("d37f");for(var u in r)"default"!==u&&function(t){n.d(e,t,(function(){return r[t]}))}(u);n("63e0");var o,c=n("f0c5"),i=Object(c["a"])(r["default"],a["b"],a["c"],!1,null,"05bdc711",null,!1,a["a"],o);e["default"]=i.exports},"710a":function(t,e,n){"use strict";var a;n.d(e,"b",(function(){return r})),n.d(e,"c",(function(){return u})),n.d(e,"a",(function(){return a}));var r=function(){var t=this,e=t.$createElement;t._self._c},u=[]},bcac:function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=void 0;var a={name:"tuiTabbar",emits:["click"],props:{current:{type:Number,default:0},color:{type:String,default:"#666"},selectedColor:{type:String,default:"#5677FC"},backgroundColor:{type:String,default:"#FFFFFF"},hump:{type:Boolean,default:!1},isFixed:{type:Boolean,default:!0},tabBar:{type:Array,default:function(){return[]}},badgeColor:{type:String,default:"#fff"},badgeBgColor:{type:String,default:"#F74D54"},unlined:{type:Boolean,default:!1},backdropFilter:{type:Boolean,default:!1},zIndex:{type:[Number,String],default:800}},watch:{current:function(t){console.log("current",t)}},data:function(){return{}},methods:{tabbarSwitch:function(t,e,n,a,r){this.$emit("click",{index:t,hump:e,pagePath:n,verify:a,chooseLink:r})}}};e.default=a},d37f:function(t,e,n){"use strict";n.r(e);var a=n("bcac"),r=n.n(a);for(var u in a)"default"!==u&&function(t){n.d(e,t,(function(){return a[t]}))}(u);e["default"]=r.a}}]);
+;(global["webpackJsonp"] = global["webpackJsonp"] || []).push([
+    'components/thorui/tui-tabbar/tui-tabbar-create-component',
+    {
+        'components/thorui/tui-tabbar/tui-tabbar-create-component':(function(module, exports, __webpack_require__){
+            __webpack_require__('543d')['createComponent'](__webpack_require__("6f38"))
+        })
+    },
+    [['components/thorui/tui-tabbar/tui-tabbar-create-component']]
+]);

@@ -17,7 +17,7 @@
 									<label class="tui-checkbox">
 										<checkbox :value="item.id" :checked="item.selected" color="#fff"></checkbox>
 									</label>
-									<image :src="item.defaultImageUrl" class="tui-goods-img" @tap="detail(item)"/>
+									<image :src="item.defaultImageUrl" mode="aspectFill" class="tui-goods-img" @tap="detail(item)"/>
 									<view class="tui-goods-info">
 										<view class="tui-goods-title">
 											{{item.title}}
@@ -87,10 +87,10 @@
 				<view class="tui-product-list">
 					<tui-waterfall :listData="productList" :type="2" :pageSize="10">
 						<template slot-scope="{ entity }" slot="left">
-							<tGoodsItem :entity="entity" @add="addCart"></tGoodsItem>
+							<tGoodsItem :entity="entity"></tGoodsItem>
 						</template>
 						<template slot-scope="{ entity }" slot="right">
-							<tGoodsItem :entity="entity" @add="addCart"></tGoodsItem>	
+							<tGoodsItem :entity="entity"></tGoodsItem>	
 						</template>
 					</tui-waterfall>
 				</view>
@@ -235,7 +235,7 @@
 					wx.stopPullDownRefresh() //停止下拉刷新
 				}
 				if(!this.tui.isLogin()) {
-					uni.redirectTo({url: '/pages/my/login/login?from=cart'})
+					uni.redirectTo({url: '/pages/my/login/login'})
 				}else{
 					let url = '/getCartInfo/' + this.$store.state.appid + '/' + uni.getStorageSync("pid")
 					this.tui.request(url,'GET', undefined, true).then((res)=>{
@@ -310,15 +310,6 @@
 				uni.navigateTo({
 					url: '/pages/order/submitOrder/submitOrder?goods=' + JSON.stringify(goods) + '&mode=cart'
 				})
-			},
-			addCart(newGoods){
-				this.total += 1
-				let index = this.cart.findIndex((o)=>{return o.id===newGoods.id})
-				if(index !==-1){
-					this.cart[index].buyNum +=1
-				}else{
-					this.cart.push(newGoods)
-				}
 			},
 			onSearch(similarKey){
 				uni.navigateTo({

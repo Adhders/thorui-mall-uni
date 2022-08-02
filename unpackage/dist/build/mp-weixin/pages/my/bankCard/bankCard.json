@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "银行卡",
+  "usingComponents": {
+    "tui-tag": "/components/thorui/tui-tag/tui-tag"
+  }
+}

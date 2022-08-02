@@ -1,0 +1,12 @@
+view,
+label,
+swiper-item,
+scroll-view{display:flex;flex-direction:column;flex-shrink:0;flex-grow:0;flex-basis:auto;align-items:stretch;align-content:flex-start}view,
+image,
+input,
+scroll-view,
+swiper,
+swiper-item,
+text,
+textarea,
+video{position:relative;border:0 solid #000;box-sizing:border-box}swiper-item{position:absolute}button{margin:0}page{width:100%;min-height:100%;display:flex}.tui-tabs{flex:1;flex-direction:column;overflow:hidden;background-color:#fff}.tui-scroll-h{width:750rpx;height:80rpx;background-color:#fff;flex-direction:row;white-space:nowrap}.tui-line-h{position:relative}.tui-line-h::after{content:"";position:absolute;border-bottom:1rpx solid #ccc;-webkit-transform:scaleY(.5);transform:scaleY(.5);bottom:0;right:0;left:0}.tui-tab-item{display:inline-block;flex-wrap:nowrap;padding-left:34rpx;padding-right:34rpx}.tui-tab-item-title{color:#555;font-size:30rpx;height:80rpx;line-height:80rpx;flex-wrap:nowrap;white-space:nowrap}.tui-tab-item-title-active{color:#eb0909;font-weight:700;border-bottom-width:6rpx;border-style:solid;border-color:#eb0909;text-align:center}.tui-swiper-box{flex:1!important}.tui-swiper-item{flex:1!important;flex-direction:row}.tui-scroll-v{flex:1;flex-direction:column;width:750rpx}.tui-update-tips{position:absolute;left:0;top:41px;right:0;padding-top:5px;padding-bottom:5px;background-color:#fddd9b;align-items:center;justify-content:center;text-align:center}.tui-update-tips-text{font-size:14px;color:#fff}.tui-refresh{width:750rpx;height:64px;justify-content:center}.tui-refresh-view{flex-direction:row;flex-wrap:nowrap;align-items:center;justify-content:center}.tui-refresh-icon{width:20px;height:20px;transition-duration:.25s;transition-property:-webkit-transform;transition-property:transform;transition-property:transform,-webkit-transform;-webkit-transform:rotate(0deg);transform:rotate(0deg);-webkit-transform-origin:10px 10px;transform-origin:10px 10px}.tui-refresh-icon-active{-webkit-transform:rotate(180deg);transform:rotate(180deg)}.tui-loading-icon{width:20px;height:20px;margin-right:5px;color:#999}.tui-loading-text{margin-left:2px;font-size:14px;color:#999}.tui-loading-more{align-items:center;justify-content:center;padding-top:15px;padding-bottom:15px;text-align:center;position:relative}.tui-loadmore-line{border-bottom-width:1rpx;border-bottom-style:solid;border-bottom-color:#e5e5e5;width:320rpx;position:absolute;z-index:-1}.tui-loading-more-text{padding-left:8rpx;padding-right:8rpx;font-size:28rpx;line-height:28rpx;background-color:#fafafa;text-align:center;color:#999}

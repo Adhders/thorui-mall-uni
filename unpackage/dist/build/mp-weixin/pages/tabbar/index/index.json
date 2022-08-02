@@ -1,0 +1,21 @@
+{
+  "navigationBarTitleText": "",
+  "onReachBottomDistance": 50,
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "nav-bar": "/components/NavBar/NavBar",
+    "carousel-view": "/components/CarouselView/CarouselView",
+    "announce-view": "/components/AnnounceView/AnnounceView",
+    "button-view": "/components/ButtonView/ButtonView",
+    "title-view": "/components/TitleView/TitleView",
+    "video-view": "/components/VideoView/VideoView",
+    "goods-view": "/components/GoodsView/GoodsView",
+    "picture-view": "/components/PictureView/PictureView",
+    "typing-view": "/components/TypingView/TypingView",
+    "search-view": "/components/SearchView/SearchView",
+    "navigate-view": "/components/NavigateView/NavigateView",
+    "free-vessel-view": "/components/FreeVesselView/FreeVesselView",
+    "cross-view": "/components/CrossView/CrossView",
+    "tui-tabbar": "/components/thorui/tui-tabbar/tui-tabbar"
+  }
+}

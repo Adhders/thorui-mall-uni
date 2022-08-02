@@ -38,7 +38,7 @@
 					</block>
 					<block v-if="order.status==='待支付'">
 						<view class="tui-btn-ml">
-							<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @tap="cancelOrder(order)">取消订单</tui-button>
+							<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="cancelOrder(order)">取消订单</tui-button>
 						</view>
 						<view class="tui-btn-ml">
 							<tui-button type="danger" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="pay(order)">去支付</tui-button>
@@ -156,6 +156,7 @@
 		},
 		data() {
 			return {
+				appid: '',
 				tabs: [{name: "全部"},  {name: "待付款"},  {name: "待发货"},  {name: "待收货"}, {name: "待评价"}],
         		loadding: true,
 				displayList: [],
@@ -171,6 +172,7 @@
 			}
 		},
 		onLoad(options){
+			this.appid = this.$store.state.appid
 			this.loadData(options)
 		},
 		computed: {
@@ -200,6 +202,7 @@
 		},
 		methods: {
 			getTime(time){
+				time = time.replace(/-/g, "/") //如果不转化，在ios设备上会计算错误
 				const expireTime = 24*60*60*1000 //一天后过期
 				let t1 = Date.parse(new Date(time)) + expireTime
 				let t2 = Date.parse(new Date())
@@ -266,21 +269,21 @@
 				}
 			},
 			cancelOrder(order) {
-				let url = '/closeOrder_miniProg/' + order.orderNum
+				let url = '/closeOrder_miniProg/' + this.appid + '/' + order.orderNum
 				this.tui.request(url).then(
 					(res)=>{
 						if(res.code===204){
-							url = '/updateOrder/' + order.orderNum + '/' + 'status'
-							this.tui.request(url, 'PUT', {status : "交易关闭"}).then(
-								(res)=>{
-									if(res.code==='0'){
-										let index =  this.orderList.findIndex((o)=>{ return o.orderNum === order.orderNum})
-										this.orderList[index].status = "交易关闭"
-									}
-							})
-						}else{
-							this.tui.toast('取消失败，请稍后再试')
+							let index =  this.orderList.findIndex((o)=>{ return o.orderNum === order.orderNum})
+							this.orderList[index].status = "交易关闭"
+							this.tui.toast('取消成功，交易关闭')
+						}else if(res.code===400){
+							let index =  this.orderList.findIndex((o)=>{ return o.orderNum === order.orderNum})
+							this.orderList[index].status = "待评价"
+							this.tui.toast('无法取消订单，该订单已支付成功')
 						}
+						else{
+							this.tui.toast(res.message)
+						}		
 				})
 			},
 			pay(order) {
@@ -296,7 +299,13 @@
 					paySign: result.paySign,
 					success: function () {
 						url = '/updateOrder/' + order.orderNum + '/' + 'payment'
-						_this.tui.request(url, 'PUT', {status : "待评价"}).then(()=>{})
+						_this.tui.request(url, 'PUT', {status : "待评价"}).then(()=>{
+                            let goodsList = order.goodsList
+							goodsList.forEach((o)=>{
+								_this.tui.request('/updateGoodsStock', 'PUT', {id: o.id, buyNum: o.buyNum})
+							})
+						})
+						order.status = "待评价"
 						_this.tui.href("/pages/order/success/success")},
 					fail: function (err) {
 						console.log('err', err)

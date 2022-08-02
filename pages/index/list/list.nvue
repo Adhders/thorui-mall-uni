@@ -73,12 +73,10 @@
 			if(options.groupName){
 				let index = this.goodsGroup.findIndex((o)=>{return o.name===options.groupName})
 				this.tabIndex = index
-				console.log('index', index)
 			}
 			this.tabBars = this.goodsGroup
 			setTimeout(() => {
 				this.newsList = this.randomfn();
-				console.log('newsList', this.newsList)
 				uni.getSystemInfo({
 					success: res => {
 						this.isIos = 'ios' == res.platform.toLocaleLowerCase();
@@ -164,7 +162,6 @@
 				}
 			},
 			switchTab(index) {
-				console.log('switch', index, this.newsList)
 				if (this.tabIndex === index) return;
 				if (this.newsList[index].data.length === 0) {
 					this.getList(index);

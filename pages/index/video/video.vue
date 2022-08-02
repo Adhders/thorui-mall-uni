@@ -4,7 +4,7 @@
 		:show-play-btn="false" :show-fullscreen-btn="false" :show-center-play-btn="false">
 		</video>
 		<view class="video-img" @tap.stop="videoPlay()" v-if="startVideo">
-			<image src="https://system.chuangbiying.com/assets/play.svg" mode=""></image>
+			<image src="https://system.chuangbiying.com/assets/img/video-play.png" mode=""></image>
 		</view>
 	</view>
 </template>

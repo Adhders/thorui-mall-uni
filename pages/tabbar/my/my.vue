@@ -206,6 +206,7 @@
 					</view>
 				</view>
 			</view> -->
+			<tui-footer copyright="Copyright © 2021-2061 chuangbiying.com" :navigate="navigate"></tui-footer>
 		</view>
 		<tui-tabbar :current="current" :tabBar="tabBar.list" 
 			:color="tabBar.color" :selectedColor="tabBar.selectedColor" :backgroundColor="tabBar.backgroundColor"
@@ -227,12 +228,16 @@
 				opacity: 0,
 				scrollTop: 0.5,
 				pullUpOn: true,
-				current: 2
+				current: 2,
+				navigate: [{
+					text: "创比赢提供技术支持",
+					color: "#A7A7A7",
+					size: 24
+				}]
 			};
 		},
 		onLoad: function() {
 			this.appid = this.$store.state.appid
-			this.secret = this.$store.state.secret
 			this.loadData()
 		},
 		onShow(){
@@ -263,7 +268,6 @@
 				if(pid){
 					let url = '/queryUserInfo/' + pid
 					this.tui.request(url).then((res)=>{
-						console.log('my', res)
 						if(fresh){ //下拉刷出新
 							wx.hideNavigationBarLoading() //完成停止加载
 							wx.stopPullDownRefresh() //停止下拉刷新
@@ -303,7 +307,7 @@
 			getPhoneNumber: function(e) {
 				const data = {code: e.code}
 				const pid = uni.getStorageSync("pid")
-				const url = '/getPhoneNumber/'+ this.appid + '/' + this.secret + '/' + pid
+				const url = '/getPhoneNumber/'+ this.appid + '/' + pid
                 this.tui.request(url, 'POST', data).then(res=>{
 					this.userInfo.phone=res.phone
 				}).catch(err => {console.log('err', err)})

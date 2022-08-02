@@ -220,8 +220,6 @@
 				// #endif
 			},
 			currentLocation() {
-				//当前位置
-				console.log('currentLocation')
 				const that = this;
 				uni.getLocation({
 					// #ifdef APP-PLUS || MP-WEIXIN

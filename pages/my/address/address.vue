@@ -75,7 +75,9 @@
 			}
 		},
 		onLoad(options){
-			this.select = options.select? true: false
+			if(options.detailInfo){
+				this.select=true
+			}
 			this.pid = uni.getStorageSync("pid")
 			const url = '/getAddressList/' + this.pid
 			this.tui.request(url,'GET', undefined, true).then((res)=>{
@@ -83,11 +85,9 @@
 					this.loadding=false
 					if(this.select){ //初始化选择
 						res.addressList.forEach((o)=>{o.select=false})
-						let index = res.addressList.findIndex((o)=>{return o.default})
+						let index = res.addressList.findIndex((o)=>{return o.detailInfo===options.detailInfo})
 						if(index!==-1){
 							res.addressList[index].select=true
-						}else{
-							res.addressList[0].select=true
 						}
 					}
 					this.$store.commit('setAddress', res.addressList)
@@ -121,20 +121,24 @@
 				}
 			},
 			handlerButton(i, e) {
+				let userInfo = this.$store.state.userInfo
 				if(e.index===1){
 					this.addressList.splice(i, 1)
+					if(this.addressList.length===0){
+						userInfo.defaultAddress = ''
+					}
 				}else{
 					this.addressList.forEach((o,index)=>{
 						o.default=index===i
 					})
-					let userInfo = this.$store.state.userInfo
+					this.$forceUpdate()
 					userInfo.defaultAddress = this.addressList[i]
-					this.$store.commit('setUserInfo', userInfo)
-					uni.setStorage({
-						key: 'userInfo',
-						data: userInfo,
-					})
 				}
+				this.$store.commit('setUserInfo', userInfo)
+				uni.setStorage({
+					key: 'userInfo',
+					data: userInfo,
+				})
 				const url = '/updateCustomer/' + this.pid + '/' + 'addressList'
 				this.tui.request(url, 'PUT',{addressList: this.addressList}).then(res => {})
 			},

@@ -1,0 +1,20 @@
+{
+  "backgroundColorTop": "#F7F7F7",
+  "backgroundColorBottom": "#F7F7F7",
+  "navigationBarTitleText": " ",
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "tui-icon": "/components/thorui/tui-icon/tui-icon",
+    "tui-badge": "/components/thorui/tui-badge/tui-badge",
+    "tui-slider": "/components/thorui/tui-slider/tui-slider",
+    "tui-tag": "/components/thorui/tui-tag/tui-tag",
+    "tui-rate": "/components/thorui/tui-rate/tui-rate",
+    "tui-nomore": "/components/thorui/tui-nomore/tui-nomore",
+    "tui-button": "/components/thorui/tui-button/tui-button",
+    "tui-top-dropdown": "/components/thorui/tui-top-dropdown/tui-top-dropdown",
+    "tui-bottom-popup": "/components/thorui/tui-bottom-popup/tui-bottom-popup",
+    "tui-modal": "/components/thorui/tui-modal/tui-modal",
+    "u-parse": "/components/uni/uParse/src/wxParse",
+    "popup-box": "/components/views/addCart/addCart"
+  }
+}

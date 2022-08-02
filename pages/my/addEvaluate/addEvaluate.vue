@@ -48,7 +48,7 @@
 				orderNum: '',
 				formData: {},
 				bucket_image: 'chuangbiying-review',
-				action: 'http://up-cn-east-2.qiniup.com',
+				action: 'https://up-cn-east-2.qiniup.com',
 				goodsImage: '',
 				postData: {
 					msg: '',

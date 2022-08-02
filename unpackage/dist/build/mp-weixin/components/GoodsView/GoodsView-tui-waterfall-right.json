@@ -1,0 +1,11 @@
+{
+  "component": true,
+  "usingComponents": {
+    "GoodsView-tui-waterfall-left": "/components/GoodsView/GoodsView-tui-waterfall-left",
+    "GoodsView-tui-waterfall-right": "/components/GoodsView/GoodsView-tui-waterfall-right",
+    "tui-tag": "/components/thorui/tui-tag/tui-tag",
+    "tui-icon": "/components/thorui/tui-icon/tui-icon",
+    "tui-waterfall": "/components/thorui/tui-waterfall/tui-waterfall",
+    "t-goods-item": "/components/views/t-goods-item/t-goods-item"
+  }
+}

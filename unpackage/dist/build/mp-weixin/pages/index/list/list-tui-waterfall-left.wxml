@@ -1,0 +1,1 @@
+<t-goods-item vue-id="{{'0db2901d-3-'+index1}}" entity="{{entity}}" mode="list" data-event-opts="{{[['^add',[['addGoods']]]]}}" bind:add="__e" bind:__l="__l"></t-goods-item>

@@ -7,11 +7,8 @@ import store from '../store'
 const tui = {
 	//接口地址
 	interfaceUrl: function() {
-		return 'http://192.168.1.40:8000'
-		// return 'http://localhost:8000'
-		// return 'https://www.thorui.cn'
-		//return 'https://test.thorui.cn'
-		//return 'https://uat.thorui.cn'
+		// return 'http://192.168.0.109:8000'
+		return 'https://chuangbiying.com/retail'
 	},
 	toast: function(text, duration, success) {
 		uni.showToast({

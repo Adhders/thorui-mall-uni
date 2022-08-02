@@ -2,7 +2,7 @@
     <view>
         <tui-list-cell padding="0" @tap="detail(order, goods)" v-for="(goods,index) in order.goodsList" :key="index">
             <view class="tui-goods-goods">
-                <image :src=goods.defaultImageUrl class="tui-goods-img"></image>
+                <image :src=goods.defaultImageUrl class="tui-goods-img" mode="aspectFill"></image>
                 <view class="tui-goods-center">
                     <view class="tui-goods-name">{{goods.title}}</view>
                     <view class="tui-goods-attr">{{goods.propertyList | getProperty}}</view>

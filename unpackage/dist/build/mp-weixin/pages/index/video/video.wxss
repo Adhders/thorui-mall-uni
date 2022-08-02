@@ -1,0 +1,2 @@
+page,
+.container{height:100%;background-color:#000}.container{display:flex;align-items:center;justify-content:center}.tui-video{width:100%;height:100%}.video-img{display:inline-block;width:90rpx;height:90rpx;position:absolute;bottom:0;left:50%;top:50%;-webkit-transform:translateX(-50%) translateY(-50%);transform:translateX(-50%) translateY(-50%)}.video-img image{width:90rpx;height:90rpx;z-index:999;opacity:.5}

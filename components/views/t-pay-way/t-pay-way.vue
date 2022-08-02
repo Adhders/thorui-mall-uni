@@ -55,11 +55,11 @@
 		name: 'tPayWay',
 		emits: ['close'],
 		props: {
-			//控制显示
-			show: {
-				type: Boolean,
-				default: false
-			},
+			// //控制显示
+			// show: {
+			// 	type: Boolean,
+			// 	default: false
+			// },
 			page:{
 				type:Number,
 				default:1
@@ -75,6 +75,7 @@
 		},
 		data() {
 			return {
+				show: false,
 				visible: false,
 				result: null,
 				orderNum: '',
@@ -103,15 +104,15 @@
 				if(!this.success){
 					this.visible = true
 				}
-				else{
-					this.$emit("close",{})
-				}
+			    this.show=false
 			},
 			buttonTap(e){
 				this.visible=false
 				if(e.index===0){
 					this.initial=true
 					this.$emit("close",{})
+				}else{
+					this.show = true
 				}
 			},
 			requestPayment(result, order){
@@ -130,11 +131,14 @@
 					success: function () {
 						url = '/updateOrder/' + _this.orderNum + '/' + 'payment'
 						order.status = '待评价'
-						// _this.$store.state.orderList.unshift(order)
 						_this.tui.request(url, 'PUT', {status: "待评价"}).then(
 							() => {
 								_this.success = true
 								_this.close()
+								let goodsList = order.goodsList
+								goodsList.forEach((o)=>{
+									_this.tui.request('/updateGoodsStock', 'PUT', {id: o.id, buyNum: o.buyNum})
+								})
 								wx.redirectTo({url: "/pages/order/success/success"})
 							})
 					},
@@ -143,7 +147,6 @@
 						url = '/updateOrder/' + _this.orderNum + '/' + 'paymentInfo'
 						_this.tui.request(url, 'PUT', {paymentInfo : result}).then(
 							()=>{
-								// _this.$store.state.orderList.unshift(order)
 						})
 					},
 				})

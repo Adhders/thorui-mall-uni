@@ -65,8 +65,8 @@
         },
         "usingComponents" : true,
         "permission" : {
-            "scope.userLocation": {
-            "desc": "您的位置信息将用于获取详细地址"
+            "scope.userLocation" : {
+                "desc" : "您的位置信息将用于获取详细地址"
             }
         }
     },

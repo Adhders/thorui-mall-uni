@@ -833,12 +833,12 @@ export default {
 	bottom: 0;
 	z-index: 1000;
 	box-sizing: border-box;
-	padding: 10rpx 30rpx;
+	padding: 30rpx;
 	background: #fff;
 }
 
 .tui-attr-safearea {
-	height: 90rpx;
+	height: 70rpx;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -864,8 +864,8 @@ export default {
 .tui-drawer-btn {
 	width: 47%;
 	text-align: center;
-	height: 60rpx;
-	border-radius: 30rpx;
+	height: 70rpx;
+	border-radius: 35rpx;
 	flex-shrink: 0;
 	display: flex;
 	align-items: center;

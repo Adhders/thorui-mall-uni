@@ -1,0 +1,6 @@
+{
+  "usingComponents": {
+    "tui-swiper-dot": "/components/thorui/tui-swiper-dot/tui-swiper-dot"
+  },
+  "component": true
+}

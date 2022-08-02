@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "问题反馈",
+  "usingComponents": {
+    "tui-button": "/components/thorui/tui-button/tui-button"
+  }
+}

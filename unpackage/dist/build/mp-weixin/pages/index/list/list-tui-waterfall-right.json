@@ -1,0 +1,11 @@
+{
+  "component": true,
+  "usingComponents": {
+    "list-tui-waterfall-left": "/pages/index/list/list-tui-waterfall-left",
+    "list-tui-waterfall-right": "/pages/index/list/list-tui-waterfall-right",
+    "nav-bar": "/components/NavBar/NavBar",
+    "tui-waterfall": "/components/thorui/tui-waterfall/tui-waterfall",
+    "t-goods-item": "/components/views/t-goods-item/t-goods-item",
+    "popup-box": "/components/views/addCart/addCart"
+  }
+}

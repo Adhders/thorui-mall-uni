@@ -1,0 +1,10 @@
+{
+  "navigationBarTitleText": "获取地址",
+  "backgroundColorTop": "#fff",
+  "backgroundColorBottom": "#fff",
+  "usingComponents": {
+    "tui-list-cell": "/components/thorui/tui-list-cell/tui-list-cell",
+    "tui-loadmore": "/components/thorui/tui-loadmore/tui-loadmore",
+    "tui-button": "/components/thorui/tui-button/tui-button"
+  }
+}

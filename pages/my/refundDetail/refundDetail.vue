@@ -66,8 +66,8 @@
 				</view>
 			</view>
 			<tui-list-view unlined="bottom">
-				<tui-list-cell unlined>
-					<view class="tui-contact">
+				<tui-list-cell unlined  @tap="openService">
+					<view class="tui-contact" >
 						<image src="https://thorui.cn/images/mall/group/icon_order_contactmerchant.png"></image>
 						<text>联系商家</text>
 					</view>
@@ -198,6 +198,18 @@ export default {
 		},
 		detail(order) {
 			this.tui.href('/pages/my/refundDetail/refundDetail?order=' + encodeURIComponent(JSON.stringify(order)))
+		},
+		openService: function() {
+			// #ifdef MP-WEIXIN
+			let servieId = this.$store.state.serviceId
+			let corpId = this.$store.state.corpId
+			console.log('service', servieId, corpId)
+			wx.openCustomerServiceChat({
+				extInfo: {url: servieId},
+				corpId: corpId,
+				success(res) {console.log('res',res) }
+			})
+			// #endif
 		},
 		previewImage(current, imgs) {
 			let urls = imgs.map(item => {

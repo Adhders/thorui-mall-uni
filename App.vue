@@ -4,8 +4,12 @@
 		onLaunch: function() {
 			// uni.hideTabBar()
 			// uni.showTabBar()
+			const accountInfo = wx.getAccountInfoSync();
+            this.globalData.appid = accountInfo.miniProgram.appId
+			this.$store.commit('setAppid', this.globalData.appid)
 			this.calcNavBarInfo()
 			this.login()
+			this.init()
 		},
 		globalData: {
 			//全局数据管理
@@ -15,6 +19,7 @@
 			menuTop: 0, // 胶囊距手机的顶部距离
 			menuHeight: 0, // 胶囊高度
 			menuWidth: 0, // 胶囊宽度
+			appid: '',
 		},
 		methods: {
 			/**
@@ -23,11 +28,11 @@
 			calcNavBarInfo() {
 				// 获取系统信息
 				const systemInfo = uni.getSystemInfoSync();
-				console.log('systemInfo', systemInfo)
+				// console.log('systemInfo', systemInfo)
 				this.globalData.windowWidth = systemInfo.windowWidth
 				// 胶囊按钮位置信息
 				const menuButtonInfo = uni.getMenuButtonBoundingClientRect();
-				console.log('menuButtonInfo', menuButtonInfo)
+				// console.log('menuButtonInfo', menuButtonInfo)
 				// 导航栏高度 = 状态栏到胶囊的间距（胶囊上坐标位置-状态栏高度） * 2 + 胶囊高度 + 状态栏高度
 				this.globalData.navBarHeight = (menuButtonInfo.top - systemInfo.statusBarHeight) * 2 + menuButtonInfo
 					.height + systemInfo.statusBarHeight;
@@ -71,6 +76,18 @@
 						}
 					})
 				}
+			},
+			init(){
+				let url = '/getStoreSetting/' + this.globalData.appid
+				this.tui.request(url).then(res=>{
+					if (res.code === '0'){
+						// console.log('res', res)
+						this.$store.commit('setShareText', res.storename)
+						const service = res.setting.service
+						this.$store.commit('setServiceId', service.serviceId)
+						this.$store.commit('setCorpId', service.corpId)
+					}
+				})
 			},
 		},
 		onShow: function() {

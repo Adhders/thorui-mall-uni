@@ -5,7 +5,7 @@
 				<image :src="reviewDetail.avatar" class="tui-avatar">
 			    <view class="tui-user-info">
 					<view class="tui-nickname">{{reviewDetail.name}}</view>
-					<tui-rate :current="reviewDetail.star" :size="11"></tui-rate>
+					<tui-rate :current="reviewDetail.star" :size="14"></tui-rate>
 				</view>		
 				<text class="tui-review-time">{{reviewDetail.create_time | timeFormat}}</text>
 			</view>
@@ -22,7 +22,7 @@
 					</block>
 				</view>
 				<view class="tui-desc" v-if="reviewDetail.additional">
-					<view class="additional">购买{{reviewDetail.additional.date | intervalTime}}后追平</view>
+					<view class="additional">购买{{reviewDetail.additional.date | intervalTime}}后追评</view>
 					<view>{{reviewDetail.additional.msg}}</view>
 				</view>
 				<view class="tui-img__box" v-if="reviewDetail.additional.imgs.length>0">
@@ -43,13 +43,14 @@
 		<view class="tui-reply__box tui-scroll__box">
 			<tui-list-cell padding="25rpx" :hover="false" :lineLeft="false">
 				<view class="tui-reply__title">
-					全部评论({{reviewDetail.children.length}})
+					<text>全部评论</text>
+                    <text style="font-size: 24rpx; margin-left: 5rpx">({{reviewDetail.children.length}})</text>
 				</view>
 			</tui-list-cell>
 			<block v-for="(item,index) in reviewDetail.children" :key="index">
 				<tui-list-cell padding="25rpx" :hover="false" @tap="reply(index)">
-					<view class="tui-flex__center tui-pr__30">
-						<img :src="item.avatar" class="tui-avatar">
+					<view class="tui-flex__center tui-pr__30" mode="aspectFill">
+						<image :src="item.avatar" class="tui-avatar"/>
 						<view class="tui-children-nickname">
 							<view>{{item.name}}</view>
 							<view class="tui-date">{{item.create_time | timeFormat}} </view>
@@ -101,7 +102,7 @@
 		data() {
 			return {
 				top: 100,
-				webURL: 'http://review.chuangbiying.com/',
+				webURL: 'https://review.chuangbiying.com/',
 			}
 		},
 		filters: {
@@ -221,18 +222,19 @@
 	}
 
 	.tui-user-info {
-		flex: 1;
-		 margin-left: 10rpx
+		margin-left: 10rpx;
+		line-height: 26rpx;
+		flex: auto;
 	}
 	.tui-avatar {
-		width: 64rpx;
-		height: 64rpx;
-		border-radius: 50%;
+		width: 60rpx;
+		height: 60rpx;
+		border-radius: 30rpx;
+		display: block;
 	}
-
 	.tui-nickname {
 		margin-left: 5rpx;
-		font-size: 22rpx;
+		font-size: 24rpx;
 	}
 	.tui-children-nickname{
 		margin-left: 10rpx;
@@ -262,7 +264,7 @@
 
 	.tui-desc {
 		margin-top: 20rpx;
-		font-size: 24rpx;
+		font-size: 28rpx;
 		word-break: break-all;
 		text-align: justify;
 		.additional{
@@ -317,7 +319,7 @@
 	}
 
 	.tui-specs {
-		font-size: 22rpx;
+		font-size: 24rpx;
 		color: #999;
 		font-weight: 400;
 		word-break: break-all;
@@ -328,7 +330,7 @@
 	}
 
 	.tui-reply__title {
-		font-size: 26rpx;
+		font-size: 28rpx;
 		font-weight: bold;
 	}
 	.tui-color__link {

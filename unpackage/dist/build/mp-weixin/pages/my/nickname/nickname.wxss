@@ -1,0 +1,1 @@
+.container{padding-top:20rpx}.container .tui-cell-input{width:100%;display:flex;align-items:center;box-sizing:border-box}.container .tui-cell-input input{flex:1;padding-left:20rpx}.container .tui-btn-box{padding:40rpx 30rpx 10rpx 30rpx;box-sizing:border-box}

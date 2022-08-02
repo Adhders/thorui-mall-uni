@@ -26,6 +26,7 @@
 			>
 				<text>{{ item.name}}</text>
 			</view>
+			<view class="tab-bar-item" @tap="all">全部</view>
 		</scroll-view>
 		<scroll-view
 			@scroll="scroll"
@@ -45,8 +46,30 @@
 								<view class="class-name">{{ item.name }}</view>
 								<view class="g-container">
 									<view class="g-box" @tap.stop="detail(goods)" v-for="(goods, i) in item.goodsList" :key="i">
-										<image :src=goods.defaultImageUrl class="g-image" />
-										<view class="g-title">{{goods.title}}</view>
+										<image :src=goods.defaultImageUrl class="g-image" mode="aspectFill" />
+										<!-- <view class="image-tag">
+											<image  class="img" style="width: 53px; height: 15px" mode="widthFix" src="https://system.chuangbiying.com/static/images/mini/listTpl_goods.png"/>
+										</view> -->
+										<view class="tui-pro-content">
+											<view class="tui-pro-tit">{{goods.title}}</view>
+											
+											<!-- <view class="tui-sub-info">{{goods.slogan}}</view> -->
+											<!-- <view class="label-box">
+												<tui-tag type="green" padding="10rpx" scaleMultiple="0.8" size="24rpx" v-for="(tag) in goods.selectedTag" :key="tag.name">
+													{{tag.name}}
+												</tui-tag>
+											</view> -->
+											<view class="tui-pro-pay" >{{ goods.salesNum }}人付款</view>
+											<view class="icon-box">
+												<view class="tui-pro-price">
+													<text class="tui-size-24">￥</text>
+													<text class="tui-sale-price">{{goods.integerPrice}}</text>
+													<text class="tui-size-24" v-if="goods.decimalPrice">.{{goods.decimalPrice}}</text>
+													<text class="tui-factory-price" v-if="goods.originalPrice">￥{{ goods.originalPrice }}</text>
+												</view>
+												<tui-icon name="cart" :size="32" unit="rpx" color="#e41f19" @tap.stop="onSelect(goods)"></tui-icon>
+											</view>
+										</view>
 									</view>
 								</view>
 							</view>
@@ -139,6 +162,11 @@ export default {
 				url: '/pages/common/search/search'
 			});
 		},
+		all(){
+			uni.navigateTo({
+				url: '/pages/index/productList/productList'
+			})
+		},
 		scroll(e) {
 			//动画时长固定300ms
 			if (!this.isScroll) {
@@ -155,12 +183,15 @@ export default {
 				this.currentTab = e.index;
 				this.checkCor(true);
 			}
-		}
+		},
+		onSelect(goods){
+			this.tui.href('/pages/index/productDetail/productDetail?spu_id=' + goods.spu_id + '&sku_id=' + goods.id + '&buy=true')
+		},
 	}
 };
 </script>
 
-<style>
+<style lang="less">
 page {
 	background-color: #fcfcfc;
 }
@@ -264,7 +295,6 @@ page {
 	width: 100%;
 	overflow: hidden;
 	padding-top: 20rpx;
-	padding-right: 20rpx;
 	box-sizing: border-box;
 	/* padding-bottom: env(safe-area-inset-bottom); */
 }
@@ -284,7 +314,7 @@ page {
 }
 
 .g-container {
-	/* padding-top: 20rpx; */
+	padding-top: 20rpx;
 	display: flex;
 	display: -webkit-flex;
 	justify-content: flex-start;
@@ -293,25 +323,92 @@ page {
 }
 
 .g-box {
-	width: 33.3333%;
-	text-align: center;
-	padding-top: 40rpx;
+	position: relative;
+    display: flex;
+    width: 100%;
+	margin-top: 20rpx;
 }
 
 .g-image {
-	width: 130rpx;
-	height: 130rpx;
+	width: 140rpx;
+	height: 140rpx;
 	border-radius: 10rpx;
 }
-
-.g-title {
+.image-tag{
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+// .label-box{
+// 	margin-left: -10rpx;
+// 	display: flex;
+// 	flex-direction: row;
+// 	.img{
+// 		height: 28rpx;
+// 		margin-right: 10rpx;
+// 	}
+// }
+.tui-pro-pay {
 	font-size: 24rpx;
-	text-align: center;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    word-break: break-all;
-    -webkit-line-clamp: 2;
+	color: #656565;
+}
+.tui-pro-content {
+	display: flex;
+	flex: auto;
+	max-width: 330rpx;
+	flex-direction: column;
+	justify-content: space-between;
+	box-sizing: border-box;
+	margin-left: 20rpx;
+	.tui-pro-tit {
+		color: #2e2e2e;
+		font-size: 28rpx;
+		box-sizing: border-box;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+	// .tui-sub-info {
+	// 	width: 90%;
+	// 	color: #888;
+	// 	font-size: 22rpx;
+	// 	box-sizing: border-box;
+	// 	white-space: nowrap;
+	// 	overflow: hidden;
+	// 	text-overflow: ellipsis;
+	// }
+	.tui-pro-pay {
+		font-size: 24rpx;
+		color: #656565;
+	}
+	.icon-box{
+		display: flex;
+		align-items: baseline;
+		flex-direction: row;
+		justify-content: space-between;
+		width: 100%;
+		// height: 60rpx;
+		.tui-pro-price {
+			padding-top: 10rpx;
+			flex: auto;
+			display: inline;
+			.tui-size-24 {
+				font-size: 24rpx;
+				font-weight: 500;
+				color: #e41f19;
+			}
+			.tui-sale-price {
+				font-size: 34rpx;
+				font-weight: 500;
+				color: #e41f19;
+			}
+			.tui-factory-price {
+				font-size: 24rpx;
+				color: #a0a0a0;
+				text-decoration: line-through;
+				padding-left: 12rpx;
+			}
+		}
+	}
 }
 </style>

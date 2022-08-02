@@ -28,7 +28,7 @@
 								:src="goodsDetail.videoUrl" :show-center-play-btn="false" :muted="ismute">
 							</video>
 							<view class="video-img" @tap.stop="videoPlay()" v-if="startVideo">
-								<image src="https://system.chuangbiying.com/assets/play.svg" mode=""></image>
+								<image src="https://system.chuangbiying.com/assets/img/video-play.png" mode=""></image>
 							</view>
 						</view>
 						<tui-slider class="tui-video-slider" :height="2" :blockWidth="0" :blockHeight="0"  radius="0"  backgroundColor="#ccc" 
@@ -50,94 +50,127 @@
 			</view>
 
 			<!--banner-->
-
+            
 			<view class="tui-pro-detail">
-				<view class="tui-product-title tui-border-radius">
-					<view class="tui-pro-pricebox tui-padding">
-						<view class="tui-pro-price ">
-							<view>
-								<text>￥</text>
-								<text class="tui-price">{{goodsDetail.price}}</text>
-							</view>
-							<view class="tui-original-price tui-gray" v-if="goodsDetail.originalPrice">
-								<text class="tui-line-through">￥{{goodsDetail.originalPrice}}</text>
-							</view>
-						</view>
-						<view class="tui-sales tui-gray" style="font-size: 26rpx">
-							已售{{goodsDetail.salesNum}}件
+				<tui-skeleton v-if="skeletonShow"  backgroundColor='#fff'></tui-skeleton>
+
+                <view  v-if="skeletonShow" class="tui-skeleton">
+					<view class="tui-cell">
+						<view class="tui-title tui-skeleton-rect">xxxxxxxxxxxxxxxx</view>
+						<view style="float: right">
+							<view style="width: 25px; height: 25px;float: right; margin-left: 10px" class="tui-skeleton-circular"></view>
+							<view style="width: 25px; height: 25px; float: right;margin-left: 10px" class="tui-skeleton-circular"></view>
 						</view>
 					</view>
-					<view class="tui-pro-titbox">
-						<view class="tui-pro-title">
-							<text>{{goodsDetail.title}}</text>
-							<tui-tag type="green" padding="10rpx" scaleMultiple="0.8" size="28rpx"  style="display: -webkit-inline-flex; line-height: 32rpx;" v-if="goodsDetail.selectedTag.length>0">
-								{{goodsDetail.selectedTag[0]['name']}}
-							</tui-tag>	
-						</view>
-						<view class="tui-share-position" @tap="showSharePopup">
-							<tui-tag type="gray" shape="circleLeft" padding="12rpx 16rpx">
-								<view class="tui-share-box ">
-									<tui-icon name="partake" color="#999" :size="15"></tui-icon>
-									<text class="tui-share-text tui-gray tui-size">分享</text>
+					<view class="tui-cell">
+						<view class="tui-title tui-skeleton-rect">xxxxxxxxxxxxxxxxxxxxxxxxxxxx</view>
+					</view>
+					<view class="tui-cell">
+						<view class="tui-title tui-skeleton-rect">xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</view>
+					</view>
+					<view class="tui-cell">
+						<view class="tui-title tui-skeleton-rect">xxxxxxxxxxxxxxxxxxxxxxxxxxxx</view>
+					</view>
+                    <view class="tui-cell" style="padding: 20rpx;">
+						<view style="border: 1rpx solid #eaeef1; position: relative;"></view>
+					</view>
+					<view class="tui-cell">
+						<view class="tui-title tui-skeleton-rect">xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</view>
+					</view>
+					<view class="tui-cell">
+						<view class="tui-title tui-skeleton-rect">xxxxxxxxxxxxxxxxxxxxxxxxxxxx</view>
+					</view>
+				</view>
+
+				<view v-if="!skeletonShow">
+					<view class="tui-product-title tui-border-radius">
+						<view class="tui-pro-pricebox tui-padding">
+							<view class="tui-pro-price ">
+								<view>
+									<text>￥</text>
+									<text class="tui-price">{{goodsDetail.price}}</text>
 								</view>
-							</tui-tag>
+								<view class="tui-original-price tui-gray" v-if="goodsDetail.originalPrice">
+									<text class="tui-line-through">￥{{goodsDetail.originalPrice}}</text>
+								</view>
+							</view>
+							<view class="tui-sales tui-gray" style="font-size: 26rpx">
+								已售{{goodsDetail.salesNum? goodsDetail.salesNum: 0}}件
+							</view>
+						</view>
+						<view class="tui-pro-titbox">
+							<view class="tui-pro-title">
+								<text>{{goodsDetail.title}}</text>
+								<tui-tag type="green" padding="10rpx" scaleMultiple="0.8" size="28rpx"  style="display: -webkit-inline-flex; line-height: 32rpx;" v-if="goodsDetail.selectedTag.length>0">
+									{{goodsDetail.selectedTag[0]['name']}}
+								</tui-tag>	
+							</view>
+							<view class="tui-share-position" @tap="showSharePopup">
+								<tui-tag type="gray" shape="circleLeft" padding="12rpx 16rpx">
+									<view class="tui-share-box ">
+										<tui-icon name="partake" color="#999" :size="15"></tui-icon>
+										<text class="tui-share-text tui-gray tui-size">分享</text>
+									</view>
+								</tui-tag>
+							</view>
+						</view>
+						<view class="tui-padding">
+							<view class="tui-sub-title tui-size tui-gray">{{goodsDetail.slogan}}</view>
 						</view>
 					</view>
-					<view class="tui-padding">
-						<view class="tui-sub-title tui-size tui-gray ">{{goodsDetail.slogan}}</view>
+
+					<!-- <view class="tui-discount-box tui-radius-all tui-mtop">
+						<view class="tui-list-cell" @tap="coupon">     
+							<view class="tui-bold tui-cell-title" >领券</view>
+							<view class="tui-flex-center ">
+								<tui-tag type="red" shape="circle" padding="12rpx 24rpx" size="24rpx">满99减8</tui-tag>
+								<tui-tag margin="0 0 0 20rpx" type="red" padding="12rpx 24rpx" size="24rpx" shape="circle">满59减5</tui-tag>
+							</view>
+							<view class="tui-ml-auto">
+								<tui-icon name="more-fill" :size="20" color="#666"></tui-icon>
+							</view>
+						</view>
+					</view> -->
+
+					<view class="tui-basic-info tui-mtop tui-radius-all">
+						<view class="tui-list-cell" @tap="showPopup('cart')">
+							<view class="tui-bold tui-cell-title">已选</view>
+							<view class="tui-selected-box">{{selectedGoodsAttrList | attrFormat}}</view>
+							<view class="tui-buyNum" v-show="goodsDetail.sellUnit">，{{buyNum}}{{goodsDetail.sellUnit}}</view>
+							<view class="tui-ml-auto">
+								<tui-icon name="arrowright" :size="36" color="#666" unit="rpx"></tui-icon>
+							</view>
+						</view>
+
+						<view class="tui-list-cell tui-last" @tap="showPopup('property')">
+							<view class="tui-bold tui-cell-title">参数</view>
+							<view class="tui-selected-box" style="max-width: 160rpx">{{ goodsDetail.selectedGoodsPropList | propsFormat}}</view>
+							<view class="tui-ml-auto">
+								<tui-icon name="arrowright" :size="36" color="#666" unit="rpx"></tui-icon>
+							</view>
+						</view>
+						<view class="tui-guarantee" @tap="showPopup('service')">
+							<view class="tui-guarantee-item " v-for="(service, index) in goodsDetail.selectedGoodsRightsList" :key="index">
+								<tui-icon name="circle-selected" :size="14" color="#999"></tui-icon>
+								<text class="tui-pl">{{service.value}}</text>
+							</view>
+						</view>
 					</view>
+
 				</view>
 
-				<!-- <view class="tui-discount-box tui-radius-all tui-mtop">
-					<view class="tui-list-cell" @tap="coupon">     
-						<view class="tui-bold tui-cell-title" >领券</view>
-						<view class="tui-flex-center ">
-							<tui-tag type="red" shape="circle" padding="12rpx 24rpx" size="24rpx">满99减8</tui-tag>
-							<tui-tag margin="0 0 0 20rpx" type="red" padding="12rpx 24rpx" size="24rpx" shape="circle">满59减5</tui-tag>
-						</view>
-						<view class="tui-ml-auto">
-							<tui-icon name="more-fill" :size="20" color="#666"></tui-icon>
-						</view>
-					</view>
-				</view> -->
-
-				<view class="tui-basic-info tui-mtop tui-radius-all">
-					<view class="tui-list-cell" @tap="showPopup('cart')">
-						<view class="tui-bold tui-cell-title">已选</view>
-						<view class="tui-selected-box">{{selectedGoodsAttrList | attrFormat}}，</view>
-						<view class="tui-buyNum">{{buyNum}}{{goodsDetail.sellUnit}}</view>
-						<view class="tui-ml-auto">
-							<tui-icon name="arrowright" :size="36" color="#666" unit="rpx"></tui-icon>
-						</view>
-					</view>
-
-					<view class="tui-list-cell tui-last" @tap="showPopup('property')">
-						<view class="tui-bold tui-cell-title">参数</view>
-						<view class="tui-selected-box" style="max-width: 160rpx">{{ goodsDetail.selectedGoodsPropList | propsFormat}}</view>
-						<view class="tui-ml-auto">
-							<tui-icon name="arrowright" :size="36" color="#666" unit="rpx"></tui-icon>
-						</view>
-					</view>
-					<view class="tui-guarantee" @tap="showPopup('service')">
-						<view class="tui-guarantee-item " v-for="(service, index) in goodsDetail.selectedGoodsRightsList" :key="index">
-							<tui-icon name="circle-selected" :size="14" color="#999"></tui-icon>
-							<text class="tui-pl">{{service.value}}</text>
-						</view>
-					</view>
-				</view>
 
 				<view class="tui-cmt-box tui-mtop tui-radius-all">
 					<view class="tui-list-cell tui-last tui-between">
 						<view class="tui-bold tui-cell-title">
 							<text>评价</text>
-                            <text>({{reviews}})</text>
+                            <text style="font-size: 24rpx; margin-left: 5rpx;">({{reviews}})</text>
                         </view>
 						<view class="tui-showAll" @tap="evaluate">
 							<view>查看全部</view>
 							<tui-icon name="arrowright" :size="32" color="#666" unit="rpx"></tui-icon>
 						</view>
 					</view>
-
                     <block v-for="review, index in reviewList" :key="index">
 						<view class="tui-cmt-content tui-padding" v-if="index<=1">
 							<view class="tui-cmt-user">
@@ -213,9 +246,6 @@
 			<!--底部选择层-->
 			<tui-bottom-popup :show="popupShow" @close="hidePopup">
 				<view class="tui-popup-box" v-if="mode==='service'">
-					<view class="tui-right">
-						<tui-icon name="close-fill" color="#999" :size="20"  @click="hidePopup"></tui-icon>
-					</view>
 					<view class="service-header">服务说明</view>
 					<scroll-view scroll-y class="tui-popup-scroll">
 						<view class="tui-scrollview-box">
@@ -230,11 +260,13 @@
 							</view>
 						</view>
 					</scroll-view>
+					<view class="tui-operation tui-operation-right tui-right-flex tui-popup-btn">
+						<view class="tui-flex-1">
+							<tui-button height="72rpx" :size="32" type="danger" shape="circle" @click="hidePopup">完成</tui-button>
+						</view>
+					</view>
 				</view>
 				<view class="tui-popup-box" v-if="mode==='property'">
-					<view class="tui-right">
-						<tui-icon name="close-fill" color="#999" :size="20"  @click="hidePopup"></tui-icon>
-					</view>
 					<view class="property-header">产品参数</view>
 					<scroll-view scroll-y class="tui-popup-scroll">
 						<view class="tui-scrollview-box">
@@ -272,7 +304,7 @@
 								<view class="tui-share__text">分享给好友</view>
 							</view>
 						</button>
-						<view class="tui-share__item" @tap="createPoster">
+						<view class="tui-share__item" @tap="createQrcode">
 							<image src="https://system.chuangbiying.com/static/images/mall/icon_popup_poster.png"></image>
 							<view class="tui-share__text">生成分享海报</view>
 						</view>
@@ -305,11 +337,15 @@
 		},
 		data() {
 			return {
+				appid: '',
 				initial: true,
 				ismute: true,
-				voiceControl: "https://system.chuangbiying.com/assets/mute.svg",
+				skeletonShow: true,
+				voiceControl: "https://system.chuangbiying.com/assets/svg/mute.svg",
 				detail: '',
 			    reviews: 0,
+				shareText: '',
+				qrcode: '',
 				skuArray: [], 
 				propsList: [], //商品属性
 				invalidSkuList: [],
@@ -370,6 +406,7 @@
 				popupShow: false,
 				buyNum: 1,
                 spu_id: 1,
+				sku_id: '',
 				collected: false,
 				sharePopup: false,
 				posterImg: '',
@@ -383,11 +420,40 @@
 				currentTime: 0,
 				duration: 15,
 				selectedGoodsAttrList: [], //商品去重后的属性
-				goodsDetail: {selectedGoodsPropList: []},
+				goodsDetail: {price: '0.00', selectedGoodsPropList: [], goodsImageUrls: ['https://system.chuangbiying.com/assets/img/add-picture.png']},
 			};
 		},
 		
 		onLoad: function(options) {
+			const accountInfo = wx.getAccountInfoSync();
+            this.appid = accountInfo.miniProgram.appId
+			this.spu_id = parseInt(options.spu_id)
+			this.sku_id = parseInt(options.sku_id)
+
+			// 扫码进入小程序
+			if(options.scene){
+				let scene=decodeURIComponent(options.scene);
+				//&是我们定义的参数链接方式
+				this.spu_id=parseInt(scene.split("&")[0]);
+				this.sku_id=parseInt(scene.split('&')[1]);
+			}
+			
+			//初始化前确保goodsList不为空
+			if(this.$store.state.goodsList.length===0){
+				let url = '/getStoreGoods/' + this.appid
+				this.tui.request(url).then(res => {
+					if (res.code === '0') {
+						res.goodsList.forEach((o) => {
+							o.integerPrice = parseInt(o.price)
+							o.decimalPrice = o.price.split('.')[1]
+						})
+						this.$store.commit('setGoodsList', res.goodsList)
+						this.$refs.popup.initial(this.spu_id, this.sku_id)
+					}
+				})
+			}else{
+				this.$refs.popup.initial(this.spu_id, this.sku_id)
+			}
 			// #ifdef MP-WEIXIN
 			this.videoplayObj = wx.createVideoContext('myVideo')
 			// #endif
@@ -395,9 +461,7 @@
 			setTimeout(() => {
 				this.startVideo = false
 			}, 600);
-            this.spu_id = parseInt(options.spu_id)
-			const id = parseInt(options.sku_id)
-			this.$refs.popup.initial(this.spu_id, id)
+
             if(Boolean(options.buy)){ //是否再次购买
 				this.$refs.popup.popupShow = true
 			}
@@ -408,7 +472,6 @@
 					this.$store.commit('setReviewList', res.reviewList)
 				}
 			})
-
 			//计算当前购物车商品数量
 			let total = 0
 			let dataList = this.cart.filter((o)=>{return !o.invalid})
@@ -461,18 +524,15 @@
 			reviewList() {
 				return this.$store.state.reviewList
 			},
-			goodsList() {
-				return this.$store.state.goodsList
-			},
 			cart(){
 				return this.$store.state.cart
 			}
 		},
 		methods: {
 			onSelectGoods(goodsDetail, selectedGoodsAttrList){
-
 				this.goodsDetail = goodsDetail
 				this.selectedGoodsAttrList = selectedGoodsAttrList
+				this.skeletonShow = false
 			},
 			submit(){
 				this.$refs.popup.submit()
@@ -484,7 +544,7 @@
 			},
 			onChange(){
 				this.ismute = !this.ismute
-				this.voiceControl = this.ismute? 'https://system.chuangbiying.com/assets/mute.svg' : 'https://system.chuangbiying.com/assets/volume.svg'
+				this.voiceControl = this.ismute? 'https://system.chuangbiying.com/assets/svg/mute.svg' : 'https://system.chuangbiying.com/assets/svg/volume.svg'
 			},
 			videoPlay() {
 				this.startVideo = false
@@ -588,9 +648,7 @@
 			btnTopMenu(index) {
 				this.closeMenu()
 				if (index == 4) {
-					uni.makePhoneCall({
-						phoneNumber: "10086"
-					})
+					this.openService()
 				} else if (index == 6) {
 					this.showSharePopup()
 				} else {
@@ -609,15 +667,6 @@
 			},
 			onShare() {
 				this.hideSharePopup()
-				// #ifdef H5
-				thorui.getClipboardData('https://thorui.cn/doc', res => {
-					if (res) {
-						this.tui.toast('链接复制成功，赶快去分享吧~');
-					} else {
-						this.tui.toast('链接复制失败');
-					}
-				});
-				// #endif
 			},
 			shop() {
 				uni.navigateTo({
@@ -631,47 +680,79 @@
 				})
 			},
 			showSharePopup(){
+				this.shareText = this.$store.state.shareText
 				this.sharePopup = true
 			},
 			hideSharePopup() {
 				this.sharePopup = false
 			},
+            createQrcode(){
+				let url = '/getwxacode/' + this.appid
+				let data = {
+					"page": 'pages/index/productDetail/productDetail', //根路径前不要填加 /，不能携带参数
+					"scene": this.spu_id + '&' + this.sku_id,
+					"env_version": "release",  //调式时，需要改为develop
+					// "env_version": "develop",
+					"width": 430
+				}
+				this.tui.request(url, 'POST', data).then(
+					res=>{
+						if(res.code==='0'){
+							this.qrcode = res.qrcode
+							this.createPoster()
+						}
+					}
+				).catch((err)=>{
+					console.log('err', err)
+				})
+			},			
 			async createPoster() {
 				this.hideSharePopup()
 				if (this.posterImg) {
 					this.modalShow = true;
 					return;
 				}
-				uni.showLoading({
-					mask: true,
-					title: '图片生成中...'
-				});
-				let mainPic = await poster.getImage(this.goodsDetail.defaultImageUrl);
-				let qrcode = await poster.getImage(this.$store.state.qrcode);
-				// #ifdef MP-WEIXIN
-				await poster.removeSavedFile();
-				// #endif
-				if (mainPic && qrcode) {
-					const imgs = {
-						mainPic: mainPic,
-						qrcode: qrcode
-					};
-					poster.drawGoodsPoster('posterId', this.winWidth, this.winHeight, imgs,
-					    this.goodsDetail.title, this.goodsDetail.price, this.goodsDetail.originalPrice, 'ThorUI示例小程序',
-						res => {
-							uni.hideLoading();
-							if (res) {
-								this.posterImg = res;
-								setTimeout(() => {
-									this.modalShow = true;
-								}, 60);
-							} else {
-								this.tui.toast('生成海报失败,请稍后再试');
-							}
-						});
-				} else {
-					uni.hideLoading();
-					this.tui.toast('生成海报图片下载失败,请稍后再试');
+				// uni.showLoading({
+				// 	mask: true,
+				// 	title: '图片生成中...'
+				// });
+				try{
+					let mainPic = await poster.getImage(this.goodsDetail.defaultImageUrl);
+					// let qrcode = await poster.getImage(this.$store.state.qrcode);
+					let qrcode = ''
+					if(this.qrcode){
+						qrcode = await poster.getImagebyBase64(this.qrcode)
+					}else{
+						uni.hideLoading();
+						this.tui.toast('获取商品二维码失败,请稍后再试');
+					}
+					// #ifdef MP-WEIXIN
+					await poster.removeSavedFile();
+					// #endif
+					if (mainPic && qrcode) {
+						const imgs = {
+							mainPic: mainPic,
+							qrcode: qrcode
+						};
+						poster.drawGoodsPoster('posterId', this.winWidth, this.winHeight, imgs,
+							this.goodsDetail.title, this.goodsDetail.price, this.goodsDetail.originalPrice, this.shareText,
+							res => {
+								uni.hideLoading();
+								if (res) {
+									this.posterImg = res;
+									setTimeout(() => {
+										this.modalShow = true;
+									}, 60);
+								} else {
+									this.tui.toast('生成海报失败,请稍后再试');
+								}
+							});
+					} else {
+						uni.hideLoading();
+						this.tui.toast('生成海报图片下载失败,请稍后再试');
+					}
+				}catch(err){
+					console.log('err', err)
 				}
 			},
 			hideModal() {
@@ -708,6 +789,18 @@
 <style lang="less" scoped>
 	.container {
 		padding-bottom: 110rpx;
+		.tui-cell {
+			padding: 10rpx 30rpx;
+			color: #555;
+		}
+		.tui-title {
+			padding: 0;
+			font-size: 24rpx;
+			line-height: 24rpx;
+			height: 24rpx;
+			box-sizing: border-box;
+			display: inline-block;
+		}
 	}
 
 	.tui-header-box {
@@ -765,6 +858,7 @@
 		position: relative;
 		padding-top: 100%;
 		height: 0;
+		z-index: 1;
 		overflow: hidden;
 	}
 	.tui-swiper {
@@ -1004,6 +1098,7 @@
 
 	.tui-pro-titbox {
 		font-size: 32rpx;
+		min-height: 50rpx;
 		font-weight: 500;
 		position: relative;
 		padding: 0 150rpx 0 30rpx;
@@ -1011,7 +1106,7 @@
 	}
 
 	.tui-pro-title {
-		padding-top: 20rpx;
+		padding-top: 10rpx;
 	}
 
 	.tui-share-btn {
@@ -1037,7 +1132,7 @@
 	.tui-share-position {
 		position: absolute;
 		right: 0;
-		top: 30rpx;
+		bottom: 0;
 	}
 
 	.tui-share-text {
@@ -1045,7 +1140,7 @@
 	}
 
 	.tui-sub-title {
-		padding: 20rpx 0 0;
+		padding: 10rpx 0 0;
 		line-height: 32rpx;
 	}
 
@@ -1099,12 +1194,10 @@
 	.tui-cell-title {
 		min-width: 66rpx;
 		padding-right: 30rpx;
+		font-size: 28rpx;
 		flex-shrink: 0;
 	}
-    .tui-cell-title text {
-		font-size: 26rpx;
-		margin-left: 6rpx;
-	}
+
 
 	.tui-promotion-box {
 		display: flex;
@@ -1192,8 +1285,8 @@
 		font-size: 24rpx;
 	}
 	.tui-cmt {
-		font-size: 24rpx;
-		padding: 14rpx 0;
+		font-size: 28rpx;
+		padding: 14rpx 25rpx;
 	}
 
 	.tui-attr {

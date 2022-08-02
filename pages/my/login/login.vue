@@ -30,13 +30,13 @@
 				top: getApp().globalData.menuTop,
                 height: getApp().globalData.navBarHeight,
 				nickname: '',
-				from: ''
+				from: '',
+				appid: '',
 			};
 		},
 		onLoad(options) {
 	        this.from = options.from
 			this.appid = this.$store.state.appid
-			this.secret = this.$store.state.secret
 		},
 		computed: {
 			userInfo(){
@@ -49,14 +49,18 @@
 				uni.getUserProfile({
 					desc: '获取您的昵称、头像',
 					success: res => {
-						let data = res.userInfo
+						let userInfo = res.userInfo
 						uni.login({
 							provider: 'weixin',
 							success: function(res) {
 								let js_code = res.code;
-								const url = '/customerLogin/'+ _this.appid  + '/' + _this.secret + '/' + js_code
-								_this.tui.request(url, 'POST', data).then((res)=>{
-									console.log('login', res)
+                                if(!_this.appid){
+									const accountInfo = wx.getAccountInfoSync();
+									_this.appid = accountInfo.miniProgram.appId
+									_this.$store.commit('setAppid', _this.appid)
+								}
+								const url = '/customerLogin/'+ _this.appid + '/' + js_code
+								_this.tui.request(url, 'POST', userInfo).then((res)=>{
 									if(res.code==='0'){
 										let decoded = jwt.jwt_decode(res.token);
 										uni.setStorage({
@@ -67,21 +71,17 @@
 											key: 'pid',
 											data: decoded.pid,
 										})
+										userInfo.phone = decoded.userInfo.phone
+										userInfo.defaultAddress = decoded.userInfo.defaultAddress
 										uni.setStorage({
 											key: 'userInfo',
-											data: decoded.pid,
+											data: userInfo,
 										})
-										data.phone = decoded.userInfo.phone
 					                    _this.$store.commit('login', true)
-										_this.$store.commit('setUserInfo', data)
+										_this.$store.commit('setUserInfo', userInfo)
 										_this.$store.commit('setOrderState', res.orderState)
 										_this.$store.commit('setReviewLikes', res.reviewLikes)
-										
-										if(_this.from === 'cart'){
-											uni.navigateTo({url: '/pages/tabbar/cart/cart'})
-										}else{
-											uni.navigateBack({delta: 1})
-										}
+										uni.navigateBack({delta: 1})
 									}else{
 										uni.showToast({
 											title: '请求失败,请重新进入小程序',
@@ -100,7 +100,7 @@
 			},
 			onCancel(){
 				if(this.from === 'cart'){
-					uni.navigateTo({url: '/pages/tabbar/index/index'})
+					uni.navigateTo({url: '/pages/tabbar/cart/cart'})
 				}else{
 					uni.navigateBack({delta: 1})
 				}

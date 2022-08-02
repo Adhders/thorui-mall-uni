@@ -55,7 +55,7 @@
 					</block>
 				</view>
 				<view class="tui-desc" v-if="item.additional">
-					<view class="additional">购买{{item.additional.date | intervalTime}}后追平</view>
+					<view class="additional">购买{{item.additional.date | intervalTime}}后追评</view>
 					<view>{{item.additional.msg}}</view>
 				</view>
 				<view class="tui-img__box" v-if="item.additional.imgs.length>0">
@@ -99,7 +99,7 @@
 					additional: 0,
 					negative: 0,
 				},
-				webURL: 'http://review.chuangbiying.com/',
+				webURL: 'https://review.chuangbiying.com/',
 				displayList: [],
 				goodRate: '100',
 			}
@@ -368,7 +368,7 @@
 
 	.tui-desc {
 		margin-top: 20rpx;
-		font-size: 24rpx;
+		font-size: 28rpx;
 		word-break: break-all;
 		text-align: justify;
 		.additional{
@@ -425,7 +425,7 @@
 	}
 
 	.tui-specs {
-		font-size: 22rpx;
+		font-size: 24rpx;
 		color: #999;
 		font-weight: 400;
 		word-break: break-all;

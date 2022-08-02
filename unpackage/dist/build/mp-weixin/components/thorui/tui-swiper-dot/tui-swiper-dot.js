@@ -1,0 +1,10 @@
+(global["webpackJsonp"]=global["webpackJsonp"]||[]).push([["components/thorui/tui-swiper-dot/tui-swiper-dot"],{"039c":function(t,e,r){"use strict";r.r(e);var u=r("4c4f"),n=r("55a5");for(var a in n)"default"!==a&&function(t){r.d(e,t,(function(){return n[t]}))}(a);r("786a");var f,i=r("f0c5"),o=Object(i["a"])(n["default"],u["b"],u["c"],!1,null,"4f810a1e",null,!1,u["a"],f);e["default"]=o.exports},"1c59":function(t,e,r){},"4c4f":function(t,e,r){"use strict";var u;r.d(e,"b",(function(){return n})),r.d(e,"c",(function(){return a})),r.d(e,"a",(function(){return u}));var n=function(){var t=this,e=t.$createElement;t._self._c},a=[]},"55a5":function(t,e,r){"use strict";r.r(e);var u=r("e0d6"),n=r.n(u);for(var a in u)"default"!==a&&function(t){r.d(e,t,(function(){return u[t]}))}(a);e["default"]=n.a},"786a":function(t,e,r){"use strict";var u=r("1c59"),n=r.n(u);n.a},e0d6:function(t,e,r){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=void 0;var u={name:"tuiSwiperDot",props:{type:{type:Number,default:1},count:{type:Number,default:0},current:{type:Number,default:0},currentTitle:{type:String,default:""},left:{type:String,default:"0"},right:{type:String,default:"auto"},bottom:{type:String,default:"30rpx"},width:{type:String,default:"16rpx"},height:{type:String,default:"16rpx"},radius:{type:String,default:"50%"},backgroundColor:{type:String,default:"#bfbfbf"},activeBgColor:{type:String,default:"#5677fc"},color:{type:String,default:"#333"},activeColor:{type:String,default:"#fff"},size:{type:Number,default:28},margin:{type:String,default:"0 8rpx"},padding:{type:String,default:"0 30rpx"}},data:function(){return{}}};e.default=u}}]);
+;(global["webpackJsonp"] = global["webpackJsonp"] || []).push([
+    'components/thorui/tui-swiper-dot/tui-swiper-dot-create-component',
+    {
+        'components/thorui/tui-swiper-dot/tui-swiper-dot-create-component':(function(module, exports, __webpack_require__){
+            __webpack_require__('543d')['createComponent'](__webpack_require__("039c"))
+        })
+    },
+    [['components/thorui/tui-swiper-dot/tui-swiper-dot-create-component']]
+]);

@@ -1,0 +1,1 @@
+<t-goods-item vue-id="13c973a2-13" entity="{{entity}}" bind:__l="__l"></t-goods-item>

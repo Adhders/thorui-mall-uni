@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "开具发票",
+  "usingComponents": {
+    "tui-list-cell": "/components/thorui/tui-list-cell/tui-list-cell",
+    "tui-icon": "/components/thorui/tui-icon/tui-icon",
+    "tui-button": "/components/thorui/tui-button/tui-button",
+    "tui-modal": "/components/thorui/tui-modal/tui-modal"
+  }
+}

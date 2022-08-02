@@ -1,0 +1,11 @@
+{
+  "navigationBarBackgroundColor": "#FFFFFF",
+  "navigationBarTextStyle": "black",
+  "navigationBarTitleText": "修改头像",
+  "titleNView": false,
+  "navigationStyle": "custom",
+  "disableScroll": true,
+  "usingComponents": {
+    "tui-picture-cropper": "/components/thorui/tui-picture-cropper/tui-picture-cropper"
+  }
+}

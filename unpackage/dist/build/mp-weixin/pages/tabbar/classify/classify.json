@@ -1,0 +1,10 @@
+{
+  "navigationBarTitleText": "商品分类",
+  "backgroundColorTop": "#fcfcfc",
+  "backgroundColorBottom": "#fcfcfc",
+  "disableScroll": true,
+  "usingComponents": {
+    "tui-icon": "/components/thorui/tui-icon/tui-icon",
+    "t-linkage": "/components/views/t-linkage/t-linkage"
+  }
+}

@@ -96,7 +96,7 @@ export default {
 		//z-index
 		zIndex: {
 			type: [Number, String],
-			default: 888
+			default: 800
 		}
 	},
 	watch: {

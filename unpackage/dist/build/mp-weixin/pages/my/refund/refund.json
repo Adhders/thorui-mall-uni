@@ -1,0 +1,15 @@
+{
+  "navigationBarTitleText": "退货退款",
+  "usingComponents": {
+    "tui-list-cell": "/components/thorui/tui-list-cell/tui-list-cell",
+    "tui-textarea": "/components/thorui/tui-textarea/tui-textarea",
+    "tui-upload": "/components/thorui/tui-upload/tui-upload",
+    "tui-button": "/components/thorui/tui-button/tui-button",
+    "tui-bottom-popup": "/components/thorui/tui-bottom-popup/tui-bottom-popup",
+    "tui-icon": "/components/thorui/tui-icon/tui-icon",
+    "tui-radio-group": "/components/thorui/tui-radio-group/tui-radio-group",
+    "tui-label": "/components/thorui/tui-label/tui-label",
+    "tui-radio": "/components/thorui/tui-radio/tui-radio",
+    "t-order-item": "/components/views/t-order-item/t-order-item"
+  }
+}

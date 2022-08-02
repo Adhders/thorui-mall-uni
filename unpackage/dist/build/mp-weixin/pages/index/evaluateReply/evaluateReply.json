@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "评论回复",
+  "usingComponents": {
+    "tui-button": "/components/thorui/tui-button/tui-button"
+  }
+}

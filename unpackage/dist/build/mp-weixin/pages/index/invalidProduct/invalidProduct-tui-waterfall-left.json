@@ -1,0 +1,12 @@
+{
+  "component": true,
+  "usingComponents": {
+    "invalidProduct-tui-waterfall-left": "/pages/index/invalidProduct/invalidProduct-tui-waterfall-left",
+    "invalidProduct-tui-waterfall-right": "/pages/index/invalidProduct/invalidProduct-tui-waterfall-right",
+    "tui-no-data": "/components/thorui/tui-no-data/tui-no-data",
+    "tui-divider": "/components/thorui/tui-divider/tui-divider",
+    "tui-waterfall": "/components/thorui/tui-waterfall/tui-waterfall",
+    "tui-nomore": "/components/thorui/tui-nomore/tui-nomore",
+    "t-goods-item": "/components/views/t-goods-item/t-goods-item"
+  }
+}

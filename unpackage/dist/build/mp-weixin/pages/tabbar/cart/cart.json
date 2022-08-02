@@ -1,0 +1,20 @@
+{
+  "navigationBarTitleText": "购物车",
+  "enablePullDownRefresh": true,
+  "onReachBottomDistance": 50,
+  "usingComponents": {
+    "cart-tui-waterfall-left": "/pages/tabbar/cart/cart-tui-waterfall-left",
+    "cart-tui-waterfall-right": "/pages/tabbar/cart/cart-tui-waterfall-right",
+    "tui-loading": "/components/thorui/tui-loading/tui-loading",
+    "tui-button": "/components/thorui/tui-button/tui-button",
+    "tui-swipe-action": "/components/thorui/tui-swipe-action/tui-swipe-action",
+    "tui-numberbox": "/components/thorui/tui-numberbox/tui-numberbox",
+    "tui-no-data": "/components/thorui/tui-no-data/tui-no-data",
+    "tui-divider": "/components/thorui/tui-divider/tui-divider",
+    "tui-icon": "/components/thorui/tui-icon/tui-icon",
+    "tui-waterfall": "/components/thorui/tui-waterfall/tui-waterfall",
+    "tui-loadmore": "/components/thorui/tui-loadmore/tui-loadmore",
+    "tui-actionsheet": "/components/thorui/tui-actionsheet/tui-actionsheet",
+    "t-goods-item": "/components/views/t-goods-item/t-goods-item"
+  }
+}

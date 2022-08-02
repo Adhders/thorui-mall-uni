@@ -1,0 +1,13 @@
+{
+  "navigationBarTitleText": "",
+  "enablePullDownRefresh": true,
+  "onReachBottomDistance": 50,
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "tui-icon": "/components/thorui/tui-icon/tui-icon",
+    "tui-form-button": "/components/thorui/tui-form-button/tui-form-button",
+    "tui-list-cell": "/components/thorui/tui-list-cell/tui-list-cell",
+    "tui-footer": "/components/thorui/tui-footer/tui-footer",
+    "tui-tabbar": "/components/thorui/tui-tabbar/tui-tabbar"
+  }
+}

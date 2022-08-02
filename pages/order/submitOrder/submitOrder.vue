@@ -10,7 +10,7 @@
 							{{orderForm.address.telNumber | formatNumber}}
 						</view>
 						<view class="tui-addr">
-							<view class="tui-addr-tag">{{orderForm.address.label}}</view>
+							<view class="tui-addr-tag" v-if="orderForm.address.label">{{orderForm.address.label}}</view>
 							<text>{{orderForm.address.location + orderForm.address.detailInfo}}</text>
 						</view>
 					</view>
@@ -30,7 +30,7 @@
 					<block v-for="(item,index) in orderForm.goodsList" :key="index">
 						<tui-list-cell :hover="false" padding="0">
 							<view class="tui-goods-item">
-								<image :src="item.defaultImageUrl" class="tui-goods-img"></image>
+								<image :src="item.defaultImageUrl" class="tui-goods-img" mode="aspectFill"></image>
 								<view class="tui-goods-center">
 									<view class="tui-goods-name">{{item.title}}</view>
 									<view class="tui-goods-attr">
@@ -114,7 +114,7 @@
 					<tui-button width="200rpx" height="70rpx" :size="28" type="danger" shape="circle" @click="btnPay">确认支付</tui-button>
 				</view>
 			</view>
-			<t-pay-way :show="show" @close="popupClose" :orderForm="orderForm" :mode="mode"></t-pay-way>
+			<t-pay-way :show="show" ref="pay" :orderForm="orderForm" :mode="mode"></t-pay-way>
 			<t-select-coupons :show="couponShow" @close="couponClose"></t-select-coupons>
 		</block>
 		<block v-else>
@@ -196,7 +196,7 @@
      		address(){
 		    	return this.$store.state.userInfo.defaultAddress
 			},
-		},
+		}, 
 		methods: {
 			calcHandle() {
 				let totalPrice = 0;
@@ -225,7 +225,7 @@
 			},
 			chooseAddr() {
 				uni.navigateTo({
-					url: "/pages/my/address/address?select=1"
+					url: "/pages/my/address/address?detailInfo=" + this.orderForm.address.detailInfo
 				})
 			},
 			addAddress(){
@@ -234,10 +234,7 @@
 				})
 			},
 			btnPay() {
-				this.show = true
-			},
-			popupClose() {
-				this.show = false
+				this.$refs.pay.show = true
 			},
 			couponClose(){
 				this.couponShow=false
