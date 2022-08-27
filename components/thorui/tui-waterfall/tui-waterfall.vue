@@ -55,7 +55,7 @@
 			//列与列的间隙
 			columnGap: {
 				type: String,
-				default: '10rpx'
+				default: '16rpx'
 			},
 			//左侧和列表的间隙
 			leftGap: {
@@ -221,6 +221,6 @@
 
 	.tui-waterfall__list {
 		flex: 1;
-		max-width: 360rpx;
+		max-width: 345rpx;
 	}
 </style>

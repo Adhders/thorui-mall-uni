@@ -351,7 +351,8 @@ const utils = {
 				}
 			}
 		}
-	}
+	},
+
 }
 
 export default {

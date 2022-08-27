@@ -1,12 +1,10 @@
 <template>
 	<view class="container">
-		<!--header-->
-		<view class="tui-header-box">
-			<view class="tui-header" :style="{ width: width + 'px', height: height + 'px' }">
-				<view class="tui-back" :style="{ marginTop: arrowTop + 'px' }" @tap="back"><tui-icon name="arrowleft" color="#000"></tui-icon></view>
-				<view class="tui-searchbox tui-search-mr" :style="{ marginTop: inputTop + 'px' }" @tap="search">
+		<view class="tui-header-screen">
+			<view class="tui-search__bar">
+				<view class="tui-searchbox" @tap="search">
 					<icon type="search" :size="13" color="#999"></icon>
-					<text class="tui-search-text" v-if="!searchKey">搜索商品</text>
+					<text class="tui-search-text" v-if="!searchKey">请输入搜索关键词</text>
 					<view class="tui-search-key" v-else>
 						<view class="tui-key-text">{{ searchKey }}</view>
 						<view @tap.stop="onDelete">
@@ -15,47 +13,38 @@
 					</view>
 				</view>
 			</view>
-		</view>
-		<!--header-->
 		<!--screen-->
-		<view class="tui-header-screen" :style="{ top: height + 'px' }">
-			<view class="tui-screen-top">
-				<view class="tui-top-item tui-icon-ml" :class="[tabIndex == 0 ? 'tui-active tui-bold' : '']" data-index="0" @tap="screen">
-					<view>{{ selectedName }}</view>
+			<view class="tui-screen__box">
+				<view class="tui-screen-item" :class="[tabIndex == -1 ? 'tui-active tui-bold' : '']" @tap="screen" data-index="-1">综合</view>
+				<view class="tui-screen-item" :class="[tabIndex == 0 ? 'tui-active tui-bold' : '']" data-index="0" @tap="screen">
+					<view>价格</view>
 					<tui-icon :name="selectH > 0 ? 'arrowup' : 'arrowdown'" :size="14" :color="tabIndex == 0 ? '#e41f19' : '#444'"></tui-icon>
 				</view>
-				<view class="tui-top-item" :class="[tabIndex == 1 ? 'tui-active tui-bold' : '']" @tap="screen" data-index="1">销量</view>
-				<view class="tui-top-item" @tap="screen" data-index="2">
+				<view class="tui-screen-item" :class="[tabIndex == 1 ? 'tui-active tui-bold' : '']" @tap="screen" data-index="1">销量</view>
+				<view class="tui-screen-item" @tap="screen" data-index="2">
 					<tui-icon :name="isList ? 'manage' : 'listview'" :size="isList ? 22 : 18" :bold="isList ? false : true" color="#333"></tui-icon>
 				</view>
-				<view class="tui-top-item tui-icon-ml" @tap="screen" data-index="3">
+				<view class="tui-screen-item" @tap="screen" data-index="3">
 					<text>筛选</text>
 					<tui-icon name="screen" :size="12" color="#333" :bold="true"></tui-icon>
 				</view>
 
 				<!--下拉选择列表--综合-->
 				<view class="tui-dropdownlist" :class="[selectH > 0 ? 'tui-dropdownlist-show' : '']" :style="{ height: selectH + 'rpx' }">
-					<view
-						class="tui-dropdownlist-item tui-icon-middle"
-						:class="[item.selected ? 'tui-bold' : '']"
-						v-for="(item, index) in dropdownList"
-						:key="index"
-						@tap.stop="dropdownItem"
-						:data-index="index"
-					>
-						<text class="tui-ml tui-middle">{{ item.name }}</text>
+					<view class="tui-dropdownlist-item" :class="[item.selected ? 'tui-bold' : '']" v-for="(item, index) in dropdownList"
+						:key="index" @tap.stop="dropdownItem" :data-index="index">
+						<text>{{ item.name }}</text>
 						<tui-icon name="check" :size="16" color="#e41f19" :bold="true" v-if="item.selected"></tui-icon>
 					</view>
 				</view>
 				<view class="tui-dropdownlist-mask" :class="[selectH > 0 ? 'tui-mask-show' : '']" @tap.stop="hideDropdownList"></view>
 				<!--下拉选择列表--综合-->
 			</view>
-	
-		</view>
 		<!--screen-->
+		</view>
 
 		<!--list-->
-		<view v-if="displayList.length>0" :style="{ marginTop: px(dropScreenH + 18), marginLeft: '10rpx', marginRight: '10rpx' }">
+		<view v-if="displayList.length>0" class="tui-product__box">
 			<tui-waterfall :listData="displayList" :type="2" :pageSize="10" v-if="!isList">
 				<template slot-scope="{ entity }" slot="left">
 					<tGoodsItem :entity="entity"></tGoodsItem>
@@ -170,13 +159,8 @@ export default {
 			isList: false, //是否以列表展示  | 列表或大图
 			drawer: false,
 			drawerH: 0, //抽屉内部scrollview高度
-			selectedName: '综合',
 			selectH: 0,
 			dropdownList: [
-				{
-					name: '综合',
-					selected: true
-				},
 				{
 					name: '价格升序',
 					selected: false
@@ -351,7 +335,7 @@ export default {
 			})
 		},
 		showDropdownList: function() {
-			this.selectH = 246;
+			this.selectH = 176;
 			this.tabIndex = 0;
 		},
 		hideDropdownList: function() {
@@ -399,25 +383,24 @@ export default {
 				}
 			}
 			this.dropdownList = arr;
-			this.selectedName = index == 0 ? '综合' : index == 1 ? '价格升序' : '价格降序';
+			this.tabIndex = 0;
 			this.selectH = 0;
-			if(index===1){
+			if(index===0){
 				this.displayList = this.currentList.sort((a,b)=>{ return a.price-b.price })
 			}
-			else if(index===2){
+			else if(index===1){
 				this.displayList = this.currentList.sort((a,b)=>{ return b.price-a.price })
 			}
 		},
 		screen: function(e) {
-			let index = e.currentTarget.dataset.index;
 			this.hideDropdownList();
-			if (index == 0) {
-				this.showDropdownList();
-			} else if (index == 1) {
-				this.tabIndex = 1;
-				this.selectedName = "综合"
+			let index = e.currentTarget.dataset.index;
+			if (index == -1 || index == 1) {
+				this.tabIndex = index;
 				this.dropdownList.forEach((o)=>{o.select=false})
-				this.displayList = this.currentList.sort((a,b)=>{ return b.salesNum-a.salesNum })
+				this.displayList = this.currentList.sort((a,b)=>{ return b.salesNum-a.salesNum})
+			} else if (index == 0) {
+				this.showDropdownList();
 			} else if (index == 2) {
 				this.isList = !this.isList;
 			} else if (index == 3) {
@@ -469,12 +452,12 @@ export default {
 }
 
 /* 隐藏scroll-view滚动条*/
-
+/* 
 ::-webkit-scrollbar {
 	width: 0;
 	height: 0;
 	color: transparent;
-}
+} */
 
 .tui-header-box {
 	width: 100%;
@@ -490,26 +473,32 @@ export default {
 	align-items: flex-start;
 }
 
-.tui-back {
-	margin-left: 8rpx;
-	height: 32px !important;
-	width: 32px !important;
+.tui-search__bar {
+	width: 100%;
+	background-color: #fff;
+	padding: 20rpx 25rpx;
+	box-sizing: border-box;
 }
 
 .tui-searchbox {
 	width: 100%;
-	height: 30px;
+	height: 64rpx;
 	margin-right: 30rpx;
 	border-radius: 15px;
-	font-size: 12px;
+	font-size: 24rpx;
 	background: #f7f7f7;
-	padding: 3px 10px;
+	padding: 6rpx 20rpx;
 	box-sizing: border-box;
 	color: #999;
 	display: flex;
 	align-items: center;
 	overflow: hidden;
 }
+
+.tui-search-text {
+	padding-left: 16rpx;
+}
+
 
 /* #ifdef MP */
 .tui-search-mr {
@@ -550,25 +539,23 @@ export default {
 	box-sizing: border-box;
 	background: #fff;
 	position: fixed;
-	z-index: 1000;
+	z-index: 996;
 }
 
-.tui-screen-top,
-.tui-screen-bottom {
+.tui-screen__box {
+	width: 100%;
+	height: 80rpx;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	font-size: 28rpx;
 	color: #333;
-}
-
-.tui-screen-top {
-	height: 88rpx;
 	position: relative;
 	background: #fff;
 }
 
-.tui-top-item {
+
+.tui-screen-item {
 	height: 28rpx;
 	line-height: 28rpx;
 	flex: 1;
@@ -578,6 +565,30 @@ export default {
 }
 
 
+
+.tui-btmItem-active {
+	background-color: #fcedea !important;
+	color: #e41f19;
+	font-weight: bold;
+	position: relative;
+}
+
+.tui-btmItem-active::after {
+	content: '';
+	position: absolute;
+	border: 1rpx solid #e41f19;
+	width: 100%;
+	height: 100%;
+	border-radius: 40rpx;
+	left: 0;
+	top: 0;
+}
+
+
+.tui-addr-left {
+	padding-left: 6rpx;
+}
+
 .tui-bold {
 	font-weight: bold;
 }
@@ -585,26 +596,8 @@ export default {
 .tui-active {
 	color: #e41f19;
 }
-.tui-btmItem-active{
-	border: 1px solid;
-	color: #e41f19;
-    font-weight: bold;
-	background-Color: #ebcdcb !important;
-}
 
-.tui-addr-left {
-	padding-left: 6rpx;
-}
-
-.tui-seizeaseat-20 {
-	height: 20rpx;
-}
-
-.tui-seizeaseat-30 {
-	height: 30rpx;
-}
-
-/*screen*/
+	/*screen*/
 
 /*顶部下拉选择 属性*/
 
@@ -722,7 +715,7 @@ export default {
 	justify-content: space-between;
 }
 
-/*顶部下拉选择 综合*/
+/*筛选*/
 
 .tui-drawer-box {
 	width: 686rpx;
@@ -880,5 +873,11 @@ export default {
 .tui-drawerbtn-primary {
 	background: #e41f19;
 	color: #fff;
+}
+/* 商品 */
+.tui-product__box {
+	width: 100%;
+	padding: 194rpx 25rpx 60rpx 25rpx;
+	box-sizing: border-box;
 }
 </style>

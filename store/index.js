@@ -14,28 +14,30 @@ const store = createStore({
 // #endif
 	state: {
 		appid: '',
-		corpId: '',
-		serviceId: "", //微信客服
-		shareText: '',
+		phone: '', //店铺管理员联系方式
 		//用户信息
 		userInfo: uni.getStorageSync("userInfo") ? uni.getStorageSync("userInfo") : {
 			avatarUrl: 'https://mmbiz.qpic.cn/mmbiz/icTdbqWNOwNRna42FI242Lcia07jQodd2FJGIYQfG0LAJGFxM4FbnQP6yfMxBgJ0F3YRqJCJ1aPAK2dQagdusBZg/0',
 			phone: '',
-			nickName: '请登录',
+			nickName: '',
 			gender: 0,
 		},
 		isLogin: false,
 		//登录后跳转的页面路径 + 页面参数
 		defaultAddress: '',
 		returnUrl: "",
-		//app版本
-		version: "1.0.0",
 		//当前是否有网络连接
 		networkConnected: true,
 		isOnline: false,
-		openid: '',
 		targetOrder: null,
-		tabBar: [],
+		tabBar: {
+			iconList: [],
+			style: {
+				color: "#666666",
+				selectedColor: "#EB0909",
+				backgroundColor: "#FFFFFF"
+			}
+		},
 		pages: [],
 		cart: [], //购物车
 		likeList: [],
@@ -46,6 +48,7 @@ const store = createStore({
 		//1: "待支付",  2: '待发货', 3 : '待收货' 4: '待评价' 5: '退款'
 		orderState: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0},
 		goodsList: [],
+		activityGoods: [],
 		goodsGroup: [],
 		addressList: [],
 		currentReview: [],
@@ -64,17 +67,11 @@ const store = createStore({
 		setShareText(state, shareText){
 			state.shareText = shareText
 		},
-		setOpenid(state, openid){
-			state.openid = openid
-		},
-		setCorpId(state, corpId){
-			state.corpId = corpId
-		},
-		setServiceId(state, serviceId){
-			state.serviceId = serviceId
-		},
 		setAppid(state, appid){
 			state.appid = appid
+		},
+		setPhone(state, phone){
+			state.phone = phone
 		},
 		login(state, isLogin){
 		    state.isLogin = isLogin
@@ -99,6 +96,9 @@ const store = createStore({
 	    },
 		setGoodsList(state, goodsList){
 			state.goodsList = goodsList
+		},
+		setActivityGoods(state, activityGoods){
+			state.activityGoods = activityGoods
 		},
 		setGoodsGroup(state, goodsGroup){
             state.goodsGroup = goodsGroup  

@@ -237,11 +237,13 @@
 				if(!this.tui.isLogin()) {
 					uni.redirectTo({url: '/pages/my/login/login'})
 				}else{
-					let url = '/getCartInfo/' + this.$store.state.appid + '/' + uni.getStorageSync("pid")
+					let url = '/getCartInfo/' + uni.getStorageSync("pid")
 					this.tui.request(url,'GET', undefined, true).then((res)=>{
 						if(res.code==='0'){
 							res.cart.forEach((o)=>{
 								o.selected = false
+								let index = this.goodsList.findIndex((goods)=>{return o.id === goods.id})
+								o.invalid = index!==-1? this.goodsList[index].stock == 0 : true
 							})
 							this.$store.commit('setCart', res.cart)
 							let total = 0
@@ -710,6 +712,6 @@
 	}
 
 	.tui-product-list {
-		margin: 0 10rpx;
+		margin: 0 24rpx;
 	}
 </style>

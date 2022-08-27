@@ -20,8 +20,8 @@ const poster = {
 		context.setFillStyle(grd);
 		context.fillRect(0, 0, winWidth, winHeight);
 		// 主图
-		let width = uni.upx2px(648),
-			height = uni.upx2px(774);
+		let width = uni.upx2px(648)
+		let height = uni.upx2px(774);
 		context.drawImage(imgs.mainPic, (winWidth - width) / 2, uni.upx2px(60), width, height)
 		let a = uni.upx2px(40) //定义行高
 		context.setFontSize(uni.upx2px(30))
@@ -60,7 +60,7 @@ const poster = {
 	 * @param originalPrice 原价 格式 12.00，10.50
 	 * @param name 程序名称
 	 **/
-	drawGoodsPoster(canvasId, winWidth, winHeight, imgs, text, price, originalPrice, name, callback) {
+	drawGoodsPoster(canvasId, winWidth, winHeight, imgs, title, price, originalPrice,slogan, callback) {
 		let scaleRatio = 2
 		//获取绘图上下文 context
 		let context = uni.createCanvasContext(canvasId)
@@ -72,49 +72,56 @@ const poster = {
 		context.setFillStyle(grd);
 		context.fillRect(0, 0, winWidth, winHeight);
 		// 主图
-		let width = uni.upx2px(500 * scaleRatio),
-			height = uni.upx2px(500 * scaleRatio);
-		context.drawImage(imgs.mainPic, (winWidth - width) / 2, uni.upx2px(30 * scaleRatio), width, height)
+		let width = uni.upx2px(500 * scaleRatio)
+		let height = uni.upx2px(495 * scaleRatio);
+		context.drawImage(imgs.mainPic, 0, 0, width, height)
 
 		let a = uni.upx2px(40 * scaleRatio) //定义行高
 		context.setFontSize(uni.upx2px(30 * scaleRatio))
 		context.setFillStyle("#343434")
-		let w = uni.upx2px(468 * scaleRatio)
+		let w = uni.upx2px(420* scaleRatio)
 		//名称很长调用方法将文字折行，传参 文字内容text，画布context
-		let row = poster.wrapText(text, Math.floor(w), context, 2)
+		let row = poster.wrapText(title, Math.floor(w), context, 2)
 		for (let i = 0; i < row.length; i++) {
-			context.fillText(row[i], uni.upx2px(30 * scaleRatio), uni.upx2px(580 * scaleRatio) + a * i)
+			context.fillText(row[i], uni.upx2px(20 * scaleRatio), uni.upx2px(540 * scaleRatio) + a * i)
 		}
+		let h = 540 + 40*row.length
+		// 识别小程序二维码 
+		let x = winWidth - uni.upx2px(30 + 130) * scaleRatio;
+		context.drawImage(imgs.qrcode, x, uni.upx2px(h* scaleRatio), uni.upx2px(130 * scaleRatio), uni.upx2px(130 *
+			scaleRatio))
+		context.setFillStyle("#999999")
+		context.setFontSize(uni.upx2px(22 * scaleRatio))
+		row = poster.wrapText(slogan, Math.floor(w-140), context, 4)
+		a = uni.upx2px(32 * scaleRatio) //定义行高
+		for (let i = 0; i < row.length; i++) {
+			context.fillText(row[i], uni.upx2px(20* scaleRatio), uni.upx2px(h * scaleRatio) + a * i)
+		}
+		let h2 = h + 32*row.length + 20
 		context.setFillStyle("#EB0909")
 		context.setFontSize(uni.upx2px(26 * scaleRatio))
-		context.fillText('￥', uni.upx2px(30 * scaleRatio), uni.upx2px(680 * scaleRatio))
+		context.fillText('￥', uni.upx2px(20 * scaleRatio), uni.upx2px(h2 * scaleRatio))
 		let priceArr = Number(price).toFixed(2).toString().split('.')
 		context.setFillStyle("#EB0909")
 		context.setFontSize(uni.upx2px(36 * scaleRatio))
-		context.fillText(priceArr[0], uni.upx2px(56 * scaleRatio), uni.upx2px(680 * scaleRatio))
+		context.fillText(priceArr[0], uni.upx2px(46 * scaleRatio), uni.upx2px(h2 * scaleRatio))
 		let w1 = poster.getTextWidth(priceArr[0], context) || 35
 		context.setFontSize(uni.upx2px(26 * scaleRatio))
 		context.setFillStyle("#EB0909")
-		context.fillText(`.${priceArr[1]}`, uni.upx2px(60 * scaleRatio) + w1, uni.upx2px(680 * scaleRatio))
+		context.fillText(`.${priceArr[1]}`, uni.upx2px(50 * scaleRatio) + w1, uni.upx2px(h2 * scaleRatio))
 		context.setFillStyle("#999999")
 		context.setFontSize(uni.upx2px(24 * scaleRatio))
-		let w2 = uni.upx2px(76 * scaleRatio) + w1 + (poster.getTextWidth(`.${priceArr[1]}`, context) || 32)
-		context.fillText(`￥${originalPrice}`, w2, uni.upx2px(680 * scaleRatio))
-		context.moveTo(w2, uni.upx2px(672 * scaleRatio))
+		let w2 = uni.upx2px(70 * scaleRatio) + w1 + (poster.getTextWidth(`.${priceArr[1]}`, context) || 32)
+		context.fillText(`￥${originalPrice}`, w2, uni.upx2px(h2 * scaleRatio))
+		context.moveTo(w2, uni.upx2px((h2-8) * scaleRatio))
 		if(originalPrice){
-			context.lineTo((w2 + 12* scaleRatio + 10*(originalPrice.indexOf('.')!==-1? originalPrice.length-1: originalPrice.length) * scaleRatio), uni.upx2px(672 * scaleRatio))
+			context.lineTo((w2 + 12* scaleRatio + 10*(originalPrice.indexOf('.')!==-1? originalPrice.length-1: originalPrice.length) * scaleRatio), uni.upx2px((h2-8) * scaleRatio))
 			context.setStrokeStyle('#999999')
 		}
 		context.stroke(); //对当前路径进行描边
-		// 识别小程序二维码 
-		let x = winWidth - uni.upx2px(46 + 130) * scaleRatio;
-		context.drawImage(imgs.qrcode, x, uni.upx2px(735 * scaleRatio), uni.upx2px(130 * scaleRatio), uni.upx2px(130 *
-			scaleRatio))
-		context.setFillStyle("#333")
-		context.setFontSize(uni.upx2px(32 * scaleRatio))
-		context.fillText(name, uni.upx2px(40 * scaleRatio), uni.upx2px(780 * scaleRatio))
-		context.setFontSize(uni.upx2px(24 * scaleRatio))
-		context.fillText('长按识别·立即体验', uni.upx2px(40 * scaleRatio), uni.upx2px(835 * scaleRatio))
+
+		// context.setFontSize(uni.upx2px(24 * scaleRatio))
+		// context.fillText('长按识别·立即体验', uni.upx2px(40 * scaleRatio), uni.upx2px(835 * scaleRatio))
 		context.draw(false, () => {
 			poster.createPoster(canvasId, winWidth, winHeight, (res) => {
 				callback && callback(res)
@@ -367,8 +374,10 @@ const poster = {
 				}
 			}
 			empty.push(test);
-			let group = empty[0] + "...";
+			let group = empty[0].slice(0, -1) + "...";
+			console.log('rowCut1', rowCut)
 			rowCut.splice(rows - 1, 1, group);
+			console.log('rowCut2', rowCut)
 			row = rowCut;
 		}
 		return row

@@ -99,11 +99,6 @@ export default {
 			default: 800
 		}
 	},
-	watch: {
-		current(v) {
-			console.log('current', v)
-		}
-	},
 	data() {
 		return {};
 	},

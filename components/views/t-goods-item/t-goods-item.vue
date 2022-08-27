@@ -22,7 +22,7 @@
 					<text class="tui-size-24" v-if="entity.decimalPrice">.{{entity.decimalPrice}}</text>
 					<text class="tui-factory-price" v-if="params.showPrice && entity.originalPrice">￥{{ entity.originalPrice }}</text>
 				</view>
-				<tui-icon name="cart" :size="32" unit="rpx" color="#e41f19" @tap.stop="onSelect(entity)" v-if="params.showCart"></tui-icon>
+				<tui-icon name="cart" :size="32" unit="rpx" color="#e41f19" @tap.stop="detail(entity, true)" v-if="params.showCart"></tui-icon>
 			</view>
 		</view>
 		<!-- 当mode为list时，addCart组件会跟随scroll-view一起滚动，addCart组件要放到list页面里才能避免一起滚动-->
@@ -68,13 +68,10 @@ export default {
 		}
 	},
 	methods: {
-		detail(item) {
+		detail(item, buy) {
 			uni.navigateTo({
-				url: '/pages/index/productDetail/productDetail?spu_id=' + item.spu_id + '&sku_id=' + item.id
+				url: '/pages/index/productDetail/productDetail?spu_id=' + item.spu_id + '&sku_id=' + item.id + (buy? '&buy=true': '')
 			})
-		},
-		onSelect(goods){
-			this.tui.href('/pages/index/productDetail/productDetail?spu_id=' + goods.spu_id + '&sku_id=' + goods.id + '&buy=true')
 		}
 	}
 };
@@ -84,7 +81,7 @@ export default {
 .tui-pro-item {
 	position: relative;
 	width: 100%;
-	margin-bottom: 10rpx;
+	margin-bottom: 16rpx;
 	background: #fff;
 	box-sizing: border-box;
 	overflow: hidden;
@@ -115,7 +112,7 @@ export default {
 .tui-flex-list {
 	display: flex;
 	.tui-pro-content{
-		max-width: 470rpx;
+		max-width: 460rpx;
 	}
 }
 .tui-pro-img {

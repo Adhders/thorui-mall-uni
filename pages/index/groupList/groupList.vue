@@ -5,7 +5,13 @@
 			<view class="tui-search__bar">
 				<view class="tui-searchbox" @tap="search">
 					<icon type="search" :size="13" color="#999"></icon>
-					<text class="tui-search-text">请输入搜索关键词</text>
+					<text class="tui-search-text" v-if="!searchKey">请输入搜索关键词</text>
+					<view class="tui-search-key" v-else>
+						<view class="tui-key-text">{{ searchKey }}</view>
+						<view @tap.stop="onDelete">
+							<tui-icon name="shut" :size="11" color="#fff"></tui-icon>
+						</view>
+					</view>
 				</view>
 			</view>
 			<view class="tui-screen__box">
@@ -38,170 +44,77 @@
 		<!--screen-->
 		<!--=======商品=======-->
 		<view class="tui-product__box">
-			<!--list-->
-			<view class="tui-product-list">
-				<view class="tui-product-container">
-					<block v-for="(item, index) in productList" :key="index" v-if="(index + 1) % 2 != 0 || isList">
-						<!-- <template is="productItem" data="{{item,index:index,isList:isList}}" /> -->
-						<!--商品列表-->
-						<view class="tui-pro-item" :class="[isList ? 'tui-flex-list' : '']" hover-class="tui-hover" :hover-start-time="150"
-						 @tap="detail">
-							<image :src="'https://system.chuangbiying.com/static/images/mall/product/' + item.img + '.jpg'" class="tui-pro-img" :class="[isList ? 'tui-proimg-list' : '']"
-							 mode="widthFix" />
-							<view class="tui-pro-content">
-								<view class="tui-pro-tit">{{ item.name }}</view>
-								<view>
-									<view class="tui-price__box">
-										<view class="tui-price">
-											<view class="tui-price__small">￥</view>
-											<view class="tui-price__large">{{ item.sale }}</view>
-											<view class="tui-price__small">.00</view>
-										</view>
-										<view class="tui-price__original">￥{{ item.factory}}.00</view>
-									</view>
-									<view class="tui-group-text">已有{{ item.payNum }}人拼团</view>
-									<view class="tui-group-btn">
-										<view class="tui-flex-btn tui-color-red">2人团</view>
-										<view class="tui-flex-btn">去拼团</view>
-									</view>
-								</view>
-							</view>
-						</view>
-						<!--商品列表-->
-					</block>
-				</view>
-				<view class="tui-product-container" v-if="!isList">
-					<block v-for="(item, index) in productList" :key="index" v-if="(index + 1) % 2 == 0">
-						<!-- <template is="productItem" data="{{item,index:index}}" /> -->
-						<!--商品列表-->
-						<view class="tui-pro-item" :class="[isList ? 'tui-flex-list' : '']" hover-class="tui-hover" :hover-start-time="150"
-						 @tap="detail">
-							<image :src="'https://system.chuangbiying.com/static/images/mall/product/' + item.img + '.jpg'" class="tui-pro-img" :class="[isList ? 'tui-proimg-list' : '']"
-							 mode="widthFix" />
-							<view class="tui-pro-content">
-								<view class="tui-pro-tit">{{ item.name }}</view>
-								<view>
-									<view class="tui-price__box">
-										<view class="tui-price">
-											<view class="tui-price__small">￥</view>
-											<view class="tui-price__large">{{ item.sale }}</view>
-											<view class="tui-price__small">.00</view>
-										</view>
-										<view class="tui-price__original">￥{{ item.factory}}.00</view>
-									</view>
-									<view class="tui-group-text">已有{{ item.payNum }}人拼团</view>
-									<view class="tui-group-btn">
-										<view class="tui-flex-btn tui-color-red">2人团</view>
-										<view class="tui-flex-btn">去拼团</view>
-									</view>
-								</view>
-							</view>
-						</view>
-						<!--商品列表-->
-					</block>
-				</view>
-			</view>
-
-			<!--list-->
+			<tui-waterfall :listData="displayList" :type="2" :pageSize="10" v-if="!isList">
+				<template slot-scope="{ entity }" slot="left">
+					<tGroupItem :entity="entity"></tGroupItem>
+				</template>
+				<template slot-scope="{ entity }" slot="right">
+					<tGroupItem :entity="entity"></tGroupItem>	
+				</template>
+			</tui-waterfall>
+			<block v-for="(entity, index) in displayList" :key="index" v-else>
+				<tGroupItem :entity="entity" :isList="true"></tGroupItem>
+			</block>
 		</view>
 		<!--=======商品 end=======-->
-
-
 		<!--左抽屉弹层 筛选 -->
-		<tui-drawer mode="right" :visible="drawer" @close="closeDrawer">
-			<view class="tui-drawer-box" :style="{ height: drawerH + 'px' }">
-				<scroll-view class="tui-drawer-scroll" scroll-y :style="{ height: drawerH-tabbarHeight + 'px' }">
-					<view class="tui-drawer-title tui-mtop__30">
+		<tui-drawer mode="right" :visible="drawer"  @close="closeDrawer">
+			<view class="tui-drawer-box" :style="{ paddingTop: height + 'px' }">
+				<scroll-view class="tui-drawer-scroll" scroll-y :style="{ height: drawerH + 'px' }">
+					<view class="tui-drawer-title">
 						<text class="tui-title-bold">价格区间</text>
-						<view class="tui-attr-right">
-							<tui-icon name="position-fill" color="#e41f19" :size="14" class="tui-location"></tui-icon>
-							<text class="tui-addr-left">北京朝阳区三环到四环之间</text>
-						</view>
 					</view>
 					<view class="tui-drawer-content">
-						<input placeholder-class="tui-phcolor" class="tui-input" placeholder="最低价" maxlength="11" type="number" />
+						<input placeholder-class="tui-phcolor" class="tui-input" v-model="min" placeholder="最低价"  type="number" @change="onChangePrice" />
 						<tui-icon name="reduce" color="#333" :size="14"></tui-icon>
-						<input placeholder-class="tui-phcolor" class="tui-input" placeholder="最高价" maxlength="11" type="number" />
+						<input placeholder-class="tui-phcolor" class="tui-input" v-model="max" placeholder="最高价"  type="number" @change="onChangePrice" />
 					</view>
-
-					<view class="tui-drawer-title">
-						<text class="tui-title-bold">全部分类</text>
-						<view class="tui-all-box tui-icon-ml">
-							<view class="tui-attr-right">全部</view>
-							<tui-icon name="arrowdown" :size="14" color="#444"></tui-icon>
-						</view>
-					</view>
-					<view class="tui-drawer-content tui-flex-attr">
-						<view class="tui-attr-item tui-btmItem-active">
-							<view class="tui-attr-ellipsis">男装</view>
-						</view>
-						<view class="tui-attr-item">
-							<view class="tui-attr-ellipsis">女装</view>
-						</view>
-						<view class="tui-attr-item">
-							<view class="tui-attr-ellipsis">运动服饰</view>
-						</view>
-						<view class="tui-attr-item">
-							<view class="tui-attr-ellipsis">户外鞋服</view>
-						</view>
-						<view class="tui-attr-item">
-							<view class="tui-attr-ellipsis">文化</view>
-						</view>
-						<view class="tui-attr-item">
-							<view class="tui-attr-ellipsis">服饰配件</view>
-						</view>
-						<view class="tui-attr-item">
-							<view class="tui-attr-ellipsis">流行男鞋</view>
-						</view>
-						<view class="tui-attr-item">
-							<view class="tui-attr-ellipsis">艺术</view>
-						</view>
-					</view>
-
-					<view class="tui-drawer-title">
-						<text class="tui-title-bold">品牌</text>
-						<view class="tui-all-box tui-icon-ml">
-							<view class="tui-attr-right tui-active ">花花公子，七匹狼（SEPTWOLVES）</view>
-							<tui-icon name="arrowdown" :size="14" color="#444"></tui-icon>
-						</view>
-					</view>
-					<view class="tui-drawer-content tui-flex-attr">
-						<view class="tui-attr-item tui-btmItem-active">
-							<view class="tui-attr-ellipsis">花花公子</view>
-						</view>
-						<view class="tui-attr-item tui-btmItem-active">
-							<view class="tui-attr-ellipsis">七匹狼（SEPTWOLVES）</view>
-						</view>
-						<view class="tui-attr-item">
-							<view class="tui-attr-ellipsis">吉普</view>
-						</view>
-					</view>
-
-					<view class="tui-drawer-title">
-						<text class="tui-title-bold">尺码</text>
-						<view class="tui-all-box tui-icon-ml">
-							<view class="tui-attr-right">全部</view>
-							<tui-icon name="arrowup" :size="14" color="#444"></tui-icon>
-						</view>
-					</view>
-					<view class="tui-drawer-content tui-flex-attr">
-						<view class="tui-attr-item tui-btmItem-active">
-							<view class="tui-attr-ellipsis">27</view>
-						</view>
-						<view class="tui-attr-item" v-for="(item,index) in 12" :key="index">
-							<view class="tui-attr-ellipsis">{{28+index}}</view>
-						</view>
-					</view>
+					<block v-for="(item,i) in dataList" :key="i">
+						<tui-collapse :index="i" :current="item.current" :condition=selectedCondition[i] @click="change">
+							<view slot="title">
+								<view class="tui-drawer-title">
+									<text class="tui-title-bold">{{item.name}}</text>
+								</view>
+							</view>
+							<block v-if="i<=2">
+								<view slot="top">
+									<view class="tui-drawer-content tui-flex-attr tui-drawer-top">
+										<block v-for="(value, j) in item.values.slice(0,3)" :key="j">
+											<view class="tui-attr-item" :class="{'tui-btmItem-active': selectedIndex[i].includes(j)}" @tap=onSelect(i,j)>
+												<view class="tui-attr-ellipsis">{{value}}</view>
+											</view>
+										</block>  	
+									</view>
+								</view>
+								<view slot="content">
+									<view class="tui-drawer-content tui-flex-attr">
+										<block v-for="(value, j) in item.values.slice(3)" :key="j" >
+											<view class="tui-attr-item" :class="{'tui-btmItem-active': selectedIndex[i].includes(j+3)}" @tap=onSelect(i,j+3)>
+												<view class="tui-attr-ellipsis">{{value}}</view>
+											</view>
+										</block>  	
+									</view>
+								</view>
+							</block>
+							<block v-else> 
+								<view slot="content">
+									<view class="tui-drawer-content tui-flex-attr">
+										<block v-for="(value, j) in item.values" :key="j" >
+											<view class="tui-attr-item" :class="{'tui-btmItem-active': selectedIndex[i].includes(j)}" @tap=onSelect(i,j)>
+												<view class="tui-attr-ellipsis">{{value}}</view>
+											</view>
+										</block>  	
+									</view>
+								</view>
+							</block>
+						</tui-collapse>
+					</block>				
 					<view class="tui-safearea-bottom"></view>
 				</scroll-view>
 				<view class="tui-attr-btnbox">
 					<view class="tui-attr-safearea">
-						<view class="tui-drawer-btn">
-							<tui-button type="black" plain height="60rpx" shape="circle" :size="26">重置</tui-button>
-						</view>
-						<view class="tui-drawer-btn">
-							<tui-button type="danger" height="60rpx" shape="circle" :size="26" @click="closeDrawer">确定(80万+件商品)</tui-button>
-						</view>
+						<view class="tui-drawer-btn tui-drawerbtn-black" hover-class="tui-white-hover" :hover-stay-time="150" @tap="reset">重置</view>
+						<view class="tui-drawer-btn tui-drawerbtn-primary" hover-class="tui-red-hover" :hover-stay-time="150" @tap="closeDrawer">确定({{currentList.length}}件商品)</view>
 					</view>
 				</view>
 			</view>
@@ -211,11 +124,17 @@
 </template>
 
 <script>
+	import tGroupItem from '@/components/views/t-group-item/t-group-item'
 	export default {
+		components: {
+			tGroupItem
+		},
 		data() {
 			return {
-				webURL: 'https://thorui.cn/images/mall/group/',
+				min: '',
+				max: '',
 				selectH: 0,
+				searchKey: '',
 				dropdownList: [{
 						name: '价格升序',
 						selected: false
@@ -229,81 +148,45 @@
 				tabIndex: 0, //顶部筛选索引
 				drawer: false,
 				drawerH: 0,
-				productList: [{
-						img: 1,
-						name: '欧莱雅（LOREAL）奇焕光彩粉嫩透亮修颜霜 30ml（欧莱雅彩妆 BB霜 粉BB 遮瑕疵 隔离）',
-						sale: 599,
-						factory: 899,
-						payNum: 2342
-					},
-					{
-						img: 2,
-						name: '德国DMK进口牛奶  欧德堡（Oldenburger）超高温处理全脂纯牛奶1L*12盒',
-						sale: 29,
-						factory: 69,
-						payNum: 999
-					},
-					{
-						img: 3,
-						name: '【第2支1元】柔色尽情丝柔口红唇膏女士不易掉色保湿滋润防水 珊瑚红',
-						sale: 299,
-						factory: 699,
-						payNum: 666
-					},
-					{
-						img: 4,
-						name: '百雀羚套装女补水保湿护肤品',
-						sale: 1599,
-						factory: 2899,
-						payNum: 236
-					},
-					{
-						img: 5,
-						name: '百草味 肉干肉脯 休闲零食 靖江精制猪肉脯200g/袋',
-						sale: 599,
-						factory: 899,
-						payNum: 2399
-					},
-					{
-						img: 6,
-						name: '短袖睡衣女夏季薄款休闲家居服短裤套装女可爱韩版清新学生两件套 短袖粉色长颈鹿 M码75-95斤',
-						sale: 599,
-						factory: 899,
-						payNum: 2399
-					},
-					{
-						img: 1,
-						name: '欧莱雅（LOREAL）奇焕光彩粉嫩透亮修颜霜',
-						sale: 599,
-						factory: 899,
-						payNum: 2342
-					},
-					{
-						img: 2,
-						name: '德国DMK进口牛奶',
-						sale: 29,
-						factory: 69,
-						payNum: 999
-					},
-					{
-						img: 3,
-						name: '【第2支1元】柔色尽情丝柔口红唇膏女士不易掉色保湿滋润防水 珊瑚红',
-						sale: 299,
-						factory: 699,
-						payNum: 666
-					},
-					{
-						img: 4,
-						name: '百雀羚套装女补水保湿护肤品',
-						sale: 1599,
-						factory: 2899,
-						payNum: 236
-					}
-				],
-				tabbarHeight: uni.upx2px(100)
+				tabbarHeight: uni.upx2px(100),
+				displayList: [],
+				currentList: [],
+				selectedIndex: [],
+				selectedCondition: [],
+				dataList: [],
+				pageIndex: 1,
 			}
 		},
-		onLoad() {
+		onLoad(options) {
+			if(options.searchKey){
+				this.searchKey = options.searchKey
+				this.currentList = this.$store.state.searchResult
+			}else{
+				this.currentList = this.productList
+			}
+			this.$nextTick(()=>{
+				let groupNames = []
+				this.goodsGroup.forEach((o)=>{groupNames.push(o.name)})
+				this.dataList.push({name: '全部分类', current: 0, values: groupNames})
+				let attrs = {}
+				this.productList.forEach((o) => {
+					o.selectedGoodsAttrList.forEach(v=>{
+						if(attrs[v.name]){
+							attrs[v.name].add(v.value)
+						}else{
+							attrs[v.name] = new Set([v.value])
+						}
+					})
+				})
+				let propsList = Object.keys(attrs).map((i)=>{
+					return { 'name': i, 'values': Array.from(attrs[i])} //对象转数组   
+				}).sort((a,b)=>{return b.values.length - a.values.length}); //按照属性元素个数排序
+				propsList.forEach((props)=>{
+					this.dataList.push({name: props.name, current: -1, values: props.values})
+				})
+				this.selectedCondition = new Array(this.dataList.length).fill('')
+				this.selectedIndex = this.dataList.map(function(){return []})
+			})
 			uni.getSystemInfo({
 				success: res => {
 					let drawerH = res.windowHeight;
@@ -316,15 +199,34 @@
 				}
 			});
 		},
+		computed: {
+			goodsGroup() {
+				return this.$store.state.goodsGroup
+			},
+			productList(){
+				return this.$store.state.activityGoods
+			}
+		},
+		watch:{
+			currentList(v){
+				if(v.length===0) {
+					this.tui.toast('暂无匹配商品，更改选项试试吧')
+				} 
+				this.displayList = v
+			}
+		},
 		methods: {
 			search: function() {
-				this.tui.href('/pages/common/search/search')
+				this.tui.href('/pages/common/search/search?from=groupList')
 			},
 			screen: function(e) {
 				this.hideDropdownList();
 				let index = e.currentTarget.dataset.index;
+				console.log('index', index)
 				if (index == -1 || index == 1) {
 					this.tabIndex = index;
+					this.dropdownList.forEach((o)=>{o.select=false})
+					this.displayList = this.currentList.sort((a,b)=>{ return b.salesNum-a.salesNum})
 				} else if (index == 0) {
 					this.showDropdownList();
 				} else if (index == 2) {
@@ -352,9 +254,92 @@
 				this.dropdownList = arr;
 				this.tabIndex = 0;
 				this.selectH = 0;
+				if(index===0){
+					this.displayList = this.currentList.sort((a,b)=>{ return a.activityPrice-b.activityPrice })
+				}
+				else if(index===1){
+					this.displayList = this.currentList.sort((a,b)=>{ return b.activityPrice-a.activityPrice })
+				}
+			},
+			change(e){
+				let index = e.index;
+				let item = this.dataList[index];
+				item.current = item.current == index ? -1 : index
+			},
+			reset() {
+				let size = this.dataList.length
+				this.min = ''
+				this.max = ''
+				this.selectedIndex = this.dataList.map(function(){return []})
+				this.selectedCondition = new Array(size).fill('')
+			},
+			onDelete(){
+				this.searchKey = ''
+				this.isList = false
+				this.currentList = this.productList
+			},
+			onChangePrice(){
+				this.filter()
+			},
+			filter(){
+				let res = this.productList
+				if(this.min){
+					res = res.filter((o)=>{
+						return o.price>=this.min
+					})
+				}
+				if(this.max){
+					res = res.filter((o)=>{
+						return o.price<=this.max
+					})
+				}
+				let selectedGroups = this.selectedCondition[0]? this.selectedCondition[0].split('，') : []
+				if(selectedGroups.length>0){
+					res = res.filter((o)=>{
+						let intersection = o.selectedClassifyList.filter((v) =>
+						selectedGroups.includes(v)) //计算交集 
+						return intersection.length>0
+					})
+				}
+				let attrs = []
+				this.selectedCondition.slice(1).forEach((o)=>{
+					if(o){
+						attrs.push(...o.split('，'))
+					}
+				})
+				if(attrs.length>0){
+					res = res.filter((o)=>{
+						let elements = []
+						o.selectedGoodsAttrList.forEach((e)=>{elements.push(e.value)})
+						let intersection = elements.filter((v) => attrs.includes(v)) //计算交集 
+						return intersection.length>0
+					})
+				}
+				this.currentList = res   
+			},
+			onSelect(i,j){
+				let index = this.selectedIndex[i].indexOf(j)
+				if(index !== -1){
+					this.selectedIndex[i].splice(index, 1)
+				}else{
+					this.selectedIndex[i].push(j)
+				}
+				let res = ''
+				const values = this.dataList[i].values
+				this.selectedIndex[i].forEach((k)=>{
+					res = res + values[k] + '，'
+				})
+				res = res.slice(0, res.length - 1)
+				this.selectedCondition[i]=res
+				this.$forceUpdate()
+				this.$nextTick(()=>{
+					this.filter()
+				})
 			},
 			closeDrawer: function() {
+				this.displayList=this.currentList
 				this.drawer = false;
+				this.$forceUpdate()
 			},
 			detail() {
 				this.tui.href('/pages/index/groupDetail/groupDetail')
@@ -387,7 +372,29 @@
 	}
 
 	.tui-search-text {
-		padding-left: 16rpx;
+	padding-left: 16rpx;
+}
+
+	.tui-search-key {
+		max-width: 80%;
+		height: 80%;
+		padding: 0 16rpx;
+		margin-left: 12rpx;
+		display: flex;
+		align-items: center;
+		border-radius: 15px;
+		background: rgba(0, 0, 0, 0.5);
+		color: #fff;
+	}
+
+	.tui-key-text {
+		box-sizing: border-box;
+		padding-right: 12rpx;
+		font-size: 22rpx;
+		line-height: 22rpx;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 
 	/*screen*/
@@ -517,10 +524,10 @@
 	/*筛选*/
 	.tui-drawer-box {
 		width: 686rpx;
-		height: 100%;
 		font-size: 24rpx;
-		position: relative;
 		overflow: hidden;
+		position: relative;
+		padding-bottom: 100rpx;
 	}
 
 	.tui-drawer-title {
@@ -549,7 +556,6 @@
 		text-overflow: ellipsis;
 		text-align: right;
 	}
-
 	.tui-all-box {
 		width: 90%;
 		white-space: nowrap;
@@ -559,13 +565,16 @@
 	}
 
 	.tui-drawer-content {
-		padding: 16rpx 30rpx 30rpx 30rpx;
+		padding: 0 30rpx;
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
 		box-sizing: border-box;
 	}
 
+	.tui-drawer-top {
+		padding-top: 16rpx;
+	}
 	.tui-input {
 		border: 0;
 		height: 64rpx;
@@ -619,14 +628,14 @@
 		position: absolute;
 		left: 0;
 		bottom: 0;
+		z-index: 1000;
 		box-sizing: border-box;
-		padding: 0 30rpx;
+		padding: 30rpx;
 		background: #fff;
-		z-index: 10;
 	}
 
 	.tui-attr-safearea {
-		height: 100rpx;
+		height: 70rpx;
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
@@ -650,163 +659,30 @@
 	}
 
 	.tui-drawer-btn {
-		width: 48%;
-		flex-shrink: 0;
-	}
-
-	.tui-mtop__30 {
-		margin-top: 30rpx;
-	}
-
-	/*========商品 start======*/
-
-	.tui-product__box {
-		width: 100%;
-		padding: 184rpx 25rpx 60rpx 25rpx;
-		box-sizing: border-box;
-	}
-
-	.tui-product-list {
-		display: flex;
-		justify-content: space-between;
-		flex-direction: row;
-		flex-wrap: wrap;
-		box-sizing: border-box;
-		padding-top: 10rpx;
-	}
-
-	.tui-product-container {
-		flex: 1;
-		margin-right: 10rpx;
-	}
-
-	.tui-product-container:last-child {
-		margin-right: 0;
-	}
-
-	.tui-pro-item {
-		width: 100%;
-		margin-bottom: 10rpx;
-		background: #fff;
-		box-sizing: border-box;
-		border-radius: 12rpx;
-		overflow: hidden;
-		transition: all 0.15s ease-in-out;
-	}
-
-	.tui-flex-list {
-		display: flex;
-		margin-bottom: 1rpx !important;
-	}
-
-	.tui-pro-img {
-		width: 100%;
-		display: block;
-		flex-shrink: 0;
-		background-color: #f5f5f5;
-	}
-
-	.tui-proimg-list {
-		width: 280rpx;
-		height: 280rpx !important;
-		flex-shrink: 0;
-		border-radius: 12rpx;
-	}
-
-	.tui-pro-content {
-		flex: 1;
-		display: flex;
-		flex-direction: column;
-		justify-content: space-between;
-		box-sizing: border-box;
-		padding: 20rpx;
-	}
-
-	.tui-pro-tit {
-		color: #2e2e2e;
-		font-size: 26rpx;
-		word-break: break-all;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		display: -webkit-box;
-		-webkit-box-orient: vertical;
-		-webkit-line-clamp: 2;
-	}
-
-	.tui-price__box {
-		width: 100%;
-		display: flex;
-		align-items: center;
-		padding-top: 12rpx;
-	}
-
-	.tui-price {
-		display: flex;
-		align-items: flex-end;
-		color: #eb0909;
-	}
-
-	.tui-price__small {
-		font-size: 24rpx;
-		line-height: 24rpx;
-	}
-
-	.tui-price__large {
-		font-size: 34rpx;
-		line-height: 32rpx;
-		font-weight: 600;
-	}
-
-	.tui-price__original {
-		font-size: 24rpx;
-		line-height: 24rpx;
-		text-decoration: line-through;
-		color: #999;
-		padding-top: 10rpx;
-		padding-left: 12rpx;
-	}
-
-	.tui-group-btn {
-		max-width: 312rpx;
-		height: 48rpx;
-		border-radius: 6rpx;
-		background: #EB0909;
-		display: flex;
-		align-items: center;
-		padding: 4rpx;
-		margin-top: 10rpx;
-		box-sizing: border-box;
-	}
-
-	.tui-flex-btn {
-		height: 100%;
-		flex: 1;
+		width: 47%;
 		text-align: center;
-		font-size: 26rpx;
-		line-height: 26rpx;
-		font-weight: 400;
-		color: #fff;
+		height: 70rpx;
+		border-radius: 35rpx;
+		flex-shrink: 0;
 		display: flex;
 		align-items: center;
 		justify-content: center;
+		box-sizing: border-box;
 	}
 
-	.tui-flex-btn:first-child {
-		background: #fff;
+	.tui-drawerbtn-black {
+		border: 1rpx solid #555;
 	}
 
-	.tui-group-text {
-		font-size: 25rpx;
-		line-height: 25rpx;
-		transform: scale(0.8);
-		transform-origin: 0 center;
-		padding-top: 30rpx;
-		color: #999;
+	.tui-drawerbtn-primary {
+		background: #e41f19;
+		color: #fff;
 	}
 
-	.tui-color-red {
-		color: #EB0909;
+	/*========商品 start======*/
+	.tui-product__box {
+		width: 100%;
+		padding: 194rpx 25rpx 60rpx 25rpx;
+		box-sizing: border-box;
 	}
-
-	/*======商品======= end*/
 </style>

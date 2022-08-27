@@ -9,7 +9,7 @@
 			this.$store.commit('setAppid', this.globalData.appid)
 			this.calcNavBarInfo()
 			this.login()
-			this.init()
+			// this.init()
 		},
 		globalData: {
 			//全局数据管理
@@ -68,6 +68,7 @@
 							this.$store.commit('login', true)
 							this.$store.commit('setUserInfo', decoded.userInfo)
 							this.$store.commit('setReviewLikes', res.reviewLikes)
+							this.$store.commit('setOrderState', res.orderState)
 						}
 					else{
 							this.$store.commit('login', false)
@@ -82,10 +83,6 @@
 				this.tui.request(url).then(res=>{
 					if (res.code === '0'){
 						// console.log('res', res)
-						this.$store.commit('setShareText', res.storename)
-						const service = res.setting.service
-						this.$store.commit('setServiceId', service.serviceId)
-						this.$store.commit('setCorpId', service.corpId)
 					}
 				})
 			},

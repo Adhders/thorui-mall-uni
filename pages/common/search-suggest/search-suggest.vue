@@ -167,7 +167,7 @@
 		width: 100%;
 		height: 72rpx;
 		background-color: #f2f2f2;
-		border-radius: 8rpx;
+		border-radius: 50rpx;
 		display: flex;
 		align-items: center;
 		padding-left: 24rpx;

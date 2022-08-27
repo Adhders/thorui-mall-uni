@@ -131,7 +131,6 @@
 				"backgroundColorBottom": "#F7F7F7",
 				"navigationBarTitleText": "商品列表 ",
 				"onReachBottomDistance": 50,
-				"navigationStyle": "custom",
 				"app-plus": {
 					"titleNView": false,
 					"bounce": "vertical"
@@ -332,14 +331,6 @@
 				},
 				"mp-baidu": {
 					"disableScroll": true
-				}
-			}
-		}, {
-			"path": "pages/index/groupMore/groupMore",
-			"style": {
-				"navigationBarTitleText": "更多拼团",
-				"app-plus": {
-					"bounce": "vertical"
 				}
 			}
 		}, {

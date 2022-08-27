@@ -22,7 +22,6 @@ export default {
 	},
 	onLoad(options) {
 		this.nickName = options.nickName
-		this.openid = this.$store.state.openid
 	},
 	computed: {
 		userInfo() {
@@ -37,7 +36,7 @@ export default {
 			this.nickName = '';
 		},
 		onConfirm() {
-			const url = '/updateCustomer/' + this.openid + '/' + 'nickName'
+			const url = '/updateCustomer/' + uni.getStorageSync("pid") + '/' + 'nickName'
 			this.tui.request(url, 'PUT',{ nickName: this.nickName}).then(res => {
 				this.userInfo.nickName = this.nickName
 				uni.setStorage({

@@ -99,7 +99,6 @@
 				uni.removeStorageSync('pid')
 				uni.removeStorageSync('userInfo')
 				uni.navigateBack({delta: 1})
-
 			}
 		}
 	}

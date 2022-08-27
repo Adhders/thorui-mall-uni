@@ -1,5 +1,7 @@
 <template>
-	<view :class="{notice: item.style.type!=='icon'}" @click="onClick">
+	<view :class="{notice: item.style.type!=='icon'}" @click="onClick" :style="{
+        paddingBottom: item.style.bottomMargin*2 + 'rpx',
+        paddingTop: item.style.topMargin*2 + 'rpx'}">
 		<tui-notice-bar :is-left="item.style.type!=='none'" height="50" scrollable :content="item.content.news" :color="item.style.color" :speed="item.style.speed*100" 
 			:size="item.style.fontSize*2" :backgroundColor="item.style.backgroundColor">
 			<template v-slot:left>
@@ -23,7 +25,7 @@
 </script>
 
 <style scoped>
-	.notice /deep/ .u-notice-box{
-		margin-left: 0;
+	.tui-padding{
+		padding-left: 5px;
 	}
 </style>

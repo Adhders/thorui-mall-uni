@@ -82,40 +82,39 @@
 					</view>
 				</view>
 
-				<view v-if="!skeletonShow">
+				<view v-else>
 					<view class="tui-product-title tui-border-radius">
-						<view class="tui-pro-pricebox tui-padding">
-							<view class="tui-pro-price ">
-								<view>
-									<text>￥</text>
-									<text class="tui-price">{{goodsDetail.price}}</text>
-								</view>
-								<view class="tui-original-price tui-gray" v-if="goodsDetail.originalPrice">
-									<text class="tui-line-through">￥{{goodsDetail.originalPrice}}</text>
-								</view>
+						<view class="tui-pro-price tui-padding">
+							<view>
+								<text>￥</text>
+								<text class="tui-price">{{goodsDetail.price}}</text>
 							</view>
-							<view class="tui-sales tui-gray" style="font-size: 26rpx">
-								已售{{goodsDetail.salesNum? goodsDetail.salesNum: 0}}件
+							<view class="tui-original-price tui-gray" v-if="goodsDetail.originalPrice">
+								<text class="tui-line-through">￥{{goodsDetail.originalPrice}}</text>
 							</view>
 						</view>
 						<view class="tui-pro-titbox">
-							<view class="tui-pro-title">
-								<text>{{goodsDetail.title}}</text>
-								<tui-tag type="green" padding="10rpx" scaleMultiple="0.8" size="28rpx"  style="display: -webkit-inline-flex; line-height: 32rpx;" v-if="goodsDetail.selectedTag.length>0">
-									{{goodsDetail.selectedTag[0]['name']}}
-								</tui-tag>	
-							</view>
-							<view class="tui-share-position" @tap="showSharePopup">
-								<tui-tag type="gray" shape="circleLeft" padding="12rpx 16rpx">
-									<view class="tui-share-box ">
-										<tui-icon name="partake" color="#999" :size="15"></tui-icon>
-										<text class="tui-share-text tui-gray tui-size">分享</text>
-									</view>
-								</tui-tag>
-							</view>
+							<text>{{goodsDetail.title}}</text>
+							<tui-tag type="green" padding="10rpx" scaleMultiple="0.8" size="28rpx"  style="display: -webkit-inline-flex; line-height: 32rpx;" v-if="goodsDetail.selectedTag.length>0">
+								{{goodsDetail.selectedTag[0]['name']}}
+							</tui-tag>	
 						</view>
 						<view class="tui-padding">
 							<view class="tui-sub-title tui-size tui-gray">{{goodsDetail.slogan}}</view>
+							<view class="tui-sale-info tui-size tui-gray">
+								<view class="tui-flex-center"> 
+									<tui-icon name="wealth" color="#999" :size="15"></tui-icon>
+									<text class="operate-title">已售{{goodsDetail.salesNum? goodsDetail.salesNum: 0}}件</text>
+								</view>
+								<view class="tui-flex-center" @tap="collecting">
+									<tui-icon :name="collected ? 'like-fill' : 'like'" :color="collected ? '#ff201f' : '#999'" :size="15"></tui-icon>
+									<text class="operate-title">收藏</text>
+								</view>
+								<view class="tui-flex-center" @tap="showSharePopup">
+									<tui-icon name="share" color="#999" :size="16"></tui-icon>
+									<text class="operate-title">分享</text>
+								</view>
+							</view>
 						</view>
 					</view>
 
@@ -159,7 +158,6 @@
 
 				</view>
 
-
 				<view class="tui-cmt-box tui-mtop tui-radius-all">
 					<view class="tui-list-cell tui-last tui-between">
 						<view class="tui-bold tui-cell-title">
@@ -202,13 +200,14 @@
 						<tui-icon name="home" :size="22" color="#333"></tui-icon>
 						<view class="tui-operation-text tui-scale-small">首页</view>
 					</view>
-					<view class="tui-operation-item" hover-class="tui-opcity" :hover-stay-time="150" @tap="collecting">
-						<tui-icon  :size="22" :name="collected ? 'like-fill' : 'like'" :color="collected ? '#ff201f' : '#333'"></tui-icon>
-						<view class="tui-operation-text tui-scale-small">收藏</view>
-					</view>
-					<view class="tui-operation-item" hover-class="tui-opcity" :hover-stay-time="150" @tap="openService">
+					<button open-type="contact" class="tui-operation-item" hover-class="tui-opcity" :hover-stay-time="150">
 						<tui-icon name="kefu" :size="22" color="#333"></tui-icon>
-						<view class="tui-operation-text tui-scale-small">客服</view>
+						<view class="tui-operation-text tui-scale-small">客服</view>	
+					</button>
+					<view open-type="contact" class="tui-operation-item" hover-class="tui-opcity" :hover-stay-time="150" @tap="gotoCart">
+						<tui-icon name="cart" :size="22" color="#333"></tui-icon>
+						<view class="tui-operation-text tui-scale-small">购物车</view>
+						<tui-badge type="red" absolute :scaleRatio="0.8" right="12rpx" top="-4rpx" v-if="cartTotal">{{cartTotal}}</tui-badge>
 					</view>
 				</view>
 				<view class="tui-operation-right tui-right-flex tui-col-7 tui-btnbox-4">
@@ -227,7 +226,7 @@
 					<view class="tui-menu-header" :style="{ paddingTop: top + 'px' }">功能直达</view>
 					<view class="tui-menu-itembox">
 						<block v-for="(item, index) in topMenu" :key="index">
-							<view class="tui-menu-item" hover-class="tui-opcity" :hover-stay-time="150" @tap="btnTopMenu(index)">
+							<view class="tui-menu-item" hover-class="tui-opcity" :hover-stay-time="150" @tap="btnTopMenu(item)">
 								<view class="tui-badge-box">
 									<tui-icon :name="item.icon" color="#fff" :size="item.size"></tui-icon>
 									<tui-badge type="red" :scaleRatio="0.8" absolute right="-8rpx" v-if="item.badge">{{ item.badge }}</tui-badge>
@@ -260,10 +259,8 @@
 							</view>
 						</view>
 					</scroll-view>
-					<view class="tui-operation tui-operation-right tui-right-flex tui-popup-btn">
-						<view class="tui-flex-1">
-							<tui-button height="72rpx" :size="32" type="danger" shape="circle" @click="hidePopup">完成</tui-button>
-						</view>
+					<view class="tui-popup-btn">
+						<tui-button :size="32" type="danger" shape="circle" @click="hidePopup">完成</tui-button>
 					</view>
 				</view>
 				<view class="tui-popup-box" v-if="mode==='property'">
@@ -276,16 +273,14 @@
 							</view>
 						</view>
 					</scroll-view>
-					<view class="tui-operation tui-operation-right tui-right-flex tui-popup-btn">
-						<view class="tui-flex-1">
-							<tui-button height="72rpx" :size="32" type="danger" shape="circle" @click="hidePopup">完成</tui-button>
-						</view>
+					<view class="tui-popup-btn">
+						<tui-button :size="32" type="danger" shape="circle" @click="hidePopup">完成</tui-button>
 					</view>
 				</view>
 			</tui-bottom-popup>
 
             <!-- 添加购物车 -->
-			<popup-box ref="popup" @select="onSelectGoods"></popup-box>
+			<popup-box ref="popup" @select="onSelectGoods" @change="change"></popup-box>
 			<!--底部选择层-->
 
 			<!--底部分享弹层-->
@@ -298,7 +293,7 @@
 						</view>
 					</view>
 					<view class="tui-share__list">
-						<button open-type="share" class="tui-share-btn" @tap="onShare">
+						<button open-type="share" class="tui-share-btn" @tap="hideSharePopup">
 							<view class="tui-share__item">
 								<image src="https://system.chuangbiying.com/static/images/mall/icon_popup_share.png"></image>
 								<view class="tui-share__text">分享给好友</view>
@@ -326,7 +321,7 @@
 </template>
 
 <script>
-	import thorui from '@/components/common/tui-clipboard/tui-clipboard.js'
+	// import thorui from '@/components/common/tui-clipboard/tui-clipboard.js'
 	import poster from '@/components/common/tui-poster/tui-poster.js'
 	import popupBox from '@/components/views/addCart/addCart'
 	import uParse from '@/components/uni/uParse/src/wxParse'
@@ -377,14 +372,20 @@
 						badge: 0
 					},
 					{
+						icon: 'share',
+						text: '分享',
+						size: 26,
+						badge: 0
+					},
+					{
 						icon: 'cart',
 						text: '购物车',
 						size: 23,
 						badge: 0,
 					},
 					{
-						icon: 'kefu',
-						text: '客服小蜜',
+						icon: 'like',
+						text: '收藏夹',
 						size: 26,
 						badge: 0
 					},
@@ -393,15 +394,10 @@
 						text: '我要反馈',
 						size: 23,
 						badge: 0
-					},
-					{
-						icon: 'share',
-						text: '分享',
-						size: 26,
-						badge: 0
 					}
 				],
 				total: 0, //未读消息和购物车数据条数
+				cartTotal: 0,
 				menuShow: false,
 				popupShow: false,
 				buyNum: 1,
@@ -410,8 +406,8 @@
 				collected: false,
 				sharePopup: false,
 				posterImg: '',
-				winWidth: uni.upx2px(560 * 2),
-				winHeight: uni.upx2px(890 * 2),
+				winWidth: uni.upx2px(500 * 2),
+				winHeight: uni.upx2px(785 * 2),
 				modalShow: false,
 				skuList: [],
 				videoplayObj: {}, //video对象
@@ -420,7 +416,7 @@
 				currentTime: 0,
 				duration: 15,
 				selectedGoodsAttrList: [], //商品去重后的属性
-				goodsDetail: {price: '0.00', selectedGoodsPropList: [], goodsImageUrls: ['https://system.chuangbiying.com/assets/img/add-picture.png']},
+				goodsDetail: {selectedGoodsPropList: [], goodsImageUrls: ['https://system.chuangbiying.com/assets/img/add-picture.png']},
 			};
 		},
 		
@@ -478,7 +474,9 @@
 			dataList.map((o) => {
 				total += o.buyNum;
 			})
-			this.topMenu[3].badge=total
+			let index = this.topMenu.findIndex((o)=>{return o.text === '购物车'})
+			this.topMenu[index].badge=total
+			this.cartTotal = total
 			this.total = total
 		},
 		onShow(){
@@ -501,10 +499,6 @@
 			}
 		},
 		filters: {
-			getPrice(price) {
-				price = price || 0;
-				return price.toFixed(2)
-			},
 			attrFormat(attr) {
 				let res = ''
 				attr.forEach((o)=>{
@@ -528,14 +522,33 @@
 				return this.$store.state.cart
 			}
 		},
+		onShareAppMessage: function(res) {
+			console.log('res',res)
+			let nickName = this.$store.state.userInfo.nickName
+			// 返回数据
+			return {
+				title: `来自好友${nickName}的分享`,
+				path: '/pages/index/productDetail/productDetail?spu_id=' + this.spu_id + '&sku_id=' + this.sku_id,
+				imageUrl: this.goodsDetail.defaultImageUrl+'-shareImage',
+				success: function(res) {
+				// 转发成功，可以把当前页面的链接发送给后端，用于记录当前页面被转发了多少次或其他业务
+					console.log('success', res)
+				},
+				fail: function(res) {
+					console.log('fail', res)
+				// 转发失败
+				}
+			}
+		},
 		methods: {
 			onSelectGoods(goodsDetail, selectedGoodsAttrList){
 				this.goodsDetail = goodsDetail
+				this.sku_id = this.goodsDetail.id
 				this.selectedGoodsAttrList = selectedGoodsAttrList
 				this.skeletonShow = false
 			},
 			submit(){
-				this.$refs.popup.submit()
+				this.$refs.popup.popupShow = true
 			},
 			endedFun() {
 				this.startVideo = true
@@ -577,26 +590,8 @@
 					}
 				}
 			},
-			previewImage: function(e) {
-				let index = e.currentTarget.dataset.index;
-				uni.previewImage({
-					current: this.banner[index],
-					urls: this.banner
-				});
-			},
 			back: function() {
 				uni.navigateBack();
-			},
-			openService: function() {
-				// #ifdef MP-WEIXIN
-				let servieId = this.$store.state.serviceId
-				let corpId = this.$store.state.corpId
-				wx.openCustomerServiceChat({
-				  extInfo: {url: servieId},
-				  corpId: corpId,
-				  success(res) {console.log('res',res) }
-				})
-				// #endif
 			},
 			parseDetail(s){
 			   if(this.initial&&s){
@@ -645,33 +640,39 @@
 			common: function() {
 				this.tui.toast('功能开发中~');
 			},
-			btnTopMenu(index) {
+			btnTopMenu(e) {
 				this.closeMenu()
-				if (index == 4) {
-					this.openService()
-				} else if (index == 6) {
-					this.showSharePopup()
-				} else {
-					let url = {
-						0: '/pages/my/message/message',
-						1: "/pages/tabbar/index/index",
-						2: '/pages/tabbar/my/my',
-						3: '/pages/tabbar/cart/cart',
-						5: '/pages/my/feedback/feedback?page=mall'
-					} [index];
-					this.tui.href(url)
+				let url = ''
+				switch(e.icon){
+					case 'share':
+						this.showSharePopup();
+						break;
+					case 'home':
+						url = "/pages/tabbar/index/index";
+						break;
+					case 'people':
+						url = '/pages/tabbar/my/my';
+						break;
+					case 'cart':
+						url = '/pages/tabbar/cart/cart';
+						break;
+					case 'feedback':
+						url = '/pages/my/feedback/feedback?page=mall';
+						break;
+					case 'message':
+						url = '/pages/my/message/message';
+						break;
 				}
+				this.tui.href(url)
 			},
 			coupon() {
-				this.tui.href( '/pages/index/coupon/coupon', true)
-			},
-			onShare() {
-				this.hideSharePopup()
+				this.tui.href('/pages/index/coupon/coupon', true)
 			},
 			shop() {
-				uni.navigateTo({
-					url: '/pages/tabbar/index/index'
-				});
+				this.tui.href('/pages/tabbar/index/index');
+			},
+			gotoCart(){
+				this.tui.href('/pages/tabbar/cart/cart');
 			},
 			play(url) {
 				uni.navigateTo({
@@ -680,7 +681,6 @@
 				})
 			},
 			showSharePopup(){
-				this.shareText = this.$store.state.shareText
 				this.sharePopup = true
 			},
 			hideSharePopup() {
@@ -717,7 +717,7 @@
 				// 	title: '图片生成中...'
 				// });
 				try{
-					let mainPic = await poster.getImage(this.goodsDetail.defaultImageUrl);
+					let mainPic = await poster.getImage(this.goodsDetail.defaultImageUrl+'-shareImage');
 					// let qrcode = await poster.getImage(this.$store.state.qrcode);
 					let qrcode = ''
 					if(this.qrcode){
@@ -735,7 +735,10 @@
 							qrcode: qrcode
 						};
 						poster.drawGoodsPoster('posterId', this.winWidth, this.winHeight, imgs,
-							this.goodsDetail.title, this.goodsDetail.price, this.goodsDetail.originalPrice, this.shareText,
+							this.goodsDetail.title, 
+							this.goodsDetail.price,
+							this.goodsDetail.originalPrice, 
+							this.goodsDetail.slogan,
 							res => {
 								uni.hideLoading();
 								if (res) {
@@ -1004,6 +1007,17 @@
 		box-sizing: border-box;
 	}
 
+	.tui-sale-info {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding-top: 30rpx;
+	}
+
+	.operate-title{
+		margin-left: 8rpx;
+	}
+
 	.tui-ml-auto {
 		margin-left: auto;
 	}
@@ -1047,20 +1061,13 @@
 		background: #fff;
 		padding: 30rpx 0;
 	}
-
-	.tui-pro-pricebox {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		color: #ff201f;
-		font-size: 36rpx;
-		line-height: 44rpx;
-	}
-
 	.tui-pro-price {
 		display: flex;
 		font-weight: 600;
 		align-items: center;
+		color: #ff201f;
+		font-size: 36rpx;
+		line-height: 44rpx;
 	}
 
 	.tui-price {
@@ -1101,44 +1108,9 @@
 		min-height: 50rpx;
 		font-weight: 500;
 		position: relative;
-		padding: 0 150rpx 0 30rpx;
+		padding: 10rpx 30rpx 0 30rpx;
 		box-sizing: border-box;
 	}
-
-	.tui-pro-title {
-		padding-top: 10rpx;
-	}
-
-	.tui-share-btn {
-		flex: 1;
-		display: block;
-		background: transparent;
-		margin: 0;
-		padding: 0;
-		border-radius: 0;
-		border: 0;
-		line-height:1;
-	}
-
-	.tui-share-btn::after {
-		border: 0;
-	}
-
-	.tui-share-box {
-		display: flex;
-		align-items: center;
-	}
-
-	.tui-share-position {
-		position: absolute;
-		right: 0;
-		bottom: 0;
-	}
-
-	.tui-share-text {
-		padding-left: 8rpx;
-	}
-
 	.tui-sub-title {
 		padding: 10rpx 0 0;
 		line-height: 32rpx;
@@ -1244,6 +1216,7 @@
 		padding-left: 4rpx;
 	}
 
+    // 评论
 	.tui-cmt-box {
 		background: #fff;
 	}
@@ -1259,9 +1232,6 @@
 		justify-content: space-between !important;
 	}
 
-	.tui-cmt-all {
-		color: #ff201f;
-	}
 	.tui-cmt-content {
 		font-size: 26rpx;
 		padding-bottom: 30rpx;
@@ -1323,7 +1293,7 @@
 	.tui-operation {
 		width: 100%;
 		height: 100rpx;
-		background: rgba(255, 255, 255, 0.98);
+		background: rgba(255, 255, 255);
 		position: fixed;
 		display: flex;
 		align-items: center;
@@ -1356,6 +1326,9 @@
 	}
 
 	.tui-operation-item {
+		height: 80rpx;
+		line-height: 49rpx;
+		background: rgba(255, 255, 255);
 		flex: 1;
 		display: flex;
 		align-items: center;
@@ -1363,9 +1336,12 @@
 		flex-direction: column;
 		position: relative;
 	}
+	
 
 	.tui-operation-text {
 		font-size: 22rpx;
+		min-width: 40rpx;
+		line-height: 22rpx;
 		color: #333;
 	}
 
@@ -1443,10 +1419,10 @@
 			}
 		}
 		.tui-popup-btn {
-			width: 100%;
-			position: absolute;
-			left: 0;
 			bottom: 0;
+			width: 94%;
+			position: absolute;
+			left: 3%;
 		}
 	}
 	.tui-popup-scroll {
@@ -1504,6 +1480,20 @@
 		font-weight: 400;
 		color: #333333;
 		padding-top: 18rpx;
+	}
+	.tui-share-btn {
+		flex: 1;
+		display: block;
+		background: transparent;
+		margin: 0;
+		padding: 0;
+		border-radius: 0;
+		border: 0;
+		line-height:1;
+	}
+
+	.tui-share-btn::after {
+		border: 0;
 	}
 
 	/*海报modal弹层*/

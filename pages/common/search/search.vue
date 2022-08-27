@@ -47,6 +47,7 @@
 				history: [],
 				hot: [],
 				key: "",
+				from: "",
 				showActionSheet: false,
 				tips: "确认清空搜索历史吗？",
 				searchResult:[],
@@ -54,15 +55,21 @@
 				productNames: [],
 			}
 		},
-		onLoad(option){
+		onLoad(options){
 			this.history = uni.getStorageSync('hotKeys') || []
-			this.key = option.key
-			console.log('history', this.history)
+			this.key = options.key
+			this.from = options.from
+            if(this.from){
+				this.history = []
+			}
 		},
 		computed: {
 			productList() {
 				return this.$store.state.goodsList
 			},
+			activityGoods(){
+				return this.$store.state.activityGoods
+			}
 		},
 		methods: {
 			onDelete(index){
@@ -87,9 +94,15 @@
 						})
 					}
 				},500)
-				uni.navigateTo({
-					url: '/pages/index/productDetail/productDetail?spu_id=' + v.spu_id + '&sku_id=' + v.id
-				})
+				if(this.from == 'groupList'){
+					uni.navigateTo({
+						url: '/pages/index/groupDetail/groupDetail?spu_id=' + v.spu_id + '&sku_id=' + v.id
+					})
+				}else{
+					uni.navigateTo({
+						url: '/pages/index/productDetail/productDetail?spu_id=' + v.spu_id + '&sku_id=' + v.id
+					})
+				}
 			},
 			cleanKey: function() {
 				this.key = ''
@@ -120,13 +133,20 @@
 				}
 				//根据关键词查找
 				let arr = []
-				this.searchResult= this.productList.filter((v)=>{
-					return v.title.includes(key)
-				})
+				if(this.from==='groupList'){
+					this.searchResult= this.activityGoods.filter((v)=>{
+						return v.title.includes(key)
+					})
+				}
+				else{
+					this.searchResult= this.productList.filter((v)=>{
+						return v.title.includes(key)
+					})
+				}
 				this.searchResult.forEach((item) => {
 					arr.push({
 						key: item.title,
-						spu_id: item.spu_id,
+						spu_id: this.from=='groupList'? item.spu : item.spu_id,
 						id: item.id,
 						showKey: util.replaceAll(item.title, key, `<label style="color:#E41F19">${key}</label>`)
 					})
@@ -144,7 +164,7 @@
 			onSearch(){
 				if(this.key){
 					setTimeout(()=>{
-						if(!this.history.includes(this.key)){
+						if(!this.history.includes(this.key) && this.from!='groupList'){
 							this.history.push(this.key)
 							uni.setStorage({
 								key: 'hotKeys',
@@ -157,9 +177,15 @@
 						this.tui.toast('没有相关商品')
 					}else{
 						this.$store.commit('setSearchResult', this.searchResult)
-						uni.navigateTo({
-							url: '/pages/index/productList/productList?searchKey=' + this.key
-						})
+						if(this.from==='groupList'){
+							uni.navigateTo({
+								url: '/pages/index/groupList/groupList?searchKey=' + this.key
+							})
+						}else{
+							uni.navigateTo({
+								url: '/pages/index/productList/productList?searchKey=' + this.key
+							})
+						}
 					}
 				}else{
 					this.tui.toast('请输入关键词')

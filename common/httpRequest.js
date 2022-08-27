@@ -176,14 +176,18 @@ const tui = {
 	},
 	//跳转页面，校验登录状态
 	href(url, isVerify) {
+		let deep = getCurrentPages().length
 		if (isVerify && !tui.isLogin()) {
 			uni.navigateTo({
 				url: '/pages/my/login/login'
 			})
 		} else {
-			uni.navigateTo({
-				url: url
-			});
+            if(deep>=8){ 
+				uni.reLaunch({url: url})
+			}
+			else{
+				uni.navigateTo({url: url})
+		    }
 		}
 	}
 }

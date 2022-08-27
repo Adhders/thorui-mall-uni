@@ -33,7 +33,7 @@
             </view>
         </view>
         <view class="type2" v-if="item.style.layout==='2'">
-            <tui-waterfall :listData="goodsList" :params="item.style" :type="2">
+            <tui-waterfall :listData="goodsList" :params="item.style" :type="2" columnGap="16rpx">
 				<template slot-scope="{ entity, params }" slot="left"> 
                     <tGoodsItem :entity="entity" :params="params"></tGoodsItem>
 				</template>
@@ -132,7 +132,6 @@
                     this.goodsList = goodsList
                 }
             }
-
         },
         methods: {
             numFormat(v){
@@ -151,20 +150,12 @@
 </script>
 
 <style lang="less" scoped>
-    .el-button.is-round{
-        padding: 0;
-    }
-    .el-button--primary{
-        width: 170rpx;
-        background-color: #ef1033;
-        border-color: #ef1033;;
-    }
     .displayBox{
         display: flex;
         text-align: center;
         justify-content: space-between;
         flex-wrap: wrap;
-        padding: 0 10rpx;
+        padding: 0 25rpx;
     }
     .merchandise-item{
         width: 100%;
@@ -256,7 +247,7 @@
         }
     }
     .type2{
-        padding: 0 10rpx;
+        padding: 0 24rpx;
     }
     .type4{
         .merchandise-item{

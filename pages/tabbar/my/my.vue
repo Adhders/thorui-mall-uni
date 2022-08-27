@@ -4,7 +4,7 @@
 		<view class="tui-mybg-box">
 			<image src="https://system.chuangbiying.com/static/images/my/img_bg_3x.png" class="tui-my-bg" mode="widthFix"></image>
 			<view class="tui-header-center">
-				<image :src="userInfo.avatarUrl" class="tui-avatar" @tap="href(3)"></image>
+				<image :src="userInfo.avatarUrl" class="tui-avatar" @tap="href('userInfo')"></image>
 				<view class="tui-info" v-if="isLogin">
 					<view class="tui-nickname">
 						{{userInfo.nickName}}
@@ -27,7 +27,7 @@
 						</view>
 					</view>
 				</view>
-				<view class="tui-login" v-else @tap="href(5)">
+				<view class="tui-login" v-else @tap="href('login')">
 					<text class="tui-login-btn">点击登录</text>
 					<tui-icon name="arrowright" color="#fff" :size="36" unit="rpx"></tui-icon>
 				</view>
@@ -38,69 +38,73 @@
 				<!-- #endif -->
 				<!-- #ifdef MP -->
 				<view class="tui-set-box">
-					<view class="tui-icon-box tui-icon-message" @tap="href(7)">
+					<view class="tui-icon-box tui-icon-message" @tap="href('message')">
 						<tui-icon name="message" color="#fff" :size="26"></tui-icon>
 						<!-- <view v-if="isLogin" class="tui-badge tui-badge-white">1</view> -->
 					</view>
-					<view class="tui-icon-box tui-icon-setup" @tap="href(2)">
+					<view class="tui-icon-box tui-icon-setup" @tap="href('setup')">
 						<tui-icon name="setup" color="#fff" :size="26"></tui-icon>
 					</view>
 				</view>
 				<!-- #endif -->
 			</view>
-			<!-- <view class="tui-header-btm">
+			<view class="tui-header-btm">
 				<view class="tui-btm-item">
 					<view class="tui-btm-num">0</view>
 					<view class="tui-btm-text">收藏夹</view>
 				</view>
 				<view class="tui-btm-item">
+					<view class="tui-btm-num" @tap="href('myCoupon')">0</view>
+					<view class="tui-btm-text">优惠券</view>
+				</view>
+				<view class="tui-btm-item">
 					<view class="tui-btm-num">0</view>
-					<view class="tui-btm-text">喜欢的内容</view>
+					<view class="tui-btm-text">积分</view>
 				</view>
 				<view class="tui-btm-item">
 					<view class="tui-btm-num">44</view>
 					<view class="tui-btm-text">足迹</view>
 				</view>
-			</view> -->
+			</view>
 		</view>
 		<view class="tui-content-box">
 			<view class="tui-box tui-order-box">
-				<tui-list-cell :arrow="true" padding="0" :lineLeft="false" @click="href(4,0)">
+				<tui-list-cell :arrow="true" padding="0" :lineLeft="false" @click="href('order',0)">
 					<view class="tui-cell-header">
 						<view class="tui-cell-title">我的订单</view>
 						<view class="tui-cell-sub">查看全部订单</view>
 					</view>
 				</tui-list-cell>
 				<view class="tui-order-list">
-					<view class="tui-order-item" @tap="href(4, 1)">
+					<view class="tui-order-item" @tap="href('order', 1)">
 						<view class="tui-icon-box">
 							<image src="https://system.chuangbiying.com/static/images/mall/my/icon_daifukuan_3x.png" class="tui-order-icon"></image>
 							<view class="tui-badge tui-badge-red" v-if="orderState[1]">{{orderState[1]}}</view>
 						</view>
 						<view class="tui-order-text">待付款</view>
 					</view>
-					<view class="tui-order-item" @tap="href(4, 2)">
+					<view class="tui-order-item" @tap="href('order', 2)">
 						<view class="tui-icon-box">
 							<image src="https://system.chuangbiying.com/static/images/mall/my/icon_daifahuo_3x.png" class="tui-order-icon"></image>
 							<view class="tui-badge tui-badge-red" v-if="orderState[2]">{{orderState[2]}}</view>
 						</view>
 						<view class="tui-order-text">待发货</view>
 					</view>
-					<view class="tui-order-item" @tap="href(4, 3)">
+					<view class="tui-order-item" @tap="href('order', 3)">
 						<view class="tui-icon-box">
 							<image src="https://system.chuangbiying.com/static/images/mall/my/icon_daishouhuo_3x.png" class="tui-order-icon"></image>
 						    <view class="tui-badge tui-badge-red" v-if="orderState[3]">{{orderState[3]}}</view>
 						</view>
 						<view class="tui-order-text">待收货</view>
 					</view>
-					<view class="tui-order-item" @tap="href(4, 4)">
+					<view class="tui-order-item" @tap="href('order', 4)">
 						<view class="tui-icon-box">
 							<image src="https://system.chuangbiying.com/static/images/mall/my/icon_pingjia_3x.png" class="tui-order-icon"></image>
 							<view class="tui-badge tui-badge-red" v-if="orderState[4]"> {{orderState[4]}}</view>
 						</view>
 						<view class="tui-order-text">待评价</view>
 					</view>
-					<view class="tui-order-item" @tap="href(10)">
+					<view class="tui-order-item" @tap="href('refund')">
 						<view class="tui-icon-box">
 							<image src="https://system.chuangbiying.com/static/images/mall/my/icon_tuikuan_3x.png" class="tui-order-icon"></image>
 							<view class="tui-badge tui-badge-red" v-if="orderState[5]">{{orderState[5]}}</view>
@@ -147,7 +151,7 @@
 			</view> -->
 
 
-			<!-- <view class="tui-box tui-tool-box">
+			<view class="tui-box tui-tool-box">
 				<tui-list-cell :arrow="true" padding="0" :lineLeft="false">
 					<view class="tui-cell-header">
 						<view class="tui-cell-title">常用工具</view>
@@ -162,51 +166,45 @@
 						</view>
 						<view class="tui-tool-text">免费领好礼</view>
 					</view>
-					<view class="tui-tool-item" @tap="href(11)">
+					<view class="tui-tool-item" @tap="href('wallet')">
 						<view class="tui-icon-box">
 							<image src="https://system.chuangbiying.com/static/images/mall/my/icon_purse_3x.png" class="tui-tool-icon"></image>
 						</view>
 						<view class="tui-tool-text">钱包</view>
 					</view>
-					<view class="tui-tool-item" @tap="href(6)">
+					<view class="tui-tool-item" @tap="href('coupon')">
 						<view class="tui-icon-box">
 							<image src="https://system.chuangbiying.com/static/images/mall/my/icon_ticket_3x.png" class="tui-tool-icon"></image>
 						</view>
 						<view class="tui-tool-text">领券中心</view>
 					</view>
-					<view class="tui-tool-item">
+					<button open-type="contact"  class="tui-tool-item tui-service" :hover-stay-time="150">
 						<view class="tui-icon-box">
 							<image src="https://system.chuangbiying.com/static/images/mall/my/icon_kefu_3x.png" class="tui-tool-icon"></image>
 						</view>
 						<view class="tui-tool-text">客服服务</view>
-					</view>
-					<view class="tui-tool-item">
-						<view class="tui-icon-box">
-							<image src="https://system.chuangbiying.com/static/images/mall/my/icon_fanxian_3x.png" class="tui-tool-icon"></image>
-						</view>
-						<view class="tui-tool-text">每日返现</view>
-					</view>
-					<view class="tui-tool-item" @tap="href(9)">
+					</button>
+					<view class="tui-tool-item" @tap="href('group')">
 						<view class="tui-icon-box">
 							<image src="https://system.chuangbiying.com/static/images/mall/my/icon_tuan_3x.png" class="tui-tool-icon"></image>
 						</view>
 						<view class="tui-tool-text">我的拼团</view>
 					</view>
-					<view class="tui-tool-item">
+					<!-- <view class="tui-tool-item">
 						<view class="tui-icon-box">
 							<image src="https://system.chuangbiying.com/static/images/mall/my/icon_zhihuan_3x.png" class="tui-tool-icon"></image>
 						</view>
 						<view class="tui-tool-text">闲置换钱</view>
-					</view>
-					<view class="tui-tool-item">
+					</view> -->
+					<!-- <view class="tui-tool-item">
 						<view class="tui-icon-box">
 							<image src="https://system.chuangbiying.com/static/images/mall/my/icon_kaipiao_3x.png" class="tui-tool-icon"></image>
 						</view>
 						<view class="tui-tool-text">开发票</view>
-					</view>
+					</view> -->
 				</view>
-			</view> -->
-			<tui-footer copyright="Copyright © 2021-2061 chuangbiying.com" :navigate="navigate"></tui-footer>
+			</view>
+			<tui-footer copyright="Copyright ©2021 创比赢提供技术支持" :navigate="navigate"></tui-footer>
 		</view>
 		<tui-tabbar :current="current" :tabBar="tabBar.list" 
 			:color="tabBar.color" :selectedColor="tabBar.selectedColor" :backgroundColor="tabBar.backgroundColor"
@@ -229,16 +227,18 @@
 				scrollTop: 0.5,
 				pullUpOn: true,
 				current: 2,
-				navigate: [{
-					text: "创比赢提供技术支持",
-					color: "#A7A7A7",
-					size: 24
-				}]
+				// navigate: [{
+				// 	text: "创比赢提供技术支持",
+				// 	color: "#A7A7A7",
+				// 	size: 24
+				// }]
 			};
 		},
 		onLoad: function() {
 			this.appid = this.$store.state.appid
-			this.loadData()
+			if(!this.isLogin){
+				this.loadData()
+			}
 		},
 		onShow(){
 			this.current = this.tabBar.list.length-1
@@ -292,7 +292,7 @@
 							this.$store.commit('setReviewLikes', res.reviewLikes)
 						}
 						else{
-							this.userInfo.nickName='重新登录'
+							this.userInfo.nickName=''
 							this.userInfo.phone=''
 							this.$store.commit('login', false)
 							uni.removeStorageSync('pid')
@@ -316,101 +316,60 @@
 				//未登录状态下应跳转至登录页面，此处未作处理
 				let url = '';
 				switch (page) {
-					case 2:
+					case 'setup':
 						url = '/pages/my/set/set';
 						break;
-					case 3:
+					case 'userInfo':
 						url = '/pages/my/userInfo/userInfo';
 						break;
-					case 4:
+					case 'order':
 						url = '/pages/my/myOrder/myOrder?' + 'currentTab=' + params;
 						break;
-					case 5:
+					case 'login':
 						url = '/pages/my/login/login';
 						break;
-					case 6:
+					case 'coupon':
 						url = '/pages/index/coupon/coupon';
 						break;
-					case 7:
+					case 'message':
 						url = '/pages/my/message/message';
 						break;
-					case 8:
+					case 'myCoupon':
 						url = '/pages/my/myCoupon/myCoupon';
 						break;
-					case 9:
+					case 'group':
 						url = '/pages/my/myGroup/myGroup';
 						break;
-					case 10:
+					case 'refund':
 						url = '/pages/my/refundList/refundList';
 						break;
-					case 11:
+					case 'wallet':
 						url = '/pages/my/wallet/wallet';
 						break;
 					default:
 						break;
 				}
-				if (url) {
+				if (url){
 					this.tui.href(url, true);
 				} else {
 					this.tui.toast('功能尚未完善~');
 				}
 			},
 			redirect(e){
-				let page = ''
 				if(e.pageName===''){
 					return
 				}
-				switch(e.tabName){
-					case '功能页面':
-						let title = e.selectedLink.title
-						if (title==='首页'){
-							uni.navigateTo({url: '/pages/tabbar/index/index'})
-						}else if(title==='分类页'){
-							uni.navigateTo({url: '/pages/tabbar/classify/classify'})
-						}else if(title==='搜索页'){
-							uni.navigateTo({url: '/pages/common/search/search'})
-						}else if(title==='全部商品'){
-							uni.navigateTo({url: '/pages/index/productList/productList'})
-						}else if(title==='用户中心'){
-							uni.navigateTo({url: '/pages/tabbar/my/my'})
-						}else if(title==='购物车'){
-							uni.navigateTo({url: '/pages/tabbar/cart/cart'})
-						}else if(title==='全部订单'){
-							uni.navigateTo({url: '/pages/my/myOrder/myOrder'})
-						}else if(title==='售后订单'){
-							uni.navigateTo({url: '/pages/my/refundList/refundList'})
-						}else if(title==='地址列表'){
-							uni.navigateTo({url: '/pages/my/address/address'})
-						}else if(title==='微客服'){	
-						}	
-						break;
-					case '装修页面':
-						let pageID = e.selectedLink.id
-                        page = this.pages.find((o)=>{return o.id===pageID})
-						this.page = page
-					case '商品分组':
-						let parent = e.selectedLink.parent
-						if(parent){
-							let groupName = e.selectedLink.name
-							uni.navigateTo({url: '/pages/index/productList/productList?groupName=' + groupName})
-						}else{
-							let groupList = []
-							e.selectedLink.children.forEach((o)=>{
-								groupList.push(o.name)
-							})
-							uni.navigateTo({url: '/pages/index/productList/productList?groupList=' + JSON.stringify(groupList)})
-						}
-						break;
-					case '商品详情':
-						let spu_id = e.selectedLink.spu_id
-						let id = e.selectedLink.id
-						uni.navigateTo({
-							url: '/pages/index/productDetail/productDetail?spu_id=' + spu_id + '&sku_id=' + id
-						})
-						break;    
-					case '自定义链接':
-						let customForm = e.customForm
-						break;
+				let title = e.selectedLink.title
+				if (title==='首页'){
+					this.tui.href('/pages/tabbar/index/index')
+				}else if(title==='分类页'){
+					this.tui.href('/pages/tabbar/classify/classify')
+				}else if(title==='全部商品'){
+					this.tui.href('/pages/index/productList/productList')
+				}else if(title==='用户中心'){
+					this.tui.href('/pages/tabbar/my/my')
+				}else if(title==='购物车'){
+					this.tui.href('/pages/tabbar/cart/cart')
 				}
 			},
 			tabbarSwitch(e){
@@ -743,6 +702,11 @@
 		justify-content: center;
 		flex-direction: column;
 		padding-top: 30rpx;
+	}
+    .tui-service {
+		background: #fff; 
+		line-height: 30rpx;
+		margin-bottom: -8rpx;
 	}
 
 	.tui-tool-icon {

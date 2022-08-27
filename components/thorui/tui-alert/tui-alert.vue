@@ -1,7 +1,9 @@
 <template>
 	<view>
 		<view class="tui-alert-class tui-alert-box" :class="[show?'tui-alert-show':'']">
-			<view class="tui-alert-content" :style="{fontSize:size+'rpx',color:color}">
+			<tui-icon name="close-fill" color="#999" :size="20" @click="onClose" class="tui-close-btn"></tui-icon>
+		    <view class="tui-alert-btn tui-header-btn">可参与的拼单</view>
+			<view class="tui-alert-content" :style="{fontSize:size+'rpx',color:color, padding: padding }">
 				<slot></slot>
 			</view>
 			<view class="tui-alert-btn" :style="{color:btnColor}" hover-class="tui-alert-btn-hover" :hover-stay-time="150"
@@ -36,9 +38,13 @@
 				type: String,
 				default: "#EB0909"
 			},
+			padding: {
+				type: String,
+				default: '98rpx 48rpx 92rpx 48rpx'
+			},
 			btnText:{
 				type: String,
-				default: "确定"
+				default: ""
 			},
 			//点击遮罩 是否可关闭
 			maskClosable: {
@@ -54,6 +60,9 @@
 			handleClickCancel() {
 				if (!this.maskClosable) return;
 				this.$emit('cancel');
+			},
+			onClose(){
+				this.$emit('update:show', false)
 			}
 		}
 	}
@@ -74,6 +83,12 @@
 		z-index: 99998;
 	}
 
+	.tui-close-btn{
+		position: absolute;
+		right: 10px;
+		z-index: 10;
+		top: 10px;
+	}
 	.tui-alert-show {
 		transform: translate(-50%, -50%) scale(1);
 		opacity: 1;
@@ -100,9 +115,14 @@
 	.tui-alert-content {
 		text-align: center;
 		color: #333333;
-		padding: 98rpx 48rpx 92rpx 48rpx;
 		box-sizing: border-box;
 		word-break: break-all;
+		max-height: 800rpx;
+    	overflow-y: auto;
+	}
+
+	.tui-header-btn {
+		border-bottom: 1rpx solid #E0E0E0;
 	}
 
 	.tui-alert-btn {

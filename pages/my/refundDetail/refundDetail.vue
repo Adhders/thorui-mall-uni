@@ -66,9 +66,9 @@
 				</view>
 			</view>
 			<tui-list-view unlined="bottom">
-				<tui-list-cell unlined  @tap="openService">
-					<view class="tui-contact" >
-						<image src="https://thorui.cn/images/mall/group/icon_order_contactmerchant.png"></image>
+				<tui-list-cell unlined>
+					<view class="tui-contact" @tap="onCall">
+						<image src="https://system.chuangbiying.com/static/images/mall/icon_contactmerchant.png"></image>
 						<text>联系商家</text>
 					</view>
 				</tui-list-cell>
@@ -117,6 +117,7 @@ export default {
 			webURL: 'https://system.chuangbiying.com/static/images/mall/order/',
 			//1-退款中 2-退款成功 3-退款失败
 			status: 1,
+			phone: '',
 			selectedOrder: null,
 			isDelete: false,
       		order: {
@@ -126,6 +127,7 @@ export default {
 	},
 	onLoad(options){
 		this.order = JSON.parse(decodeURIComponent(options.order))
+		this.phone = this.$store.state.phone
 	},
    	filters: {
 		formatNumber(v){
@@ -199,15 +201,10 @@ export default {
 		detail(order) {
 			this.tui.href('/pages/my/refundDetail/refundDetail?order=' + encodeURIComponent(JSON.stringify(order)))
 		},
-		openService: function() {
+		onCall: function() {
 			// #ifdef MP-WEIXIN
-			let servieId = this.$store.state.serviceId
-			let corpId = this.$store.state.corpId
-			console.log('service', servieId, corpId)
-			wx.openCustomerServiceChat({
-				extInfo: {url: servieId},
-				corpId: corpId,
-				success(res) {console.log('res',res) }
+			wx.makePhoneCall({
+				phoneNumber: this.phone
 			})
 			// #endif
 		},
@@ -380,6 +377,9 @@ export default {
 	width: 36rpx;
 	height: 36rpx;
 	margin-right: 16rpx;
+}
+.btn_hover{
+	background: #f1f1f1;
 }
 
 .tui-content__box {

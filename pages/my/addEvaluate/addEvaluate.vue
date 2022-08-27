@@ -126,7 +126,6 @@
 				}else{
 					method = 'PUT'
 					url = '/updateGoodsReview/' + this.postData.reviewState[this.index].id + '/additional'
-					console.log('put', url)
 				}
 				this.tui.request(url, method, this.postData).then(res=>{
 					if(res.code==='0') {
@@ -142,8 +141,8 @@
 							orderList[index].reviewState = this.postData.reviewState
 						}
 						this.tui.toast('评论成功');
+						setTimeout(()=>{uni.navigateBack({delta: 1})}, 500)
 					}
-					uni.navigateBack({delta: 1})
 				})
 			}
 		}

@@ -132,6 +132,6 @@
 	}
 
 	.tui-product-list {
-		margin: 0px 10rpx;
+		margin: 0px 24rpx;
 	}
 </style>

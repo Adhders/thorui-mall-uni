@@ -10,7 +10,7 @@
 			<tui-list-cell :hover="false">
 				<view class="tui-pay-item__title">
 					<view>请选择支付方式</view>
-					<view>支付金额：<text class="tui-pay-amuont">￥{{orderForm.totalCost}}</text></view>
+					<view>支付金额：<text class="tui-pay-amuont">￥{{orderForm.netCost.toFixed(2)}}</text></view>
 				</view>
 			</tui-list-cell>
 			<radio-group>
@@ -78,7 +78,6 @@
 				show: false,
 				visible: false,
 				result: null,
-				orderNum: '',
 				initial: true,
 				success: true,
 				buttons: [
@@ -117,7 +116,6 @@
 			},
 			requestPayment(result, order){
 				let _this = this
-				let url = ''
 				let reviewState = []
 				order.goodsList.forEach(()=>{reviewState.push({count: 0})})
 				order.reviewState = reviewState
@@ -129,22 +127,33 @@
 					signType: result.signType,
 					paySign: result.paySign,
 					success: function () {
-						url = '/updateOrder/' + _this.orderNum + '/' + 'payment'
-						order.status = '待评价'
-						_this.tui.request(url, 'PUT', {status: "待评价"}).then(
-							() => {
-								_this.success = true
-								_this.close()
-								let goodsList = order.goodsList
-								goodsList.forEach((o)=>{
-									_this.tui.request('/updateGoodsStock', 'PUT', {id: o.id, buyNum: o.buyNum})
-								})
-								wx.redirectTo({url: "/pages/order/success/success"})
-							})
+						_this.success = true
+						_this.close()
+						let goodsList = []
+						order.goodsList.forEach((o)=>{
+							goodsList.push({id: o.id, 'buyNum': o.buyNum})
+								
+						})
+						if(order.mode==='groupBuy'){
+							let url = '/addActivityOrder/' + uni.getStorageSync("pid") + '/' + order.orderNum
+							_this.tui.request(url, 'POST', order.activity).then()
+							//更新活动商品库存
+							_this.tui.request('/updateGoodsStock/activity', 'PUT', goodsList)
+						}else{
+							let url = '/updateOrder/' + order.orderNum + '/' + 'payment'
+							order.status = '待评价'
+							_this.tui.request(url, 'PUT', {status: "待评价"}).then()
+							//更新商品库存
+							_this.tui.request('/updateGoodsStock/', 'PUT', goodsList)
+						}
+						setTimeout(()=>{
+							wx.redirectTo({url: "/pages/order/success/success"})
+						}, 300)
+
 					},
 					fail: function (err) {
 						_this.initial = false
-						url = '/updateOrder/' + _this.orderNum + '/' + 'paymentInfo'
+						let url = '/updateOrder/' + order.orderNum + '/' + 'paymentInfo'
 						_this.tui.request(url, 'PUT', {paymentInfo : result}).then(
 							()=>{
 						})
@@ -169,7 +178,7 @@
 					this.tui.request(url,'POST', this.orderForm).then((res)=>{
 						if(res.code==='0'){
 							this.result = res.result
-							this.orderNum = res.orderNum
+							this.orderForm.orderNum = res.orderNum
 							this.requestPayment(this.result, this.orderForm)
 						}else{
 							this.tui.toast('下单失败，请稍后再试')

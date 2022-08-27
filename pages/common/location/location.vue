@@ -420,13 +420,13 @@
 
 	.thorui-flex__center {
 		width: 100%;
-		height: 60rpx;
+		height: 72rpx;
 		display: flex;
 		text-align: center;
 		justify-content: center;
 		align-items: center;
 		background-color: #f2f2f2;
-		border-radius: 8rpx;
+		border-radius: 50rpx;
 	}
 
 	.tui-search__text {

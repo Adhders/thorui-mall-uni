@@ -26,9 +26,6 @@
 						<view class="tui-title"><text class="tui-title-city-text">所在城市</text></view>
 						<input placeholder-class="tui-phcolor" class="tui-input tui-pr__30" disabled name="city" placeholder="请选择城市" maxlength="50"
 						 type="text" v-model="ruleForm.location"/>
-						<view @click.stop="getAddress">
-							<tui-icon name="gps" :size="22"></tui-icon>
-						</view>
 					</view>
 				</tui-list-cell>
 			</picker>
@@ -37,6 +34,9 @@
 					<view class="tui-title">详细地址</view>
 					<input placeholder-class="tui-phcolor" class="tui-input" name="detailInfo" v-model='ruleForm.detailInfo' placeholder="请输入详细的收货地址" maxlength="50"
 					 type="text" />
+					<view @click.stop="getAddress">
+						<tui-icon name="gps" :size="22"></tui-icon>
+					</view>
 				</view>
 			</tui-list-cell>
 			<tui-list-cell :hover="false" padding="0">
@@ -48,13 +48,12 @@
 			</tui-list-cell>
 			<tui-list-cell :hover="false" padding="0">
 				<view class="tui-line-cell">
-					<view class="tui-cell-title">地址类型</view>
-					<view class="tui-addr-label">
-						<text v-for="(label,index) in lists" :key="index"
-							class="tui-label-item"
-							@tap="onSelect(label)"
-							:class="{'tui-label-active':ruleForm.label===label}">{{label}}</text>
-					</view>
+					<view class="tui-title">地址类型</view>
+					<text v-for="(label,index) in lists" :key="index"
+						class="tui-label-item"
+						@tap="onSelect(label)"
+						:class="{'tui-label-active':ruleForm.label===label}">{{label}}
+					</text>
 				</view>
 			</tui-list-cell>
 			<!-- 默认地址 -->
@@ -298,15 +297,15 @@
 		padding: 24rpx 30rpx;
 		box-sizing: border-box;
 		display: flex;
-		align-items: center;
+		align-items:center;
 	}
 
 	.tui-title {
-		width: 180rpx;
+		width: 140rpx;
 		font-size: 28rpx;
 		flex-shrink: 0;
 	}
-
+	
 	.tui-title-city-text {
 		width: 180rpx;
 		height: 40rpx;
@@ -336,11 +335,6 @@
 		font-size: 28rpx;
 		flex-shrink: 0;
 	}
-
-	.tui-addr-label {
-		margin-left: 70rpx;
-	}
-
 	.tui-label-item {
 		width: 76rpx;
 		height: 40rpx;

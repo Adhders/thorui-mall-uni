@@ -1,5 +1,5 @@
 <template>
-    <tui-bottom-popup :show="popupShow" @close="hidePopup" :translateY="scrollTop">
+    <tui-bottom-popup :show="popupShow" @close="hidePopup">
         <view class="tui-popup-box">
 			<view class="tui-product-box tui-padding">
 				<image :src="goodsDetail.defaultImageUrl" class="tui-popup-img"  mode="aspectFill"></image>
@@ -43,12 +43,6 @@
 <script>
 export default {
 	name: 'addCart',
-	props: {
-        'scrollTop':{
-            type: String,
-            default: '0'
-        }
-    },
 	data() {
 		return {
             popupShow: false,
@@ -209,6 +203,7 @@ export default {
         },
         change: function(e) {
             this.buyNum = e.value;
+            this.$emit('change', e)
         },
         addCart() {
             let newGoods = {
@@ -251,7 +246,7 @@ export default {
                 propertyList: this.selectedGoodsAttrList,
                 buyNum: this.buyNum,
             }]
-            let url = '/pages/order/submitOrder/submitOrder?goods=' + JSON.stringify(goods)
+            let url = "/pages/order/submitOrder/submitOrder?mode=''&goods=" + JSON.stringify(goods)
             this.tui.href(url, true);
         },
     }

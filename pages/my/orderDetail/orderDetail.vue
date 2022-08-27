@@ -49,22 +49,22 @@
 					<view>优惠券</view>
 					<view style="display: inline-flex">
 						<view class="tui-symbol">-</view>
-						<view>￥{{order.discount.toFixed(2)}}</view>
+						<view>￥{{order.discount}}</view>
 					</view>
 				</view>
 				<view class="tui-price-flex  tui-size24">
 					<view>配送费</view>
 					<view style="display: inline-flex">
 						<view class="tui-symbol">+</view>
-						<view>￥{{order.shipping_fee.toFixed(2)}}</view>
+						<view>￥{{order.shipping_fee}}</view>
 					</view>
 				</view>
 				<view class="tui-size32">
 					<view class="tui-goods-price tui-primary-color">
 						<view class="tui-black">实付款<text class="tui-colon">:</text></view>
 						<view class="tui-size-24">￥</view>
-						<view class="tui-price-large">{{order.netCost.toFixed(2).split('.')[0]}}</view>
-						<view class="tui-size-24">.{{order.netCost.toFixed(2).split('.')[1]}}</view>
+						<view class="tui-price-large">{{order.netCost.split('.')[0]}}</view>
+						<view class="tui-size-24">.{{order.netCost.split('.')[1]}}</view>
 					</view>
 				</view>
 			</view>
@@ -99,8 +99,8 @@
 				</view>
 			</view>
 			<tui-list-view unlined="bottom">
-				<tui-list-cell unlined @tap="openService">
-					<view class="tui-contact">
+				<tui-list-cell unlined>
+					<view class="tui-contact" @tap="onCall">
 						<image src="https://system.chuangbiying.com/static/images/mall/icon_contactmerchant.png"></image>
 						<text>联系商家</text>
 					</view>
@@ -213,6 +213,7 @@
 		data() {
 			return {
 				appid: '',
+				phone: '',
 				webURL: "https://system.chuangbiying.com/static/images/mall/order/",
 				//1-待付款 2-付款成功 3-待收货 4-订单已完成 5-交易关闭
 				status: 2,
@@ -221,10 +222,10 @@
 				isDelete: false,
 				order: {
 					note: '',
-					discount: 0.00,
-					totalCost: 0.00,
-					netCost: 0.00,
-					shipping_fee: 0.00,
+					discount: '0.00',
+					totalCost: '0.00',
+					netCost:  '0.00',
+					shipping_fee: '0.00',
 					goodsList: [],
 					address: {'telNumber': ''}
 				},
@@ -233,7 +234,7 @@
 		onLoad(options){
 			this.order =  JSON.parse(decodeURIComponent(options.order))
 			this.status = this.getStatus(this.order.status)
-			console.log('status', this.status)
+			this.phone = this.$store.state.phone
 			this.appid = this.$store.state.appid
 		},
 		filters: {
@@ -265,14 +266,10 @@
 				let t2 = Date.parse(new Date())
 				return (t1-t2)/1000
 			},
-			openService: function() {
+			onCall: function() {
 				// #ifdef MP-WEIXIN
-				let servieId = this.$store.state.serviceId
-				let corpId = this.$store.state.corpId
-				wx.openCustomerServiceChat({
-				  extInfo: {url: servieId},
-				  corpId: corpId,
-				  success(res) {console.log('res',res) }
+				wx.makePhoneCall({
+					phoneNumber: this.phone
 				})
 				// #endif
 			},
@@ -302,7 +299,6 @@
 			},
 			pay(order) {
 				let _this = this
-				let url = url
 				let result = order.paymentInfo
 				wx.requestPayment({
 					appid: result.appid,
@@ -312,14 +308,23 @@
 					signType: result.signType,
 					paySign: result.paySign,
 					success: function () {
-						url = '/updateOrder/' + order.orderNum + '/' + 'payment'
-						_this.tui.request(url, 'PUT', {status : "待评价"}).then(()=>{
-							let goodsList = order.goodsList
-							goodsList.forEach((o)=>{
-								_this.tui.request('/updateGoodsStock', 'PUT', {id: o.id, buyNum: o.buyNum})
-							})
+						let goodsList = []
+						order.goodsList.forEach((o)=>{
+							goodsList.push({id: o.id, 'buyNum': o.buyNum})
+								
 						})
-						order.status = "待评价"
+						if(order.mode==='groupBuy'){
+							let url = '/addActivityOrder/' + uni.getStorageSync("pid") + '/' + order.orderNum
+							_this.tui.request(url, 'POST', order.activity).then()
+							//更新活动商品库存
+							_this.tui.request('/updateGoodsStock/activity', 'PUT', goodsList)
+						}else{
+							let url = '/updateOrder/' + order.orderNum + '/' + 'payment'
+							order.status = '待评价'
+							_this.tui.request(url, 'PUT', {status: "待评价"}).then()
+							//更新商品库存
+							_this.tui.request('/updateGoodsStock/', 'PUT', goodsList)
+						}
 						_this.tui.href("/pages/order/success/success")},
 					fail: function (err) {
 						console.log('err', err)
@@ -344,8 +349,16 @@
 							let index =  this.orderList.findIndex((o)=>{ return o.orderNum === order.orderNum})
 							this.orderList[index].status = "待评价"
 							this.tui.toast('无法取消订单，该订单已支付成功')
-							order.status = "待评价"
-							this.status = this.getStatus("待评价")
+							if(order.mode==='groupBuy'){
+								let url = '/addActivityOrder/' + uni.getStorageSync("pid") + '/' + order.orderNum
+								_this.tui.request(url, 'POST', order.activity).then()
+								//更新活动商品库存
+								_this.tui.request('/updateGoodsStock/activity', 'PUT', goodsList)
+								order.status = "拼团中"
+							}else{
+								order.status = "待评价"
+								this.status = this.getStatus("待评价")
+							}
 						}
 						else{
 							this.tui.toast(res.message)
@@ -656,6 +669,9 @@
 		align-items: center;
 		justify-content: center;
 		font-size: 28rpx;
+	}
+	.btn_hover{
+		background: #f1f1f1;
 	}
 	.tui-contact image{
 		width: 36rpx;

@@ -42,8 +42,8 @@
 									<view class="tui-price-box">
 										<view>
 											<text class="tui-size-24">￥</text>
-											<text class="tui-goods-price">{{item.integerPrice}}</text>
-											<text class="tui-size-24" v-if="item.decimalPrice">.{{ item.decimalPrice}}</text>
+											<text class="tui-goods-price">{{item.price.split('.')[0]}}</text>
+											<text class="tui-size-24" v-if="item.price.split('.')[1]">.{{item.price.split('.')[1]}}</text>
 										</view>
 										<tui-numberbox class="tui-numberbox" :value="item.buyNum" :height="36" :width="64" :min="1" :index="index" @change="changeNum"></tui-numberbox>
 									</view>
@@ -187,7 +187,10 @@
 			}
 		},
 		onLoad(options){
-			this.mode = options.mode //购物车
+			this.mode = options.mode 
+			this.orderForm.mode = options.mode
+			console.log('options', options, options.activity)
+			this.orderForm.activity = options.activity? JSON.parse(options.activity): ''
 			this.orderForm.goodsList = JSON.parse(options.goods)
 			this.orderForm.address = this.address
 			this.calcHandle()
@@ -358,10 +361,11 @@
 	}
 	.tui-goods-center {
 		flex: auto;
-		max-width: 510rpx;
 		position: relative;
 		padding: 8rpx 8rpx;
 		box-sizing: border-box;
+		max-width: 500rpx;
+		margin-left: 10rpx;
 	}
 	.tui-goods-name {
 		word-break: break-all;

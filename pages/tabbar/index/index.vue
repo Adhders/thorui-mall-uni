@@ -12,6 +12,7 @@
 					<TitleView :item=item v-if="item.cmptName==='TitleView'" @goto="redirect"></TitleView>
 					<VideoView :item=item v-if="item.cmptName==='VideoView'" @goto="redirect"></VideoView>
 					<GoodsView :item="item" v-if="item.cmptName==='GoodsView'"></GoodsView>
+					<GroupBuyView :item="item" v-if="item.cmptName==='GroupBuyView'"></GroupBuyView>
 					<PictureView :item=item v-if="item.cmptName==='PictureView'" @goto="redirect"></PictureView>
 					<TypingView :item=item v-if="item.cmptName==='TypingView'" @goto="redirect"></TypingView>
 					<SearchView :item=item v-if="item.cmptName==='SearchView'"></SearchView>
@@ -35,71 +36,66 @@
 				startVideo: true,
 				scrollTop: 0,
 				lastIndex: 0, //上一页面的索引
-				appid: '',
 				visible: true,
 				current: 0,
 				pageStack: [], //页面堆栈
-				pages: [],
 				page: {},
-				tabBar: {
-					iconList: [],
-					style: {
-						color: "#666666",
-						selectedColor: "#EB0909",
-						backgroundColor: "#FFFFFF"
-					}
-				}
 			}
 		},
 		onLoad() {
 			this.appid = getApp().globalData.appid
-			let url = '/getStoreGoods/' + this.appid
-			this.tui.request(url).then(res => {
-				if (res.code === '0') {
-					res.goodsList.forEach((o) => {
-						o.integerPrice = parseInt(o.price)
-						o.decimalPrice = o.price.split('.')[1]
-					})
-					this.goodsList = res.goodsList
-					this.$store.commit('setGoodsList', this.goodsList)
-					url = '/getStoreGoodsGroup/' + this.appid
-					this.tui.request(url).then(
-						res => {
-							if (res.code === '0') {
-								let goodsGroup = []
-								res.goodsGroup.forEach((o) => {
-									o.children.forEach((group) => {
-										goodsGroup.push(group)
+			if(this.goodsList.length===0){
+				let url = '/getStoreGoods/' + this.appid
+				this.tui.request(url).then(res => {
+					console.log('res', res)
+					if (res.code === '0') {
+						res.goodsList.forEach((o) => {
+							o.integerPrice = parseInt(o.price)
+							o.decimalPrice = o.price.split('.')[1]
+						})
+						this.$store.commit('setGoodsList', res.goodsList)
+						url = '/getStoreGoodsGroup/' + this.appid
+						this.tui.request(url).then(
+							res => {
+								if (res.code === '0') {
+									let goodsGroup = []
+									res.goodsGroup.forEach((o) => {
+										o.children.forEach((group) => {
+											goodsGroup.push(group)
+										})
 									})
-								})
-								goodsGroup.forEach((v) => {
-									v.goodsList = []
-									this.goodsList.forEach((o) => {
-										if (o.selectedClassifyList.includes(v.name)) {
-											v.goodsList.push(o)
-										}
+									goodsGroup.forEach((v) => {
+										v.goodsList = []
+										this.goodsList.forEach((o) => {
+											if (o.selectedClassifyList.includes(v.name)) {
+												v.goodsList.push(o)
+											}
+										})
 									})
-								})
-								this.$store.commit('setGoodsGroup', goodsGroup)
+									this.$store.commit('setGoodsGroup', goodsGroup)
+								}
 							}
-						}
-					).catch(err => {
-						console.log('err', err)
-					})
-				}
-			})
-			url = '/getStoreDetail/' + this.appid
-			this.tui.request(url).then(res => {
-				if (res.code === '0') {
-					this.tabBar = res.tabBar
-					this.pages = res.pages
-					this.page = this.pages[0]
-					this.$store.commit('setTabBar', this.tabBar)
-					this.$store.commit('setPages', this.pages)
-				}
-			}).catch(err => {
-				console.log('err', err)
-			})
+						).catch(err => {
+							console.log('err', err)
+						})
+					}
+				})
+			}
+			if(this.pages.length===0){
+				let url = '/getStoreDetail/' + this.appid
+				this.tui.request(url).then(res => {
+					if (res.code === '0') {
+						this.page = res.pages[0]
+						this.$store.commit('setPhone', res.mobile)
+						this.$store.commit('setPages', res.pages)
+						this.$store.commit('setTabBar', res.tabBar)
+					}
+				}).catch(err => {
+					console.log('err', err)
+				})
+			}else(
+				this.page = this.pages[0]
+			)
 		},
 		onShow() {
 			let index = this.pages.findIndex((o) => {
@@ -110,21 +106,32 @@
 			}
 			this.current = 0
 		},
+		computed: {
+			pages(){
+				return this.$store.state.pages
+			},
+			goodsList(){
+				return this.$store.state.goodsList
+			},
+			tabBar(){
+				return this.$store.state.tabBar
+			}
+		},
 		methods: {
 			onBack(e) {
-				let page = ''
 				switch (e) {
 					case 'home':
 						this.visible = true
-						page = this.pages[0]
+						this.page = this.pages[0]
 						this.pageStack = []
+						break;
 					case 'arrowleft':
-						page = this.pageStack.pop()
+						this.page = this.pageStack.pop()
 						if (this.pageStack.length === 0) {
 							this.visible = true
 						}
+						break;
 				}
-				this.page = page
 			},
 			redirect(e) {
 				if (e.pageName === '') {
@@ -134,43 +141,26 @@
 					case '功能页面':
 						let title = e.selectedLink.title
 						if (title === '首页') {
-							let page = ''
-							page = this.pages[0]
+							this.page = this.pages[0]
 							this.visible = true
 							this.pageStack = []
-						} else if (title === '分类页') {
-							uni.navigateTo({
-								url: '/pages/tabbar/classify/classify'
-							})
-						} else if (title === '搜索页') {
-							uni.navigateTo({
-								url: '/pages/common/search/search'
-							})
-						} else if (title === '全部商品') {
-							uni.navigateTo({
-								url: '/pages/index/productList/productList'
-							})
-						} else if (title === '用户中心') {
-							uni.navigateTo({
-								url: '/pages/tabbar/my/my'
-							})
-						} else if (title === '购物车') {
-							uni.navigateTo({
-								url: '/pages/tabbar/cart/cart'
-							})
-						} else if (title === '全部订单') {
-							uni.navigateTo({
-								url: '/pages/my/myOrder/myOrder'
-							})
-						} else if (title === '售后订单') {
-							uni.navigateTo({
-								url: '/pages/my/refundList/refundList'
-							})
-						} else if (title === '地址列表') {
-							uni.navigateTo({
-								url: '/pages/my/address/address'
-							})
-						} else if (title === '微客服') {}
+						}else if(title==='分类页'){
+							this.tui.href('/pages/tabbar/classify/classify')
+						}else if(title==='搜索页'){
+							this.tui.href('/pages/common/search/search')
+						}else if(title==='全部商品'){
+							this.tui.href('/pages/index/productList/productList')
+						}else if(title==='用户中心'){
+							this.tui.href('/pages/tabbar/my/my')
+						}else if(title==='购物车'){
+							this.tui.href('/pages/tabbar/cart/cart')
+						}else if(title==='全部订单'){
+							this.tui.href('/pages/my/myOrder/myOrder')
+						}else if(title==='售后订单'){
+							this.tui.href('/pages/my/refundList/refundList')
+						}else if(title==='地址列表'){
+							this.tui.href('/pages/my/address/address')
+						}else if(title==='微客服'){}	
 						break;
 					case '装修页面':
 						let pageID = e.selectedLink.id
@@ -186,31 +176,23 @@
 						let groupType = e.selectedLink.groupType
 						if (parent) {
 							let groupName = e.selectedLink.name
-							if (groupType === 'list') {
-								uni.navigateTo({
-									url: '/pages/index/list/list?groupName=' + groupName
-								})
-							} else {
-								uni.navigateTo({
-									url: '/pages/tabbar/classify/classify?groupName=' + groupName
-								})
+							if (groupType === 'list'){
+								this.tui.href('/pages/index/list/list?groupName=' + groupName)
+							} else{
+								this.tui.href('/pages/tabbar/classify/classify?groupName=' + groupName)
 							}
 						} else {
 							let groupList = []
 							e.selectedLink.children.forEach((o) => {
 								groupList.push(o.name)
 							})
-							uni.navigateTo({
-								url: '/pages/index/productList/productList?groupList=' + JSON.stringify(groupList)
-							})
+							this.tui.href('/pages/index/productList/productList?groupList=' + JSON.stringify(groupList))
 						}
 						break;
 					case '商品详情':
 						let spu_id = e.selectedLink.spu_id
 						let id = e.selectedLink.id
-						uni.navigateTo({
-							url: '/pages/index/productDetail/productDetail?spu_id=' + spu_id + '&sku_id=' + id
-						})
+						this.tui.href('/pages/index/productDetail/productDetail?spu_id=' + spu_id + '&sku_id=' + id)
 						break;
 					case '自定义链接':
 						let customForm = e.customForm

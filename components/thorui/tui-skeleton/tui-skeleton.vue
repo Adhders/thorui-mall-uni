@@ -154,12 +154,10 @@
 		position: absolute;
 		z-index: 0;
 	}
-
 	.tui-skeleton-box {
 		left: 0;
 		top: 0;
 	}
-
 	.tui-loading {
 		display: inline-block;
 		vertical-align: middle;

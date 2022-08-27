@@ -49,7 +49,6 @@
 			
 		},
 		 onUnload() {
-             console.log('hide', this.currentTime)
 			 uni.setStorageSync('currentTime', this.currentTime)
 			 uni.setStorageSync('playState', !this.startVideo)
 		},

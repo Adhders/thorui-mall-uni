@@ -23,8 +23,8 @@
 					<view class="tui-goods-price">
 						<view>共{{order.goodsList | getNum}}件商品 实付：</view>
 						<view class="tui-size-24">￥</view>
-						<view class="tui-price-large">{{order.netCost.toFixed(2).split('.')[0]}}</view>
-						<view class="tui-size-24">.{{order.netCost.toFixed(2).split('.')[1]}}</view>
+						<view class="tui-price-large">{{order.netCost.split('.')[0]}}</view>
+						<view class="tui-size-24">.{{order.netCost.split('.')[1]}}</view>
 					</view>
 				</tui-list-cell>
 				<view class="tui-order-btn">
@@ -117,6 +117,13 @@
 						<view class="tui-btn-ml">
 							<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @tap="detail(order)">
 								售后信息
+							</tui-button>
+						</view>
+					</block>
+					<block v-if="order.mode=='groupBuy'">
+						<view class="tui-btn-ml" v-if="order.status!='待支付'">
+							<tui-button type="black" plain width="152rpx" height="56rpx" :size="26" shape="circle" @click="groupDetail(order)">
+								我的拼团
 							</tui-button>
 						</view>
 					</block>
@@ -224,7 +231,8 @@
 				})
 			},
 			isVisible(state){
-				return state.findIndex(o=>{return o.count===1}) !==-1
+				//当o.id为-1表示失效，无法追加评论
+				return state.findIndex(o=>{return o.count===1 && o.id!=-1}) !==-1
 			},
 			change(e) {
 				this.currentTab = e.index
@@ -280,6 +288,12 @@
 							let index =  this.orderList.findIndex((o)=>{ return o.orderNum === order.orderNum})
 							this.orderList[index].status = "待评价"
 							this.tui.toast('无法取消订单，该订单已支付成功')
+							if(order.mode==='groupBuy'){
+								let url = '/addActivityOrder/' + uni.getStorageSync("pid") + '/' + order.orderNum
+								this.tui.request(url, 'POST', order.activity).then()
+								//更新活动商品库存
+								this.tui.request('/updateGoodsStock/activity', 'PUT', goodsList)
+							}
 						}
 						else{
 							this.tui.toast(res.message)
@@ -288,7 +302,6 @@
 			},
 			pay(order) {
 				let _this = this
-				let url = url
 				let result = order.paymentInfo
 				wx.requestPayment({
 					appid: result.appid,
@@ -298,26 +311,38 @@
 					signType: result.signType,
 					paySign: result.paySign,
 					success: function () {
-						url = '/updateOrder/' + order.orderNum + '/' + 'payment'
-						_this.tui.request(url, 'PUT', {status : "待评价"}).then(()=>{
-                            let goodsList = order.goodsList
-							goodsList.forEach((o)=>{
-								_this.tui.request('/updateGoodsStock', 'PUT', {id: o.id, buyNum: o.buyNum})
-							})
+						let goodsList = []
+						order.goodsList.forEach((o)=>{
+							goodsList.push({id: o.id, 'buyNum': o.buyNum})
+								
 						})
-						order.status = "待评价"
+						if(order.mode==='groupBuy'){
+							let url = '/addActivityOrder/' + uni.getStorageSync("pid") + '/' + order.orderNum
+							_this.tui.request(url, 'POST', order.activity).then()
+							//更新活动商品库存
+							_this.tui.request('/updateGoodsStock/activity', 'PUT', goodsList)
+						}else{
+							let url = '/updateOrder/' + order.orderNum + '/' + 'payment'
+							order.status = '待评价'
+							_this.tui.request(url, 'PUT', {status: "待评价"}).then()
+							//更新商品库存
+							_this.tui.request('/updateGoodsStock/', 'PUT', goodsList)
+						}
 						_this.tui.href("/pages/order/success/success")},
 					fail: function (err) {
 						console.log('err', err)
 					},
 				})
 			},
+			groupDetail(order){
+				this.tui.href('/pages/my/myGroup/myGroup?orderNum=' + order.orderNum)
+			},
 			buy(order){
 				let goods = order.goodsList[0]
 				this.tui.href('/pages/index/productDetail/productDetail?spu_id=' + goods.spu_id + '&sku_id=' + goods.id + '&buy=true')
 			},
 			remind() {
-                this.tui.toast('待开发')
+                this.tui.toast('已提醒卖家发货')
 			},
 			refund(order){
 				this.tui.href('/pages/my/refundList/refundList?order=' + encodeURIComponent(JSON.stringify(order)))
