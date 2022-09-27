@@ -83,67 +83,39 @@
 					data: []
 				}],
 				//模拟请求返回数据
-				requestData: [{
-					type: 1, //1-折扣 2-面值
-					range: "拼团券",
-					rangeDesc: "限拼团可用",
-					condition: "满38元可用",
-					value: 9
-				}, {
-					type: 1,
-					range: "全场券",
-					rangeDesc: "全部商品可用",
-					condition: "满200元可用",
-					value: 5
-				}, {
-					type: 2,
-					range: "全场券",
-					rangeDesc: "全部商品可用",
-					condition: "满200元可用",
-					value: 100
-				}, {
-					type: 2,
-					range: "品牌券",
-					rangeDesc: "指定品牌可用",
-					condition: "满200元可用",
-					value: 200
-				}, {
-					type: 2,
-					range: "品类券",
-					rangeDesc: "指定品类可用",
-					condition: "满8000元可用",
-					value: 10000
-				}, {
-					type: 1,
-					range: "拼团券",
-					rangeDesc: "限拼团可用",
-					condition: "满100元可用",
-					value: 9
-				}, {
-					type: 1,
-					range: "全场券",
-					rangeDesc: "全部商品可用",
-					condition: "满800元可用",
-					value: 8
-				}, {
-					type: 2,
-					range: "全场券",
-					rangeDesc: "全部商品可用",
-					condition: "满200元可用",
-					value: 30
-				}, {
-					type: 2,
-					range: "品牌券",
-					rangeDesc: "指定品牌可用",
-					condition: "满100元可用",
-					value: 20
-				}, {
-					type: 2,
-					range: "品类券",
-					rangeDesc: "指定品类可用",
-					condition: "满500元可用",
-					value: 100
-				}],
+				requestData: [
+				// 	{
+				// 	type: 1, //1-折扣 2-面值
+				// 	range: "拼团券",
+				// 	rangeDesc: "限拼团可用",
+				// 	condition: "满38元可用",
+				// 	value: 9
+				// }, {
+				// 	type: 1,
+				// 	range: "全场券",
+				// 	rangeDesc: "全部商品可用",
+				// 	condition: "满200元可用",
+				// 	value: 5
+				// }, {
+				// 	type: 2,
+				// 	range: "全场券",
+				// 	rangeDesc: "全部商品可用",
+				// 	condition: "满200元可用",
+				// 	value: 100
+				// }, {
+				// 	type: 2,
+				// 	range: "品牌券",
+				// 	rangeDesc: "指定品牌可用",
+				// 	condition: "满200元可用",
+				// 	value: 200
+				// }, {
+				// 	type: 2,
+				// 	range: "品类券",
+				// 	rangeDesc: "指定品类可用",
+				// 	condition: "满8000元可用",
+				// 	value: 10000
+				// }
+				],
 				webURL: "https://www.thorui.cn/wx"
 			}
 		},

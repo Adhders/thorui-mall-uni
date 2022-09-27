@@ -9,7 +9,7 @@
 				<view class="tui-assets__center">
 					<view class="tui-item__box">
 						<text>余额</text>
-						<view v-if="isShow">￥<text class="tui-text__large">100</text>.00</view>
+						<view v-if="isShow">￥<text class="tui-text__large">0</text>.00</view>
 						<view v-else><text class="tui-text__large">****</text></view>
 					</view>
 					<view class="tui-item__box">
@@ -19,14 +19,14 @@
 					</view>
 					<view class="tui-item__box" @tap="bankCard">
 						<text>银行卡</text>
-						<view v-if="isShow"><text class="tui-text__large">6</text>张</view>
+						<view v-if="isShow"><text class="tui-text__large">0</text>张</view>
 						<view v-else><text class="tui-text__large">****</text></view>
 					</view>
 				</view>
 				<view class="tui-assets__bottom">
 					<view class="tui-item__box" @tap="coupon">
 						<text>优惠券</text>
-						<view v-if="isShow"><text class="tui-text__large">2</text>张</view>
+						<view v-if="isShow"><text class="tui-text__large">0</text>张</view>
 						<view v-else><text class="tui-text__large">****</text></view>
 					</view>
 					<view class="tui-item__box">

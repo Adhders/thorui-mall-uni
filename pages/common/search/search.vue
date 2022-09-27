@@ -96,11 +96,11 @@
 				},500)
 				if(this.from == 'groupList'){
 					uni.navigateTo({
-						url: '/pages/index/groupDetail/groupDetail?spu_id=' + v.spu_id + '&sku_id=' + v.id
+						url: '/pages/index/groupDetail/groupDetail?spu_id=' + v.id
 					})
 				}else{
 					uni.navigateTo({
-						url: '/pages/index/productDetail/productDetail?spu_id=' + v.spu_id + '&sku_id=' + v.id
+						url: '/pages/index/productDetail/productDetail?spu_id=' + v.id
 					})
 				}
 			},

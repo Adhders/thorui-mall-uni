@@ -3,12 +3,12 @@
 		<view class="tui-header">
 			<view>
 				<text class="tui-title">我的卡</text>
-				<text class="tui-total">（共6张）</text>
+				<text class="tui-total">（共0张）</text>
 			</view>
 			<tui-tag plain type="danger" shape="circle" hover padding="12rpx 20rpx" @click="addBankCard">+ 添加银行卡</tui-tag>
 		</view>
 		<view class="tui-bankcard__list">
-			<view class="tui-bankcard__item tui-ping_an">
+			<!-- <view class="tui-bankcard__item tui-ping_an">
 				<view class="tui-card__info">
 					<view class="tui-logo__box">
 						<image class="tui-logo" src="https://system.chuangbiying.com/static/images/mall/bank/p_a.png"></image>
@@ -82,9 +82,7 @@
 					</view>
 					<view class="tui-card__no">**** 4216</view>
 				</view>
-			</view>
-
-
+			</view> -->
 		</view>
 	</view>
 </template>

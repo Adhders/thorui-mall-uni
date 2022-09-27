@@ -189,7 +189,7 @@
 		onLoad(options){
 			this.mode = options.mode 
 			this.orderForm.mode = options.mode
-			console.log('options', options, options.activity)
+			// console.log('options', options, options.activity)
 			this.orderForm.activity = options.activity? JSON.parse(options.activity): ''
 			this.orderForm.goodsList = JSON.parse(options.goods)
 			this.orderForm.address = this.address
@@ -311,7 +311,7 @@
 	}
 
 	.tui-goods-title {
-		font-size: 28rpx;
+		font-size: 30rpx;
 		display: flex;
 		align-items: center;
 	}
@@ -344,6 +344,7 @@
 		justify-content: space-between;
 	}
 	.tui-sub-info {
+		font-size: 24rpx;
 		box-sizing: border-box;
 		white-space: nowrap;
 		overflow: hidden;
@@ -374,11 +375,11 @@
 		display: -webkit-box;
 		-webkit-box-orient: vertical;
 		-webkit-line-clamp: 2;
-		font-size: 28rpx;
+		font-size: 30rpx;
 		line-height: 32rpx;
 	}
 	.tui-goods-attr {
-		font-size: 22rpx;
+		font-size: 24rpx;
 		color: #888888;
 		line-height: 32rpx;
 		padding-top: 5rpx;

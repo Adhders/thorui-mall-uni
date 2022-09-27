@@ -2,11 +2,12 @@
     <tui-bottom-popup :show="popupShow" @close="hidePopup">
         <view class="tui-popup-box">
 			<view class="tui-product-box tui-padding">
-				<image :src="goodsDetail.defaultImageUrl" class="tui-popup-img"  mode="aspectFill"></image>
+				<image :src="sku.src? sku.src : goodsDetail.defaultImageUrl" class="tui-popup-img"  mode="aspectFill"></image>
 				<view class="tui-price-box">
 					<view class="tui-popup-price">
 						<view class="tui-amount tui-bold">￥{{goodsDetail.price}}</view>
-						<view class="tui-number">已选择: {{selectedGoodsAttrList | attrFormat}}</view>
+						<view class="tui-number" v-if="unSelect.length==0">已选择: {{skuSpecValueList | attrFormat}}</view>
+                        <view class="tui-number" v-else>请选择: {{unSelect.join(' ')}}</view>
 					</view>
 					<tui-numberbox style="flex-direction: row;" :max="99" :min="1" :value="buyNum" @change="change"></tui-numberbox>
 				</view>
@@ -16,11 +17,9 @@
 					<view v-for="(item, i) in propsList" :key=i>
 						<view class="tui-bold tui-attr-title">{{item.name}}</view>
 						<view class="tui-attr-box">
-							<view class="tui-attr-item"
-								v-for="(value, j) in item.values" :key=j
-									@tap="onSelect(i,j)"
-								:class="{ 'tui-attr-active': selectedIndex[i]===j, 'invalid': isInvalid(i,j)}">
-									{{value}}
+							<view class="tui-attr-item" v-for="(value, j) in item.values" :key=j
+									@tap="onSelect(i,j)" :class="{'tui-attr-active': selectedIndex[i]===j, 'invalid': isInvalid(i,j)}">
+								{{value}}
 							</view>
 						</view>
 					</view>
@@ -46,14 +45,15 @@ export default {
 	data() {
 		return {
             popupShow: false,
+            unSelect: [],
             buyNum: 1,
+            sku: {src: ''},
+            defaultImageUrl: '',
             skuList: [],
-            skuArray: [], 
             propsList: [], //商品属性
-            invalidSkuList: [],
             invalidSkuIndexList: [],
             selectedIndex: [],
-            selectedGoodsAttrList: [], //商品去重后的属性
+            skuSpecValueList: [], //商品去重后的属性
 			goodsDetail: {selectedGoodsPropList: []},
         }
 	},
@@ -69,93 +69,72 @@ export default {
     computed: {
         goodsList() {
             return this.$store.state.goodsList
+        },
+        cart() {
+            return this.$store.state.cart
         }
     },
     methods: {
-        initial(spu_id, id){
-			this.skuList = this.goodsList.filter((o)=>{return o.spu_id === spu_id})
-			if(this.skuList.length===0){
-				uni.redirectTo({url: '/pages/index/invalidProduct/invalidProduct'})
-			}
-			if(id){
-                let index = this.skuList.findIndex((o)=>{return o.id === id})
-				if(index === -1){
-					uni.redirectTo({url: '/pages/index/invalidProduct/invalidProduct'})
-				}else{
-					this.goodsDetail = this.skuList[index]
-				}
-			}else{
-				this.goodsDetail = this.skuList[0]
-			}
-			let attrs = {}
-			this.goodsDetail.selectedGoodsAttrList.forEach(v=>{
-				if(!attrs[v.name]){
-					attrs[v.name] = v.value
-				}
-			})
-			this.selectedGoodsAttrList=Object.keys(attrs).map((i)=>{
-				return { 'name': i, 'value': attrs[i] }
-			}); //对象转数组   
-
+        initial(id){
+            let index = this.goodsList.findIndex((o)=>{return o.id == id})
+            if(index === -1){
+                uni.redirectTo({url: '/pages/index/invalidProduct/invalidProduct'})
+            }else{
+                this.goodsDetail = this.goodsList[index]
+                this.skuList=this.goodsDetail.skuList
+                this.sku = this.skuList[0]
+            }
 			this.$nextTick(()=>{
 				let attrs = {}
-				this.skuList.forEach((o) => {
-					o.selectedGoodsAttrList.forEach(v=>{
-						if(attrs[v.name]){
-							attrs[v.name].add(v.value)
-						}else{
-							attrs[v.name] = new Set([v.value])
-						}
-					})
-				})
+                this.goodsDetail.selectedGoodsAttrList.forEach(attr=>{
+                    if(attr[0] in attrs){
+                        attrs[attr[0]].push(attr[1])
+                    }else{
+                        attrs[attr[0]] = [attr[1]]
+                    }
+                })
 				this.propsList = Object.keys(attrs).map((i)=>{
 					return { 'name': i, 'values': Array.from(attrs[i])}
 				}); //对象转数组
-                let skuArray = []
-				this.propsList.forEach((o)=>{
-					let skuValues = o.values.map((v)=>{return { 'name': o.name, 'value': v }})
-					skuArray.push(skuValues)
-				})
-                this.skuArray = skuArray
-
-				this.invalidSkuList = this.verify() // 获取失效sku列表invalidList
-                let invalidSkuIndexList = [] // 获取失效sku列表invalidList 的索引
-			    this.invalidSkuList.forEach((o)=>{ 
-					let indexList = []
-					o.forEach((v)=>{
-						let prop = JSON.parse(v)
-						indexList.push(Array.from(attrs[prop.name]).indexOf(prop.value)) 
-					})
-					invalidSkuIndexList.push(JSON.stringify(indexList))
-				})
-                this.invalidSkuIndexList = invalidSkuIndexList
-				let labelNames = Object.keys(attrs)
+                // console.log('propsList', this.propsList)
+                this.invalidSkuIndexList = this.verify() // 获取失效sku的索引
+                // console.log('invalidSkuIndexList', this.invalidSkuIndexList)
+                // 默认第一个属性
 				this.selectedIndex = new Array(this.propsList.length).fill(0)
-				this.selectedGoodsAttrList.forEach((o)=>{
-                    let i = labelNames.indexOf(o.name)
-                    this.selectedIndex[i] = this.propsList[i].values.indexOf(o.value) 
-				})
-                this.$emit('select', this.goodsDetail, this.selectedGoodsAttrList)
+                this.skuSpecValueList = this.sku.skuSpecValueList
+                this.$emit('select', this.goodsDetail, this.skuSpecValueList, this.unSelect)
 			}) 
         },
         onSelect(i,j){
             if(!this.isInvalid(i,j)){
-                this.selectedIndex[i]=j
-                let attr = new Array()
-                let selectedGoodsAttrList = []
-                this.propsList.forEach((o, index)=>{
-                    let res = {name: o.name, value: o.values[this.selectedIndex[index]]}
-                    selectedGoodsAttrList.push(res)
-                    attr.push(JSON.stringify(res))
+                if (this.selectedIndex[i]===j){
+                    this.selectedIndex[i]=-1
+                    this.sku = this.skuList[0]
+                }else{
+                    this.selectedIndex[i]=j
+                    if(this.selectedIndex.indexOf(-1)==-1){
+                        let skuSpecValueList = []
+                        this.propsList.forEach((o, index)=>{
+                            let res = {name: o.name, value: o.values[this.selectedIndex[index]]}
+                            skuSpecValueList.push(res)
+                        })
+                        this.sku = this.skuList.find((_sku)=>{
+                            let s1 = _sku.skuSpecValueList.map((o)=>{return o.value})
+                            let s2 = skuSpecValueList.map((o)=>{return o.value})
+                            return s1.toString()==s2.toString()
+                        })
+                        this.skuSpecValueList = skuSpecValueList
+                    }
+                }
+                // 更新没选中列表
+                let res = []
+                this.selectedIndex.forEach((i, index)=>{
+                    if(i==-1){ res.push(this.propsList[index].name) }
                 })
-                this.selectedGoodsAttrList = selectedGoodsAttrList
-                let skuIndex = this.skuList.findIndex(o=>{
-                    let intersection = o.selectedGoodsAttrList.filter((v) =>
-                    attr.includes(JSON.stringify(v))) //计算交集  
-                    return intersection.length === attr.length
-                })
-                this.goodsDetail = this.skuList[skuIndex]
-                this.$emit('select', this.goodsDetail, this.selectedGoodsAttrList)
+                this.unSelect = res
+                this.goodsDetail.price = this.sku.price
+                this.goodsDetail.originalPrice = this.sku.originalPrice
+                this.$emit('select', this.goodsDetail, this.skuSpecValueList, this.unSelect)
             }else{
                 this.tui.toast('该规格已售罄')
             }
@@ -163,37 +142,20 @@ export default {
         isInvalid(i,j){
             let selectedIndex = JSON.parse(JSON.stringify(this.selectedIndex))
             selectedIndex[i]=j
-            return this.invalidSkuIndexList.includes(JSON.stringify(selectedIndex))
+            if (-1 in selectedIndex){
+                return false
+            }else{
+                return this.invalidSkuIndexList.includes(selectedIndex.toString())
+            }
         },
-        // 计算商品sku笛卡尔积
-        calcDescartes(array) {
-            if (array.length < 2) return array[0].map((o)=>{return new Array(o)}) || [];
-            return array.reduce((total, currentValue) => {
-                let res = [];
-                total.forEach(t => {
-                    currentValue.forEach(cv => {
-                        if (t instanceof Array) // 或者使用 Array.isArray(t)
-                        res.push([...t, cv]);
-                        else
-                        res.push([t, cv]);
-                    })
-                })
-                return res;
-            })
-        },
-        //验证商品sku是否失效
         verify(){
             let res = []
-            let descartes = this.calcDescartes(this.skuArray)
-            descartes.forEach((m)=>{
-                let attr = []
-                m.forEach((n)=>{attr.push(JSON.stringify(n))})
-                let skuIndex = this.skuList.findIndex(o=>{
-                let intersection = o.selectedGoodsAttrList.filter((v) =>
-                    attr.includes(JSON.stringify(v)))   
-                return intersection.length === attr.length})
-                if(skuIndex===-1){
-                    res.push(attr)
+            this.skuList.forEach((v)=>{
+                if(v.stock<=0){
+                    let indexList = v.skuSpecValueList.map((attr, index)=>{
+                        return this.propsList[index].values.indexOf(attr.value)
+                    })
+                    res.push(indexList.toString())
                 }
             })
             return res
@@ -206,48 +168,58 @@ export default {
             this.$emit('change', e)
         },
         addCart() {
-            let newGoods = {
-                id: this.goodsDetail.id,
-                spu_id: this.goodsDetail.spu_id,
-                price: this.goodsDetail.price,
-                integerPrice: this.goodsDetail.integerPrice,
-                decimalPrice: this.goodsDetail.decimalPrice,
-                title: this.goodsDetail.title,
-                slogan: this.goodsDetail.slogan,
-                defaultImageUrl: this.goodsDetail.defaultImageUrl,
-                propertyList: this.selectedGoodsAttrList,
-                buyNum: this.buyNum,
-            }
-            if(!this.tui.isLogin()) {
-                uni.navigateTo({url: '/pages/my/login/login'})
+            if(this.unSelect.length>0){
+                this.tui.toast(`请选择: ${this.unSelect.join(' ')}`)
             }else{
-                let url = '/updateCustomer/' + uni.getStorageSync("pid") +'/addCart'
-                this.tui.request(url, 'PUT', {'newGoods': newGoods}).then(res=>{
-                        if(res.code==='0'){
-                            this.$emit('add', newGoods)
-                            this.tui.toast('成功添加到购物车')
-                        }
+                let newGoods = {
+                    id: this.goodsDetail.id,
+                    skuId: this.sku.skuId,
+                    price: this.sku.price,
+                    title: this.goodsDetail.title,
+                    slogan: this.goodsDetail.slogan,
+                    defaultImageUrl: this.sku.src? this.sku.src : this.goodsDetail.defaultImageUrl,
+                    propertyList: this.skuSpecValueList,
+                    buyNum: this.buyNum,
+                    invalid: this.sku.stock<=0, 
+                    select: false
+                }
+                if(!this.tui.isLogin()) {
+                    uni.navigateTo({url: '/pages/my/login/login'})
+                }else{
+                    let url = '/updateCustomer/' + uni.getStorageSync("pid") +'/updateCart'
+                    let index = this.cart.findIndex((o)=>{return o.skuId === newGoods.skuId})
+                    if(index===-1){
+                        this.cart.unshift(newGoods)
+                    }else{
+                        this.cart[index].buyNum +=newGoods.buyNum
                     }
-                )
+				    this.tui.request(url, 'PUT', {'cart': this.cart}).then((res)=>{
+                        if(res.code==0){
+                            this.tui.toast('添加成功')
+                        }
+                    })
+                }
+                this.popupShow = false;
             }
-            this.popupShow = false;
         },
         submit() {
-            this.popupShow = false;
-            let goods = [{
-                id: this.goodsDetail.id,
-                spu_id: this.goodsDetail.spu_id,
-                price: this.goodsDetail.price,
-                integerPrice: this.goodsDetail.integerPrice,
-                decimalPrice: this.goodsDetail.decimalPrice,
-                title: this.goodsDetail.title,
-                slogan: this.goodsDetail.slogan,
-                defaultImageUrl: this.goodsDetail.defaultImageUrl,
-                propertyList: this.selectedGoodsAttrList,
-                buyNum: this.buyNum,
-            }]
-            let url = "/pages/order/submitOrder/submitOrder?mode=''&goods=" + JSON.stringify(goods)
-            this.tui.href(url, true);
+            if(this.unSelect.length>0){
+                this.tui.toast(`请选择: ${this.unSelect.join(' ')}`)
+            }else{
+                this.popupShow = false;
+                let goods = [{
+                    id: this.goodsDetail.id,
+                    skuId: this.sku.skuId,
+                    price: this.sku.price,
+                    title: this.goodsDetail.title,
+                    slogan: this.goodsDetail.slogan,
+                    defaultImageUrl: this.sku.src? this.sku.src : this.goodsDetail.defaultImageUrl,
+                    propertyList: this.skuSpecValueList,
+                    buyNum: this.buyNum,
+                }]
+                let url = "/pages/order/submitOrder/submitOrder?mode=''&goods=" + JSON.stringify(goods)
+                this.tui.href(url, true);
+            }
         },
     }
 };

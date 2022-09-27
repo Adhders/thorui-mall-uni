@@ -40,9 +40,9 @@
 					}
 				}else{
 					if(this.type==='detail'){
-                    	this.tui.href('/pages/index/productDetail/productDetail?spu_id=' + goods.spu_id + '&sku_id=' + goods.id)
+                    	this.tui.href('/pages/index/productDetail/productDetail?spu_id=' + goods.id)
 					}else if(this.type=='groupDetail'){
-						this.tui.href('/pages/index/groupDetail/groupDetail?spu_id=' + goods.spu_id + '&sku_id=' + goods.id + '&activity_id=' + order.activity)
+						this.tui.href('/pages/index/groupDetail/groupDetail?spu_id=' + goods.id + '&activity_id=' + order.activity)
 					}else if(this.type=='group'){
 						this.tui.href(`/pages/my/myGroupDetail/myGroupDetail?groupOrder=${JSON.stringify(order)}`);
 					}
@@ -98,7 +98,7 @@
 	}
 
 	.tui-goods-attr {
-		font-size: 22rpx;
+		font-size: 24rpx;
 		color: #888888;
 		line-height: 32rpx;
 		padding-top: 5rpx;

@@ -50,7 +50,7 @@
 			</view>
 			<view class="tui-header-btm">
 				<view class="tui-btm-item">
-					<view class="tui-btm-num">0</view>
+					<view class="tui-btm-num"  @tap="href('')">0</view>
 					<view class="tui-btm-text">收藏夹</view>
 				</view>
 				<view class="tui-btm-item">
@@ -58,11 +58,11 @@
 					<view class="tui-btm-text">优惠券</view>
 				</view>
 				<view class="tui-btm-item">
-					<view class="tui-btm-num">0</view>
+					<view class="tui-btm-num" @tap="href('')">0</view>
 					<view class="tui-btm-text">积分</view>
 				</view>
 				<view class="tui-btm-item">
-					<view class="tui-btm-num">44</view>
+					<view class="tui-btm-num" @tap="href('')">0</view>
 					<view class="tui-btm-text">足迹</view>
 				</view>
 			</view>
@@ -159,7 +159,7 @@
 					</view>
 				</tui-list-cell>
 				<view class="tui-order-list tui-flex-wrap">
-					<view class="tui-tool-item">
+					<view class="tui-tool-item"  @tap="href('')">
 						<view class="tui-icon-box">
 							<image src="https://system.chuangbiying.com/static/images/mall/my/icon_gift_3x.png" class="tui-tool-icon"></image>
 							<image src="https://system.chuangbiying.com/static/images/mall/my/icon_tab_3x.png" class="tui-badge-icon"></image>
@@ -268,6 +268,7 @@
 				if(pid){
 					let url = '/queryUserInfo/' + pid
 					this.tui.request(url).then((res)=>{
+						// console.log('res', res)
 						if(fresh){ //下拉刷出新
 							wx.hideNavigationBarLoading() //完成停止加载
 							wx.stopPullDownRefresh() //停止下拉刷新
@@ -282,14 +283,16 @@
 								key: 'pid',
 								data: decoded.pid,
 							})
+							let userInfo =  res.userInfo
 							uni.setStorage({
 								key: 'userInfo',
-								data: decoded.userInfo,
+								data: userInfo,
 							})
 							this.$store.commit('login', true)
 							this.$store.commit('setOrderState', res.orderState)
-							this.$store.commit('setUserInfo', decoded.userInfo)
-							this.$store.commit('setReviewLikes', res.reviewLikes)
+							this.$store.commit('setUserInfo', userInfo)
+							this.$store.commit('setCart', userInfo.cart)
+							this.$store.commit('setAddress', userInfo.addressList)
 						}
 						else{
 							this.userInfo.nickName=''
@@ -309,6 +312,7 @@
 				const pid = uni.getStorageSync("pid")
 				const url = '/getPhoneNumber/'+ this.appid + '/' + pid
                 this.tui.request(url, 'POST', data).then(res=>{
+					console.log('res', res)
 					this.userInfo.phone=res.phone
 				}).catch(err => {console.log('err', err)})
             },

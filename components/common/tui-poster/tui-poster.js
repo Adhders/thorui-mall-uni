@@ -85,14 +85,14 @@ const poster = {
 		for (let i = 0; i < row.length; i++) {
 			context.fillText(row[i], uni.upx2px(20 * scaleRatio), uni.upx2px(540 * scaleRatio) + a * i)
 		}
-		let h = 540 + 40*row.length
+		let h = 560 + 40*row.length
 		// 识别小程序二维码 
 		let x = winWidth - uni.upx2px(30 + 130) * scaleRatio;
-		context.drawImage(imgs.qrcode, x, uni.upx2px(h* scaleRatio), uni.upx2px(130 * scaleRatio), uni.upx2px(130 *
+		context.drawImage(imgs.qrcode, x, uni.upx2px((h-10)* scaleRatio), uni.upx2px(130 * scaleRatio), uni.upx2px(130 *
 			scaleRatio))
 		context.setFillStyle("#999999")
 		context.setFontSize(uni.upx2px(22 * scaleRatio))
-		row = poster.wrapText(slogan, Math.floor(w-140), context, 4)
+		row = poster.wrapText(slogan, Math.floor(w-140), context, 2)
 		a = uni.upx2px(32 * scaleRatio) //定义行高
 		for (let i = 0; i < row.length; i++) {
 			context.fillText(row[i], uni.upx2px(20* scaleRatio), uni.upx2px(h * scaleRatio) + a * i)
@@ -111,17 +111,18 @@ const poster = {
 		context.fillText(`.${priceArr[1]}`, uni.upx2px(50 * scaleRatio) + w1, uni.upx2px(h2 * scaleRatio))
 		context.setFillStyle("#999999")
 		context.setFontSize(uni.upx2px(24 * scaleRatio))
-		let w2 = uni.upx2px(70 * scaleRatio) + w1 + (poster.getTextWidth(`.${priceArr[1]}`, context) || 32)
-		context.fillText(`￥${originalPrice}`, w2, uni.upx2px(h2 * scaleRatio))
-		context.moveTo(w2, uni.upx2px((h2-8) * scaleRatio))
 		if(originalPrice){
+			let w2 = uni.upx2px(70 * scaleRatio) + w1 + (poster.getTextWidth(`.${priceArr[1]}`, context) || 32)
+			context.fillText(`￥${originalPrice}`, w2, uni.upx2px(h2 * scaleRatio))
+			context.moveTo(w2, uni.upx2px((h2-8) * scaleRatio))
 			context.lineTo((w2 + 12* scaleRatio + 10*(originalPrice.indexOf('.')!==-1? originalPrice.length-1: originalPrice.length) * scaleRatio), uni.upx2px((h2-8) * scaleRatio))
 			context.setStrokeStyle('#999999')
 		}
 		context.stroke(); //对当前路径进行描边
 
-		// context.setFontSize(uni.upx2px(24 * scaleRatio))
-		// context.fillText('长按识别·立即体验', uni.upx2px(40 * scaleRatio), uni.upx2px(835 * scaleRatio))
+		context.setFontSize(uni.upx2px(24 * scaleRatio))
+		context.fillText('长按识别·立即体验', uni.upx2px(20 * scaleRatio), uni.upx2px(760* scaleRatio))
+		context.setFillStyle("#999999")
 		context.draw(false, () => {
 			poster.createPoster(canvasId, winWidth, winHeight, (res) => {
 				callback && callback(res)

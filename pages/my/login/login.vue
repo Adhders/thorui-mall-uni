@@ -71,8 +71,7 @@
 											key: 'pid',
 											data: decoded.pid,
 										})
-										userInfo.phone = decoded.userInfo.phone
-										userInfo.defaultAddress = decoded.userInfo.defaultAddress
+										userInfo = res.userInfo
 										uni.setStorage({
 											key: 'userInfo',
 											data: userInfo,
@@ -80,7 +79,8 @@
 					                    _this.$store.commit('login', true)
 										_this.$store.commit('setUserInfo', userInfo)
 										_this.$store.commit('setOrderState', res.orderState)
-										_this.$store.commit('setReviewLikes', res.reviewLikes)
+										_this.$store.commit('setAddress', userInfo.addressList)
+										_this.$store.commit('setCart', userInfo.cart)
 										uni.navigateBack({delta: 1})
 									}else{
 										uni.showToast({

@@ -2,14 +2,15 @@
 	<view class="container">
 		<image :src="webURL+'/static/images/mall/coupon/banner_coupon.png'" mode="widthFix" class="tui-coupon-banner"></image>
 		<view class="tui-coupon-list">
-			
+			<tui-nomore text="没有可用的购物券" backgroundColor="#f7f7f7"></tui-nomore>
+<!-- 			
 			<view class="tui-coupon-item tui-top20" v-for="(item,index) in couponList" :key="index">
 				<image :src="webURL+'/static/images/mall/coupon/bg_coupon_3x.png'" class="tui-coupon-bg" mode="widthFix"></image>
 				<image :src="webURL+getSignUrl(index)" class="tui-coupon-sign" v-if="index!=0 && index !=2"></image>
 				<view class="tui-coupon-item-left">
 					<view class="tui-coupon-price-box" :class="{'tui-color-grey':index>2}">
 						<view class="tui-coupon-price-sign" v-if="index%2==0">￥</view>
-						<!--tui-price-small 面值>4位数的时候为true-->
+						tui-price-small 面值>4位数的时候为true
 						<view class="tui-coupon-price" :class="{'tui-price-small':false}">{{index%2==0?100*(index+1):9}}</view>
 						<view class="tui-coupon-price-sign" v-if="index%2!=0">折</view>
 					</view>
@@ -36,8 +37,8 @@
 				<view class="tui-btn-box" v-if="index<=2">
 					<tui-button type="danger" width="152rpx" height="52rpx" :size="24" shape="circle" :plain="index%2!=0">{{index%2!=0?'立即使用':'立即领取'}}</tui-button>
 				</view>
-			</view>
-			<radio-group>
+			</view> -->
+			<!-- <radio-group>
 				<label v-for="(item,index) in couponList" :key="index">
 					<view class="tui-coupon-item tui-top20">
 						<image :src="webURL+'/static/images/mall/coupon/bg_coupon_3x.png'" class="tui-coupon-bg" mode="widthFix"></image>
@@ -70,7 +71,7 @@
 						</view>
 					</view>
 				</label>
-			</radio-group>
+			</radio-group> -->
 		</view>
 
 		<!--加载loadding-->

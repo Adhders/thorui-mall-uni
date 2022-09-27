@@ -188,13 +188,13 @@
 		</view>
 		<tui-modal :show="isShow" @cancel="onCancel" :custom="true">
 			<view class="tui-modal-custom">
-				<image :src=selectedImg class="tui-tips-img"></image>
+				<image :src=selectedImg class="tui-tips-img" mode="aspectFill"></image>
 				<view class="tips-title">
 					<view class="tui-modal-custom-text">确认收到货了吗？</view>
 					<view class="tui-modal-custom-text subTitle">为保障售后权益，请检查后再确认收货</view>
 				</view>
 				<view class="btn-block">
-					<tui-button class="btn cancel" height="72rpx" :size="28" shape="circle" @click="onCancel">取消</tui-button>
+					<tui-button class="btn" height="72rpx" type="gray-danger" :size="28" shape="circle" @click="onCancel">取消</tui-button>
 					<tui-button class="btn" height="72rpx" :size="28" type="danger" shape="circle" @click="onConfirm">确认收货</tui-button>
 				</view>
 			</view>
@@ -218,6 +218,7 @@
 				//1-待付款 2-付款成功 3-待收货 4-订单已完成 5-交易关闭
 				status: 2,
 				selectedOrder : '',
+				selectedImg: '',
 				isShow: false,
 				isDelete: false,
 				order: {
@@ -297,6 +298,9 @@
 			remind() {
                 this.tui.toast('待开发')
 			},
+			onCancel(){
+				this.isShow = false
+			},
 			pay(order) {
 				let _this = this
 				let result = order.paymentInfo
@@ -308,22 +312,17 @@
 					signType: result.signType,
 					paySign: result.paySign,
 					success: function () {
-						let goodsList = []
-						order.goodsList.forEach((o)=>{
-							goodsList.push({id: o.id, 'buyNum': o.buyNum})
-								
-						})
 						if(order.mode==='groupBuy'){
 							let url = '/addActivityOrder/' + uni.getStorageSync("pid") + '/' + order.orderNum
 							_this.tui.request(url, 'POST', order.activity).then()
 							//更新活动商品库存
-							_this.tui.request('/updateGoodsStock/activity', 'PUT', goodsList)
+							_this.tui.request('/updateGoodsStock/activity', 'PUT', order.goodsList)
 						}else{
 							let url = '/updateOrder/' + order.orderNum + '/' + 'payment'
-							order.status = '待评价'
-							_this.tui.request(url, 'PUT', {status: "待评价"}).then()
+							order.status = '待发货'
+							_this.tui.request(url, 'PUT', {status: "待发货"}).then()
 							//更新商品库存
-							_this.tui.request('/updateGoodsStock/', 'PUT', goodsList)
+							_this.tui.request('/updateGoodsStock/', 'PUT', order.goodsList)
 						}
 						_this.tui.href("/pages/order/success/success")},
 					fail: function (err) {
@@ -347,23 +346,28 @@
 							this.status = this.getStatus("交易关闭")
 						}else if(res.code===400){
 							let index =  this.orderList.findIndex((o)=>{ return o.orderNum === order.orderNum})
-							this.orderList[index].status = "待评价"
 							this.tui.toast('无法取消订单，该订单已支付成功')
 							if(order.mode==='groupBuy'){
+								this.orderList[index].status = "拼团中"
 								let url = '/addActivityOrder/' + uni.getStorageSync("pid") + '/' + order.orderNum
-								_this.tui.request(url, 'POST', order.activity).then()
+								this.tui.request(url, 'POST', order.activity).then()
 								//更新活动商品库存
-								_this.tui.request('/updateGoodsStock/activity', 'PUT', goodsList)
-								order.status = "拼团中"
+								this.tui.request('/updateGoodsStock/activity', 'PUT', order.goodsList)
 							}else{
-								order.status = "待评价"
-								this.status = this.getStatus("待评价")
+								this.orderList[index].status = "待评价"
+								this.tui.request('/updateGoodsStock/', 'PUT', order.goodsList)
 							}
 						}
 						else{
 							this.tui.toast(res.message)
 						}
 				})
+			},
+			onConfirm(){
+				this.addEvaluate(this.selectedOrder, 'first')
+				this.selectedOrder = null
+				this.selectedImg = ''
+				this.isShow=false
 			},
 			onDelete(order){
 				this.selectedOrder = order
@@ -386,6 +390,7 @@
 				this.tui.href('/pages/my/refundList/refundList?order=' + encodeURIComponent(JSON.stringify(order)))
 			},
 			onReceipt(order){  
+				console.log('receipt', order)
 				this.selectedOrder = order
 				this.selectedImg = order.goodsList[0].defaultImageUrl
 				this.isShow=true
@@ -405,7 +410,7 @@
 	}
 </script>
 
-<style>
+<style lang="less" scoped>
 	.container {
 		padding-bottom: 118rpx;
 	}
@@ -677,5 +682,29 @@
 		width: 36rpx;
 		height: 36rpx;
 		margin-right: 16rpx;
+	}
+	.tui-tips-img{
+		width: 300rpx;
+		height: 300rpx;
+		margin: 0 auto;
+		display: block;
+		border-radius: 8rpx;
+	}
+	.tips-title{
+		display: block;
+		text-align: center;
+		padding: 20px 0;
+		.subTitle{
+			margin-top: 5px;
+			font-size: 14px;
+			color: #999;
+		}
+	}
+	.btn-block {
+		display: flex;
+		justify-content: space-between;
+		.btn{
+			width: 46% !important;
+		}
 	}
 </style>

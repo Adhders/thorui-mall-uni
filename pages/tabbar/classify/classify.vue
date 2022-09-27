@@ -154,7 +154,7 @@ export default {
 		},
 		detail(item){
 			uni.navigateTo({
-				url: '/pages/index/productDetail/productDetail?spu_id=' + item.spu_id + '&sku_id=' + item.id
+				url: '/pages/index/productDetail/productDetail?spu_id=' + item.id
 			})
 		},
 		search: function() {
@@ -185,7 +185,7 @@ export default {
 			}
 		},
 		onSelect(goods){
-			this.tui.href('/pages/index/productDetail/productDetail?spu_id=' + goods.spu_id + '&sku_id=' + goods.id + '&buy=true')
+			this.tui.href('/pages/index/productDetail/productDetail?spu_id=' + goods.id + '&buy=true')
 		},
 	}
 };

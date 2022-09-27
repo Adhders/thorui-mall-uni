@@ -71,8 +71,7 @@
 			let url =  '/upload/token/' + this.bucket_image
             this.tui.request(url)
                 .then(response => {
-                    this.uptoken=response.token
-					this.formData={'token': this.uptoken}
+					this.formData={'token': response.token}
                 })
                 .catch(error => {
                     console.log(error.response)
@@ -86,8 +85,9 @@
 			this.orderNum = order.orderNum
 			this.postData.reviewState = JSON.parse(JSON.stringify(order.reviewState))
 			this.postData.reviewState[this.index].count +=1
+			this.postData.orderNum = this.orderNum
 			if (this.mode==='first'){
-				this.spu_id = goods.spu_id
+				this.spu_id = goods.id
 				this.postData.specs = this.getProperty(goods.propertyList)
 				this.postData.name = this.userInfo.nickName
 				this.postData.avatar = this.userInfo.avatarUrl
@@ -122,12 +122,13 @@
 				let url = ''
 				let method = 'POST'
 				if (this.mode==='first'){
-					url = '/addGoodsReview/' + this.spu_id + '/' + pid + '/' + this.orderNum + '/' + this.index
+					url = '/addGoodsReview/' + this.spu_id + '/' + pid + '/' + this.index
 				}else{
 					method = 'PUT'
 					url = '/updateGoodsReview/' + this.postData.reviewState[this.index].id + '/additional'
 				}
 				this.tui.request(url, method, this.postData).then(res=>{
+					console.log('res', res)
 					if(res.code==='0') {
 						let orderList = this.$store.state.orderList
 						let index =  orderList.findIndex(o=>{return o.orderNum === this.orderNum})
@@ -142,6 +143,8 @@
 						}
 						this.tui.toast('评论成功');
 						setTimeout(()=>{uni.navigateBack({delta: 1})}, 500)
+					}else{
+						this.tui.toast('评论失败');
 					}
 				})
 			}

@@ -137,7 +137,7 @@
 				return this.$store.state.currentReview
 			},
 			reviewLikes(){
-				return this.$store.state.reviewLikes
+				return this.$store.state.userInfo.reviewLikes
 			}
 		},
 		methods: {
@@ -167,7 +167,7 @@
 					let url = '/updateGoodsReview/' + this.reviewDetail.id + '/reply'
 					this.tui.request(url,'PUT', {'likes': this.reviewDetail.likes, 'children': this.reviewDetail.children}).then(res=>{})
 					let customer_url =  "/updateCustomer/" +  uni.getStorageSync("pid") + '/reviewLikes'
-					this.tui.request(customer_url, 'PUT', {'reviewLikes': id}).then(res=>{})
+					this.tui.request(customer_url, 'PUT', {'reviewLikes': this.reviewLikes}).then(res=>{})
 				}
 			},
 			reply(index) {

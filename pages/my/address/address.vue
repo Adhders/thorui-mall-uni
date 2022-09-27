@@ -1,8 +1,7 @@
 <template>
 	<view class="tui-safe-area">
-		<tui-loading :fixed="false" v-if="loadding"></tui-loading>
-		<view v-else>
-			<view class="tui-address" v-if="addressList.length>0">
+	
+		<view class="tui-address" v-if="addressList.length>0">
 			<tui-radio-group>
 				<tui-label v-for="(address,index) in addressList" :key="index" @click="onChange(index)">
 					<view class="tui-align__center">
@@ -33,16 +32,15 @@
 					</view>
 				</tui-label>
 			</tui-radio-group>
-		</view>
 			<!-- 新增地址 -->
 			<view class="tui-address-new" v-if="addressList.length>0">
 				<tui-button shadow shape="circle" type="danger" @click="addAddress">新增收货地址</tui-button>
 			</view>
-			<tui-no-data v-else imgUrl="https://system.chuangbiying.com/static/images/toast/img_nodata.png" @click="addAddress"  btnText="新建地址">
-				<text class="tui-color__black">您还没有地址哦！</text>
-				<!--如果需要自定义按钮，可在插槽中自定义，不使用默认按钮-->
-			</tui-no-data>
 		</view>
+		<tui-no-data v-else imgUrl="https://system.chuangbiying.com/static/images/toast/img_nodata.png" @click="addAddress"  btnText="新建地址">
+			<text class="tui-color__black">您还没有地址哦！</text>
+			<!--如果需要自定义按钮，可在插槽中自定义，不使用默认按钮-->
+		</tui-no-data>
 	</view>
 </template>
 
@@ -54,7 +52,6 @@
 			return {
 				pis: '',
 				select: false, //是否选择地址
-				loadding: true,
 				selectedAddress: '',
 				selectedIndex: 0,
 				actions: [{
@@ -79,22 +76,13 @@
 				this.select=true
 			}
 			this.pid = uni.getStorageSync("pid")
-			const url = '/getAddressList/' + this.pid
-			this.tui.request(url,'GET', undefined, true).then((res)=>{
-				if(res.code==='0'){
-					this.loadding=false
-					if(this.select){ //初始化选择
-						res.addressList.forEach((o)=>{o.select=false})
-						let index = res.addressList.findIndex((o)=>{return o.detailInfo===options.detailInfo})
-						if(index!==-1){
-							res.addressList[index].select=true
-						}
-					}
-					this.$store.commit('setAddress', res.addressList)
+			if(this.select){ //初始化选择
+				this.addressList.forEach((o)=>{o.select=false})
+				let index = this.addressList.findIndex((o)=>{return o.detailInfo===options.detailInfo})
+				if(index!==-1){
+					this.addressList[index].select=true
 				}
-			}).catch(err=>{
-				console.log('err', err)
-			})
+			}
 		},
 		onShow(){
 			this.$forceUpdate()

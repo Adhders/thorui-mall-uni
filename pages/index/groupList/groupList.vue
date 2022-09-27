@@ -16,9 +16,12 @@
 			</view>
 			<view class="tui-screen__box">
 				<view class="tui-screen-item" :class="[tabIndex == -1 ? 'tui-active tui-bold' : '']" @tap="screen" data-index="-1">综合</view>
-				<view class="tui-screen-item" :class="[tabIndex == 0 ? 'tui-active tui-bold' : '']" data-index="0" @tap="screen">
+				<view class="tui-screen-item" :class="[tabIndex == 0 ? 'tui-active tui-bold' : '']" @tap="sortOnPrice">
 					<view>价格</view>
-					<tui-icon :name="selectH > 0 ? 'arrowup' : 'arrowdown'" :size="14" :color="tabIndex == 0 ? '#e41f19' : '#444'"></tui-icon>
+					<view class="tui-price-arrow">
+						<tui-icon name="arrowup" :size="12" bold :color="tabIndex == 0 && ascending? '#e41f18' : '#444'"></tui-icon>
+						<tui-icon name="arrowdown" :size="12" bold :color="tabIndex == 0 && !ascending? '#e41f18' : '#444'"></tui-icon>
+					</view>
 				</view>
 				<view class="tui-screen-item" :class="[tabIndex == 1 ? 'tui-active tui-bold' : '']" @tap="screen" data-index="1">销量</view>
 				<view class="tui-screen-item" @tap="screen" data-index="2">
@@ -29,16 +32,6 @@
 					<tui-icon name="screen" :size="12" color="#333" :bold="true"></tui-icon>
 				</view>
 
-				<!--下拉选择列表--综合-->
-				<view class="tui-dropdownlist" :class="[selectH > 0 ? 'tui-dropdownlist-show' : '']" :style="{ height: selectH + 'rpx' }">
-					<view class="tui-dropdownlist-item" :class="[item.selected ? 'tui-bold' : '']" v-for="(item, index) in dropdownList"
-					 :key="index" @tap.stop="dropdownItem" :data-index="index">
-						<text>{{ item.name }}</text>
-						<tui-icon name="check" :size="16" color="#e41f19" :bold="true" v-if="item.selected"></tui-icon>
-					</view>
-				</view>
-				<view class="tui-dropdownlist-mask" :class="[selectH > 0 ? 'tui-mask-show' : '']" @tap.stop="hideDropdownList"></view>
-				<!--下拉选择列表--综合-->
 			</view>
 		</view>
 		<!--screen-->
@@ -135,18 +128,10 @@
 				max: '',
 				selectH: 0,
 				searchKey: '',
-				dropdownList: [{
-						name: '价格升序',
-						selected: false
-					},
-					{
-						name: '价格降序',
-						selected: false
-					}
-				],
 				isList: false, //列表或大图
-				tabIndex: 0, //顶部筛选索引
+				tabIndex: -1, //顶部筛选索引
 				drawer: false,
+				ascending: false,
 				drawerH: 0,
 				tabbarHeight: uni.upx2px(100),
 				displayList: [],
@@ -222,42 +207,25 @@
 			screen: function(e) {
 				this.hideDropdownList();
 				let index = e.currentTarget.dataset.index;
-				console.log('index', index)
 				if (index == -1 || index == 1) {
 					this.tabIndex = index;
-					this.dropdownList.forEach((o)=>{o.select=false})
 					this.displayList = this.currentList.sort((a,b)=>{ return b.salesNum-a.salesNum})
-				} else if (index == 0) {
-					this.showDropdownList();
 				} else if (index == 2) {
 					this.isList = !this.isList;
 				} else if (index == 3) {
 					this.drawer = true;
 				}
 			},
-			showDropdownList: function() {
-				this.selectH = 176;
-			},
 			hideDropdownList: function() {
 				this.selectH = 0;
 			},
-			dropdownItem: function(e) {
-				let index = Number(e.currentTarget.dataset.index);
-				let arr = this.dropdownList;
-				for (let i = 0; i < arr.length; i++) {
-					if (i === index) {
-						arr[i].selected = true;
-					} else {
-						arr[i].selected = false;
-					}
-				}
-				this.dropdownList = arr;
+			sortOnPrice: function(e) {
 				this.tabIndex = 0;
-				this.selectH = 0;
-				if(index===0){
+				this.ascending = !this.ascending
+				if(this.ascending){
 					this.displayList = this.currentList.sort((a,b)=>{ return a.activityPrice-b.activityPrice })
 				}
-				else if(index===1){
+				else{
 					this.displayList = this.currentList.sort((a,b)=>{ return b.activityPrice-a.activityPrice })
 				}
 			},
@@ -340,9 +308,6 @@
 				this.displayList=this.currentList
 				this.drawer = false;
 				this.$forceUpdate()
-			},
-			detail() {
-				this.tui.href('/pages/index/groupDetail/groupDetail')
 			}
 		}
 	}
@@ -429,8 +394,6 @@
 		justify-content: center;
 	}
 
-
-
 	.tui-btmItem-active {
 		background-color: #fcedea !important;
 		color: #e41f19;
@@ -465,60 +428,13 @@
 
 	/*screen*/
 
-
-	/*顶部下拉选择 综合*/
-
-	.tui-dropdownlist {
-		width: 100%;
-		position: absolute;
-		background-color: #fff;
-		border-bottom-left-radius: 24rpx;
-		border-bottom-right-radius: 24rpx;
-		overflow: hidden;
-		box-sizing: border-box;
-		padding-top: 10rpx;
-		padding-bottom: 26rpx;
-		left: 0;
-		top: 80rpx;
-		visibility: hidden;
-		transition: all 0.2s ease-in-out;
-		z-index: 996;
-	}
-
-	.tui-dropdownlist-show {
-		visibility: visible;
-	}
-
-	.tui-dropdownlist-mask {
-		position: fixed;
-		top: 0;
-		left: 0;
-		right: 0;
-		bottom: 0;
-		background-color: rgba(0, 0, 0, 0.6);
-		z-index: -1;
-		transition: all 0.2s ease-in-out;
-		opacity: 0;
-		visibility: hidden;
-	}
-
-	.tui-mask-show {
-		opacity: 1;
-		visibility: visible;
-	}
-
-	.tui-dropdownlist-item {
-		color: #333;
-		height: 70rpx;
-		font-size: 28rpx;
-		padding: 0 40rpx;
-		box-sizing: border-box;
+	.tui-price-arrow {
 		display: flex;
+		flex-direction: column;
 		align-items: center;
-		justify-content: space-between;
+		justify-content: center;
+		line-height: 12rpx;
 	}
-
-	/*顶部下拉选择 综合*/
 
 
 	/*筛选*/
@@ -682,7 +598,7 @@
 	/*========商品 start======*/
 	.tui-product__box {
 		width: 100%;
-		padding: 194rpx 25rpx 60rpx 25rpx;
+		padding: 194rpx 16rpx 60rpx 16rpx;
 		box-sizing: border-box;
 	}
 </style>

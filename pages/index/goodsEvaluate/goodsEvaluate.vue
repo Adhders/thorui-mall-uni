@@ -111,15 +111,12 @@
 			intervalTime(v){
 				var new_date = new Date(); //新建一个日期对象，默认现在的时间
 				var old_date = new Date(v); //设置过去的一个时间点，"yyyy-MM-dd HH:mm:ss"格式化日期
-				
 				var difftime = (new_date - old_date)/1000; //计算时间差,并把毫秒转换成秒
-				
 				var days = parseInt(difftime/86400); // 天  
 				var hours = parseInt(difftime/3600); // 小时 
 				var minutes = parseInt(difftime/60); // 分钟
 				return days? days+'天': hours? hours + '小时' : minutes? minutes + '分钟': '1分钟' 
 			}
-	
 		},
 		onLoad(){
 			this.selectedType.image = this.reviewList.filter(v=>{ return v.imgs.length>0 }).length
@@ -135,6 +132,7 @@
 			})
 			let length = this.reviewList.length
 			this.goodRate = (length===0)? 100 : parseInt(count/length*100)
+			console.log('reviewLikes', this.reviewLikes)
 		},
 		watch: {
 			select(v) {
@@ -192,7 +190,7 @@
 							})
 			},
 			reviewLikes(){
-				return this.$store.state.reviewLikes
+				return this.$store.state.userInfo.reviewLikes
 			}
 		},
 		methods: {
@@ -228,7 +226,7 @@
 					let url = "/updateGoodsReview/" + id + '/likes'
 					this.tui.request(url, 'PUT', {'likes': count}).then(res=>{})
 					let customer_url =  "/updateCustomer/" +  uni.getStorageSync("pid") + '/reviewLikes'
-					this.tui.request(customer_url, 'PUT', {'reviewLikes': id}).then(res=>{})
+					this.tui.request(customer_url, 'PUT', {'reviewLikes': this.reviewLikes}).then(res=>{})
 				}
 			},
 			previewImage(index, current, additional) {

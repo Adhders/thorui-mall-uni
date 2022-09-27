@@ -87,7 +87,7 @@
 					</button>
 				</view>
 				<view class="tui-padding">
-					<view class="tui-size tui-gray">{{goodsDetail.slogan}}</view>
+					<view class="tui-size-26 tui-gray">{{goodsDetail.slogan}}</view>
 				</view>
 			</view>
 
@@ -417,8 +417,8 @@
 				sharePopup: false,
 				posterImg: '',
 				selectedGroup: '', //选择加入的分组
-				winWidth: uni.upx2px(560 * 2),
-				winHeight: uni.upx2px(890 * 2),
+				winWidth: uni.upx2px(460 * 2),
+				winHeight: uni.upx2px(800 * 2),
 				modalShow: false,
 				show: false,
 				mode: 'groupBuy', //购买方式
@@ -460,8 +460,9 @@
 				this.$refs.popup.initial(this.spu_id, this.sku_id, this.activity_id)
 			}
 
-			//是否再次购买
+			//是否拼团购买
             if(Boolean(options.buy)){ 
+				this.mode='groupBuy'
 				this.$refs.popup.popupShow = true
 			}
 
@@ -475,7 +476,6 @@
 			url = '/getActivityProductOrders/' + uni.getStorageSync("pid") + '/' + this.spu_id
 			this.tui.request(url).then(res=>{
 				if (res.code==='0'){
-				    console.log('res', res)
 					this.activityOrders = res.activityOrders
 					res.activityOrders.forEach((o)=>{
 						this.participants += o.participants
@@ -531,7 +531,6 @@
 		methods: {
 			onSelectGoods(goodsDetail, selectedGoodsAttrList){
 				this.goodsDetail = goodsDetail
-				console.log('goodsDetail', this.goodsDetail)
 				this.sku_id = this.goodsDetail.id
 				this.selectedGoodsAttrList = selectedGoodsAttrList
 				this.skeletonShow = false
@@ -583,7 +582,6 @@
 			},
 			showPopup(v, order){
 				this.mode=v
-				console.log('mode', v)
 				if(v=='service' || v=='property'){
 					this.popupShow = true
 				}else{
@@ -1198,8 +1196,12 @@
 				margin-right: 40rpx;
 			}
 		}
-		
+
+		.tui-popup-scroll {
+			margin-bottom: 60rpx;
+		}
 		.tui-popup-btn {
+			margin-top: 60rpx;
 			bottom: 0;
 			width: 94%;
 			position: absolute;

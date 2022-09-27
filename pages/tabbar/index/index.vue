@@ -190,9 +190,9 @@
 						}
 						break;
 					case '商品详情':
-						let spu_id = e.selectedLink.spu_id
+						// let spu_id = e.selectedLink.spu_id
 						let id = e.selectedLink.id
-						this.tui.href('/pages/index/productDetail/productDetail?spu_id=' + spu_id + '&sku_id=' + id)
+						this.tui.href('/pages/index/productDetail/productDetail?spu_id=' + id)
 						break;
 					case '自定义链接':
 						let customForm = e.customForm

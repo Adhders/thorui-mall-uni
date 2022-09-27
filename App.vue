@@ -4,6 +4,27 @@
 		onLaunch: function() {
 			// uni.hideTabBar()
 			// uni.showTabBar()
+			let that = this;
+			// #ifdef MP-WEIXIN
+			if (wx.canIUse('getUpdateManager')) {
+				const updateManager = wx.getUpdateManager();
+				updateManager.onCheckForUpdate(function(res) {
+					// 请求完新版本信息的回调
+					if (res.hasUpdate) {
+						updateManager.onUpdateReady(function() {
+							that.tui.modal('更新提示', '新版本已经上线啦~，为了获得更好的体验，建议立即更新', false, res => {
+								// 新的版本已经下载好，调用 applyUpdate 应用新版本并重启
+								updateManager.applyUpdate();
+							});
+						});
+						updateManager.onUpdateFailed(function() {
+							// 新的版本下载失败
+							that.tui.modal('更新失败', '新版本更新失败，为了获得更好的体验，请您删除当前小程序，重新扫码打开', false, res => {});
+						});
+					}
+				});
+			}
+			// #endif
 			const accountInfo = wx.getAccountInfoSync();
             this.globalData.appid = accountInfo.miniProgram.appId
 			this.$store.commit('setAppid', this.globalData.appid)
@@ -61,14 +82,16 @@
 								key: 'pid',
 								data: decoded.pid,
 							})
+							let userInfo = res.userInfo
 							uni.setStorage({
 								key: 'userInfo',
-								data: decoded.userInfo,
+								data: userInfo,
 							})
 							this.$store.commit('login', true)
-							this.$store.commit('setUserInfo', decoded.userInfo)
-							this.$store.commit('setReviewLikes', res.reviewLikes)
+							this.$store.commit('setUserInfo', userInfo)
+							this.$store.commit('setCart', userInfo.cart)
 							this.$store.commit('setOrderState', res.orderState)
+							this.$store.commit('setAddress', userInfo.addressList)
 						}
 					else{
 							this.$store.commit('login', false)
@@ -82,7 +105,6 @@
 				let url = '/getStoreSetting/' + this.globalData.appid
 				this.tui.request(url).then(res=>{
 					if (res.code === '0'){
-						// console.log('res', res)
 					}
 				})
 			},

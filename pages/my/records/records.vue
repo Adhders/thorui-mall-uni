@@ -51,77 +51,37 @@
 					data: []
 				}],
 				//模拟请求返回数据
-				requestData: [{
-					type: 1, //1-收入 2-支出
-					title: "充值收入",
-					time: "2019-05-12 11:53:06",
-					balance: '3006.50',
-					amount: '2000.00',
-					icon: 'icon_income_3x.png'
-				}, {
-					type: 1,
-					title: "充值收入",
-					time: "2019-05-12 11:53:06",
-					balance: '3006.50',
-					amount: '2000.00',
-					icon: 'icon_income_3x.png'
-				}, {
-					type: 2,
-					title: "交易支出",
-					time: "2019-05-12 11:53:06",
-					balance: '4206.50',
-					amount: '2500.00',
-					icon: 'icon_expend_3x.png'
-				}, {
-					type: 1,
-					title: "充值收入",
-					time: "2019-05-12 11:53:06",
-					balance: '3006.50',
-					amount: '2000.00',
-					icon: 'icon_income_3x.png'
-				}, {
-					type: 1,
-					title: "充值收入",
-					time: "2019-05-12 11:53:06",
-					balance: '3006.50',
-					amount: '2000.00',
-					icon: 'icon_income_3x.png'
-				}, {
-					type: 2,
-					title: "交易支出",
-					time: "2019-05-12 11:53:06",
-					balance: '4206.50',
-					amount: '2500.00',
-					icon: 'icon_expend_3x.png'
-				}, {
-					type: 2,
-					title: "交易支出",
-					time: "2019-05-12 11:53:06",
-					balance: '4206.50',
-					amount: '2500.00',
-					icon: 'icon_expend_3x.png'
-				}, {
-					type: 1,
-					title: "充值收入",
-					time: "2019-05-12 11:53:06",
-					balance: '3006.50',
-					amount: '2000.00',
-					icon: 'icon_income_3x.png'
-				}, {
-					type: 1,
-					title: "充值收入",
-					time: "2019-05-12 11:53:06",
-					balance: '3006.50',
-					amount: '2000.00',
-					icon: 'icon_income_3x.png'
-				}, {
-					type: 2,
-					title: "交易支出",
-					time: "2019-05-12 11:53:06",
-					balance: '4206.50',
-					amount: '2500.00',
-					icon: 'icon_expend_3x.png'
-				}]
+				requestData: [
+				// {
+				// 	type: 1, //1-收入 2-支出
+				// 	title: "充值收入",
+				// 	time: "2019-05-12 11:53:06",
+				// 	balance: '3006.50',
+				// 	amount: '2000.00',
+				// 	icon: 'icon_income_3x.png'
+				// }, {
+				// 	type: 1,
+				// 	title: "充值收入",
+				// 	time: "2019-05-12 11:53:06",
+				// 	balance: '3006.50',
+				// 	amount: '2000.00',
+				// 	icon: 'icon_income_3x.png'
+				// }, {
+				// 	type: 2,
+				// 	title: "交易支出",
+				// 	time: "2019-05-12 11:53:06",
+				// 	balance: '4206.50',
+				// 	amount: '2500.00',
+				// 	icon: 'icon_expend_3x.png'
+				// }, {
+				// 	type: 1,
+				// 	title: "充值收入",
+				// 	time: "2019-05-12 11:53:06",
+				// 	balance: '3006.50',
+				// 	amount: '2000.00',
+				// 	icon: 'icon_income_3x.png'
+				// }
+				]
 			}
 		},
 		onLoad() {

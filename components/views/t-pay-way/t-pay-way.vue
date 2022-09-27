@@ -44,7 +44,7 @@
 <!--				</tui-list-cell>-->
 			</radio-group>
 			<view class="tui-btn-pay">
-				<tui-button height="88rpx" type="danger" shape="circle" shadow @click="btnPay">{{initial? '去付款': '继续付款'}}</tui-button>
+				<tui-button height="88rpx" type="danger" :disabled =fail shape="circle" shadow @click="btnPay">{{initial? '去付款': '继续付款'}}</tui-button>
 			</view>
 		</tui-bottom-popup>
 	</view>
@@ -80,6 +80,7 @@
 				result: null,
 				initial: true,
 				success: true,
+				fail: false, //是否支付异常
 				buttons: [
 					{
 						text: '暂时放弃',
@@ -100,10 +101,17 @@
 		},
 		methods: {
 			close() {
+				console.log('close', this.success)
 				if(!this.success){
-					this.visible = true
+					if(this.result){
+						this.visible = true
+					}else{
+						let url = '/updateOrder/' + this.orderForm.orderNum + '/status'
+						this.tui.request(url, 'PUT', {status : "交易关闭"}, true).then(()=>{})
+					}
 				}
 			    this.show=false
+				this.fail = false
 			},
 			buttonTap(e){
 				this.visible=false
@@ -129,22 +137,18 @@
 					success: function () {
 						_this.success = true
 						_this.close()
-						let goodsList = []
-						order.goodsList.forEach((o)=>{
-							goodsList.push({id: o.id, 'buyNum': o.buyNum})
-								
-						})
 						if(order.mode==='groupBuy'){
+							// console.log('order', order)
 							let url = '/addActivityOrder/' + uni.getStorageSync("pid") + '/' + order.orderNum
 							_this.tui.request(url, 'POST', order.activity).then()
 							//更新活动商品库存
-							_this.tui.request('/updateGoodsStock/activity', 'PUT', goodsList)
+							_this.tui.request('/updateGoodsStock/activity', 'PUT', order.goodsList)
 						}else{
-							let url = '/updateOrder/' + order.orderNum + '/' + 'payment'
-							order.status = '待评价'
-							_this.tui.request(url, 'PUT', {status: "待评价"}).then()
+							let url = '/updateOrder/' + order.orderNum + '/payment'
+							order.status = '待发货'
+							_this.tui.request(url, 'PUT', {status: "待发货"}).then()
 							//更新商品库存
-							_this.tui.request('/updateGoodsStock/', 'PUT', goodsList)
+							_this.tui.request('/updateGoodsStock/', 'PUT', order.goodsList)
 						}
 						setTimeout(()=>{
 							wx.redirectTo({url: "/pages/order/success/success"})
@@ -153,10 +157,9 @@
 					},
 					fail: function (err) {
 						_this.initial = false
-						let url = '/updateOrder/' + order.orderNum + '/' + 'paymentInfo'
-						_this.tui.request(url, 'PUT', {paymentInfo : result}).then(
-							()=>{
-						})
+						let url = '/updateOrder/' + order.orderNum + '/paymentInfo'
+						_this.tui.request(url, 'PUT', {paymentInfo : result}).then(()=>{})
+						
 					},
 				})
 			},
@@ -176,12 +179,15 @@
 				if(this.initial){
 					this.orderForm.status = '待支付'
 					this.tui.request(url,'POST', this.orderForm).then((res)=>{
+						// console.log('res', res)
+						this.orderForm.orderNum = res.orderNum
 						if(res.code==='0'){
 							this.result = res.result
-							this.orderForm.orderNum = res.orderNum
 							this.requestPayment(this.result, this.orderForm)
 						}else{
-							this.tui.toast('下单失败，请稍后再试')
+							this.tui.toast(res.errorMessage)
+							this.fail = true
+							setTimeout(()=>{this.close()}, 2000)
 						}
 					})
 				}

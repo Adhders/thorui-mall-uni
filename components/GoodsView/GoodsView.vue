@@ -139,11 +139,11 @@
             },
             detail(item) {
 			    uni.navigateTo({
-                    url: '/pages/index/productDetail/productDetail?spu_id=' + item.spu_id + '&sku_id=' + item.id
+                    url: '/pages/index/productDetail/productDetail?spu_id=' + item.id
                 })
             },
             onSelect(goods){
-                this.tui.href('/pages/index/productDetail/productDetail?spu_id=' + goods.spu_id + '&sku_id=' + goods.id + '&buy=true')
+                this.tui.href('/pages/index/productDetail/productDetail?spu_id=' + goods.id + '&buy=true')
             }
         }
     }
@@ -179,7 +179,7 @@
             .title {
                 text-align: left;
                 margin: 12rpx 0;
-                font-size: 28rpx;
+                font-size: 30rpx;
                 overflow: hidden;
                 word-wrap: break-word;
                 white-space:normal;
@@ -193,7 +193,7 @@
                 color: #888;
                 text-align: left;
                 margin-top: -6rpx;
-                font-size: 22rpx;
+                font-size: 24rpx;
                 box-sizing: border-box;
                 white-space: nowrap;
                 overflow: hidden;
@@ -247,7 +247,7 @@
         }
     }
     .type2{
-        padding: 0 24rpx;
+        padding: 0 16rpx;
     }
     .type4{
         .merchandise-item{

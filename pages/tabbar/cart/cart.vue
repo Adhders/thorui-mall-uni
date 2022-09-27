@@ -15,7 +15,7 @@
 							<template v-slot:content>
 								<view class="tui-goods-item">
 									<label class="tui-checkbox">
-										<checkbox :value="item.id" :checked="item.selected" color="#fff"></checkbox>
+										<checkbox :value="item.skuId" :checked="item.selected" color="#fff"></checkbox>
 									</label>
 									<image :src="item.defaultImageUrl" mode="aspectFill" class="tui-goods-img" @tap="detail(item)"/>
 									<view class="tui-goods-info">
@@ -55,7 +55,7 @@
 					</view>
 				</view>
 				<view :class="{'tui-invalid-ptop':index!==0}" v-for="(item,index) in invalidList" :key="index">
-					<tui-swipe-action :actions="actions2" @click="handlerButton" :params="item">
+					<tui-swipe-action :actions="actions2" @click.stop="handlerButton" :params="item">
 						<template v-slot:content>
 							<view class="tui-goods-item">
 								<view class="tui-checkbox tui-invalid-pr">
@@ -87,10 +87,10 @@
 				<view class="tui-product-list">
 					<tui-waterfall :listData="productList" :type="2" :pageSize="10">
 						<template slot-scope="{ entity }" slot="left">
-							<tGoodsItem :entity="entity"></tGoodsItem>
+							<tGoodsItem :entity="entity" parent="cart" @select="onSelect"></tGoodsItem>
 						</template>
 						<template slot-scope="{ entity }" slot="right">
-							<tGoodsItem :entity="entity"></tGoodsItem>	
+							<tGoodsItem :entity="entity" parent="cart" @select="onSelect"></tGoodsItem>	
 						</template>
 					</tui-waterfall>
 				</view>
@@ -107,7 +107,7 @@
 					<view class="tui-total-price" v-if="!isEdit">合计:<text class="tui-bold">￥{{totalPrice | getPrice}}</text> </view>
 				</view>
 				<view>
-					<tui-button width="200rpx" height="70rpx" :size="30" type="danger" shape="circle" v-if="!isEdit" @click="btnPay">去结算({{buyNum}})</tui-button>
+					<tui-button width="200rpx" height="70rpx" :size="30" type="danger" :disabled="buyNum==0" shape="circle" v-if="!isEdit" @click="btnPay">去结算({{buyNum}})</tui-button>
 					<view v-else style="display: flex">
 						<tui-button width="200rpx" height="70rpx" margin="0 20rpx" :size="30" type="danger" shape="circle" :plain="true" @tap="openActionSheet(1)">移入收藏</tui-button>
 						<tui-button width="130rpx" height="70rpx" :size="30" type="danger" shape="circle" :plain="true" @tap="openActionSheet(2)">删除</tui-button>
@@ -117,7 +117,8 @@
 			<!--加载loadding-->
 			<tui-loadmore v-if="loadding" :index="3" type="red"></tui-loadmore>
 			<tui-actionsheet :show="showActionSheet" :tips="tips" :item-list="itemList" :mask-closable="maskClosable" :color="color"
-			:is-cancel="isCancel" @click="actionClick" @cancel="closeActionSheet"></tui-actionsheet>
+				:is-cancel="isCancel" @click="actionClick" @cancel="closeActionSheet">
+			</tui-actionsheet>
 		</block>
 	</view>
 </template>
@@ -158,13 +159,7 @@
 						background: '#F82400'
 					}
 				],
-				actions2: [{
-						name: '看相似',
-						color: '#fff',
-						fontsize: 28,
-						width: 64,
-						background: '#FF7035'
-					},
+				actions2: [
 					{
 						name: '删除',
 						color: '#fff',
@@ -173,7 +168,6 @@
 						background: '#F82400'
 					}
 				],
-				productList: [],
 				isEdit: false,
 				pageIndex: 1,
 				loadding: false,
@@ -206,11 +200,8 @@
 			cart: {
 				deep: true,
 				handler(v){
+					// console.log('cart', v)
 					this.calcHandle()
-					this.productList = this.goodsList.filter((sku)=>{ 
-						let index = this.cart.findIndex((o) => {return sku.id === o.id})
-						return sku.stock>0 && index ===-1
-					})
 				}
 			}
 		},
@@ -221,7 +212,7 @@
 			invalidList() {
 				return this.cart.filter((o)=>{return o.invalid})
 			},
-			goodsList() {
+			productList() {
 				return this.$store.state.goodsList
 			},
 			cart() {
@@ -237,27 +228,20 @@
 				if(!this.tui.isLogin()) {
 					uni.redirectTo({url: '/pages/my/login/login'})
 				}else{
-					let url = '/getCartInfo/' + uni.getStorageSync("pid")
-					this.tui.request(url,'GET', undefined, true).then((res)=>{
-						if(res.code==='0'){
-							res.cart.forEach((o)=>{
-								o.selected = false
-								let index = this.goodsList.findIndex((goods)=>{return o.id === goods.id})
-								o.invalid = index!==-1? this.goodsList[index].stock == 0 : true
-							})
-							this.$store.commit('setCart', res.cart)
-							let total = 0
-							this.dataList.map((o) => {
-								total += o.buyNum;
-							})
-							this.total = total
-							this.productList = this.goodsList.filter((sku)=>{ 
-								let index = this.cart.findIndex((o) => {return sku.id === o.id})
-								return sku.stock>0 && index ===-1
-							})
-							this.loadding = false
-						}
+					// console.log('cart', this.cart)
+					this.cart.forEach((o)=>{
+						o.selected = false
+						let goods = this.productList.find((product)=>{
+							return product.skuList.findIndex((sku)=>{return (sku.skuId == o.skuId) && sku.stock>0}) !==-1
+						})
+						o.invalid = goods? false : true
 					})
+					let total = 0
+					this.dataList.map((o) => {
+						total += o.buyNum;
+					})
+					this.total = total
+					this.loadding = false
 				}
 			},
 			calcHandle() {
@@ -290,12 +274,12 @@
 			handlerButton(e) {
 				let index = e.index;
 				let item = e.item;
-				if(index===2 || index===1&&item.invalid){
+				if(index===2 || index===0&&item.invalid){
 					let _index = this.cart.findIndex((o)=>{return o.id === item.id})
 					this.cart.splice(_index, 1)
 					this.updateCart()
 				}
-				if(index===1 || index===0&&item.invalid){
+				if(index===1){
 					this.onSearch(item.title)
 				}
 			},
@@ -304,7 +288,34 @@
 			},
 			detail(item) {
 				uni.navigateTo({
-					url: '/pages/index/productDetail/productDetail?spu_id=' + item.spu_id + '&sku_id=' + item.id
+					url: '/pages/index/productDetail/productDetail?spu_id=' + item.id
+				})
+			},
+			onSelect(item){
+				const sku = item.skuList[0]
+				let newGoods = {
+                    id: item.id,
+                    skuId: sku.skuId,
+                    price: sku.price,
+                    title: item.title,
+                    slogan: item.slogan,
+                    defaultImageUrl: sku.src? sku.src : item.defaultImageUrl,
+                    propertyList: sku.skuSpecValueList,
+                    buyNum: 1,
+					invalid: sku.stock<=0,
+					select: false
+                }
+				let url = '/updateCustomer/' + uni.getStorageSync("pid") +'/updateCart'
+				let index = this.cart.findIndex((o)=>{return o.skuId === newGoods.skuId})
+				if(index===-1){
+					this.cart.unshift(newGoods)
+				}else{
+					this.cart[index].buyNum +=newGoods.buyNum
+				}
+				this.tui.request(url, 'PUT', {'cart': this.cart}).then((res)=>{
+					if(res.code==0){
+						this.tui.toast('添加成功')
+					}
 				})
 			},
 			btnPay() {
@@ -320,7 +331,7 @@
 			},
 			updateCart(){
 				let url = '/updateCustomer/' + uni.getStorageSync("pid") +'/updateCart'
-				this.tui.request(url, 'PUT', {'cart': this.cart}).then((res)=>{console.log('res', res)})
+				this.tui.request(url, 'PUT', {'cart': this.cart}).then((res)=>{})
 			},
 			buyChange(e) {
 				this.cartIds = e.detail.value;
@@ -549,7 +560,7 @@
 		display: -webkit-box;
 		-webkit-box-orient: vertical;
 		-webkit-line-clamp: 2;
-		font-size: 28rpx;
+		font-size: 30rpx;
 		line-height: 30rpx;
 		color: #333;
 	}
@@ -626,7 +637,7 @@
 
 	.tui-sub-info {
 		color: #888;
-		font-size: 22rpx;
+		font-size: 24rpx;
 		box-sizing: border-box;
 		white-space: nowrap;
 		overflow: hidden;
@@ -712,6 +723,6 @@
 	}
 
 	.tui-product-list {
-		margin: 0 24rpx;
+		margin: 0 16rpx;
 	}
 </style>

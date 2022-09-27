@@ -63,22 +63,19 @@
 						</view>
 					</view>
 					<view class="tui-cell">
-						<view class="tui-title tui-skeleton-rect">xxxxxxxxxxxxxxxxxxxxxxxxxxxx</view>
+						<view class="tui-title tui-skeleton-rect">xxxxxxxxxxxxxxxxxxxxxxxxxx</view>
 					</view>
 					<view class="tui-cell">
-						<view class="tui-title tui-skeleton-rect">xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</view>
-					</view>
-					<view class="tui-cell">
-						<view class="tui-title tui-skeleton-rect">xxxxxxxxxxxxxxxxxxxxxxxxxxxx</view>
+						<view class="tui-title tui-skeleton-rect">xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</view>
 					</view>
                     <view class="tui-cell" style="padding: 20rpx;">
 						<view style="border: 1rpx solid #eaeef1; position: relative;"></view>
 					</view>
 					<view class="tui-cell">
-						<view class="tui-title tui-skeleton-rect">xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</view>
+						<view class="tui-title tui-skeleton-rect">xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</view>
 					</view>
 					<view class="tui-cell">
-						<view class="tui-title tui-skeleton-rect">xxxxxxxxxxxxxxxxxxxxxxxxxxxx</view>
+						<view class="tui-title tui-skeleton-rect">xxxxxxxxxxxxxxxxxxxxxxx</view>
 					</view>
 				</view>
 
@@ -133,16 +130,17 @@
 
 					<view class="tui-basic-info tui-mtop tui-radius-all">
 						<view class="tui-list-cell" @tap="showPopup('cart')">
-							<view class="tui-bold tui-cell-title">已选</view>
-							<view class="tui-selected-box">{{selectedGoodsAttrList | attrFormat}}</view>
-							<view class="tui-buyNum" v-show="goodsDetail.sellUnit">，{{buyNum}}{{goodsDetail.sellUnit}}</view>
+							<view class="tui-cell-title">选择</view>
+							<view class="tui-selected-box" v-if="unSelect.length==0">已选：{{selectedGoodsAttrList | attrFormat}}</view>
+                        	<view class="tui-selected-box" v-else>{{unSelect.join(' ')}}</view>
+							<view class="tui-buyNum" v-if="unSelect.length==0">，{{buyNum}}件</view>
 							<view class="tui-ml-auto">
 								<tui-icon name="arrowright" :size="36" color="#666" unit="rpx"></tui-icon>
 							</view>
 						</view>
 
 						<view class="tui-list-cell tui-last" @tap="showPopup('property')">
-							<view class="tui-bold tui-cell-title">参数</view>
+							<view class="tui-cell-title">参数</view>
 							<view class="tui-selected-box" style="max-width: 160rpx">{{ goodsDetail.selectedGoodsPropList | propsFormat}}</view>
 							<view class="tui-ml-auto">
 								<tui-icon name="arrowright" :size="36" color="#666" unit="rpx"></tui-icon>
@@ -160,7 +158,7 @@
 
 				<view class="tui-cmt-box tui-mtop tui-radius-all">
 					<view class="tui-list-cell tui-last tui-between">
-						<view class="tui-bold tui-cell-title">
+						<view class="tui-bold">
 							<text>评价</text>
                             <text style="font-size: 24rpx; margin-left: 5rpx;">({{reviews}})</text>
                         </view>
@@ -341,11 +339,6 @@
 			    reviews: 0,
 				shareText: '',
 				qrcode: '',
-				skuArray: [], 
-				propsList: [], //商品属性
-				invalidSkuList: [],
-				invalidSkuIndexList: [],
-				selectedIndex: [],
 				height: getApp().globalData.navBarHeight, //header高度
 				top: getApp().globalData.menuTop, //标题图标距离顶部距离
 				scrollH: getApp().globalData.windowWidth, //滚动总高度
@@ -409,29 +402,28 @@
 				winWidth: uni.upx2px(500 * 2),
 				winHeight: uni.upx2px(785 * 2),
 				modalShow: false,
-				skuList: [],
 				videoplayObj: {}, //video对象
 				playing: true, // 是否正在播放视频
 				startVideo: true, //中间播放按钮
 				currentTime: 0,
 				duration: 15,
+				unSelect:[],
 				selectedGoodsAttrList: [], //商品去重后的属性
 				goodsDetail: {selectedGoodsPropList: [], goodsImageUrls: ['https://system.chuangbiying.com/assets/img/add-picture.png']},
 			};
 		},
 		
 		onLoad: function(options) {
+			// console.log('options', options)
 			const accountInfo = wx.getAccountInfoSync();
             this.appid = accountInfo.miniProgram.appId
 			this.spu_id = parseInt(options.spu_id)
-			this.sku_id = parseInt(options.sku_id)
 
 			// 扫码进入小程序
 			if(options.scene){
 				let scene=decodeURIComponent(options.scene);
 				//&是我们定义的参数链接方式
-				this.spu_id=parseInt(scene.split("&")[0]);
-				this.sku_id=parseInt(scene.split('&')[1]);
+				this.spu_id=parseInt(scene);
 			}
 			
 			//初始化前确保goodsList不为空
@@ -444,11 +436,11 @@
 							o.decimalPrice = o.price.split('.')[1]
 						})
 						this.$store.commit('setGoodsList', res.goodsList)
-						this.$refs.popup.initial(this.spu_id, this.sku_id)
+						this.$refs.popup.initial(this.spu_id)
 					}
 				})
 			}else{
-				this.$refs.popup.initial(this.spu_id, this.sku_id)
+				this.$refs.popup.initial(this.spu_id)
 			}
 			// #ifdef MP-WEIXIN
 			this.videoplayObj = wx.createVideoContext('myVideo')
@@ -468,16 +460,6 @@
 					this.$store.commit('setReviewList', res.reviewList)
 				}
 			})
-			//计算当前购物车商品数量
-			let total = 0
-			let dataList = this.cart.filter((o)=>{return !o.invalid})
-			dataList.map((o) => {
-				total += o.buyNum;
-			})
-			let index = this.topMenu.findIndex((o)=>{return o.text === '购物车'})
-			this.topMenu[index].badge=total
-			this.cartTotal = total
-			this.total = total
 		},
 		onShow(){
 			// 视频全屏播放返回后的处理
@@ -522,13 +504,28 @@
 				return this.$store.state.cart
 			}
 		},
+		watch: {
+			cart:{
+				deep: true,
+				handler(v){
+					//计算当前购物车商品数量
+					let total = 0
+					let dataList = this.cart.filter((o)=>{return !o.invalid})
+					dataList.map((o) => {
+						total += o.buyNum;
+					})
+					let index = this.topMenu.findIndex((o)=>{return o.text === '购物车'})
+					this.topMenu[index].badge=total
+					this.cartTotal = total
+					this.total = total
+				}
+			}
+		},
 		onShareAppMessage: function(res) {
-			console.log('res',res)
-			let nickName = this.$store.state.userInfo.nickName
 			// 返回数据
 			return {
-				title: `来自好友${nickName}的分享`,
-				path: '/pages/index/productDetail/productDetail?spu_id=' + this.spu_id + '&sku_id=' + this.sku_id,
+				title: this.goodsDetail.title + ' 价格'+ this.goodsDetail.price + (this.goodsDetail.originalPrice? ', 原价' + this.goodsDetail.originalPrice : ''),
+				path: '/pages/index/productDetail/productDetail?spu_id=' + this.spu_id,
 				imageUrl: this.goodsDetail.defaultImageUrl+'-shareImage',
 				success: function(res) {
 				// 转发成功，可以把当前页面的链接发送给后端，用于记录当前页面被转发了多少次或其他业务
@@ -541,10 +538,10 @@
 			}
 		},
 		methods: {
-			onSelectGoods(goodsDetail, selectedGoodsAttrList){
+			onSelectGoods(goodsDetail, selectedGoodsAttrList, unSelect){
 				this.goodsDetail = goodsDetail
-				this.sku_id = this.goodsDetail.id
 				this.selectedGoodsAttrList = selectedGoodsAttrList
+				this.unSelect = unSelect
 				this.skeletonShow = false
 			},
 			submit(){
@@ -687,10 +684,14 @@
 				this.sharePopup = false
 			},
             createQrcode(){
+				if(!this.$store.state.isLogin){
+					this.tui.href('/pages/my/login/login')
+					return 
+				}
 				let url = '/getwxacode/' + this.appid
 				let data = {
 					"page": 'pages/index/productDetail/productDetail', //根路径前不要填加 /，不能携带参数
-					"scene": this.spu_id + '&' + this.sku_id,
+					"scene": this.spu_id,
 					"env_version": "release",  //调式时，需要改为develop
 					// "env_version": "develop",
 					"width": 430
@@ -716,8 +717,9 @@
 				// 	mask: true,
 				// 	title: '图片生成中...'
 				// });
+				// console.log('enter1')
 				try{
-					let mainPic = await poster.getImage(this.goodsDetail.defaultImageUrl+'-shareImage');
+					let mainPic = await poster.getImage(this.goodsDetail.defaultImageUrl+'-shareProductImg');
 					// let qrcode = await poster.getImage(this.$store.state.qrcode);
 					let qrcode = ''
 					if(this.qrcode){
@@ -1030,8 +1032,8 @@
 	/* #endif */
 
 	.tui-size {
-		font-size: 24rpx;
-		line-height: 24rpx;
+		font-size: 26rpx;
+		line-height: 26rpx;
 	}
 
 	.tui-gray {
@@ -1113,7 +1115,7 @@
 	}
 	.tui-sub-title {
 		padding: 10rpx 0 0;
-		line-height: 32rpx;
+		line-height: 26rpx;
 	}
 
 	.tui-discount-box {
@@ -1164,6 +1166,7 @@
 		align-items: center;
 	}
 	.tui-cell-title {
+		color: #999;
 		min-width: 66rpx;
 		padding-right: 30rpx;
 		font-size: 28rpx;
